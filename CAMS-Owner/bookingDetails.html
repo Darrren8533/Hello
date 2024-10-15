@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAMS Owner - Bookings Overview</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .animate-spin {
+            animation: spin 1s linear infinite;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-md transform -translate-x-full transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0">
+            <div class="p-4">
+                <h1 class="text-2xl font-bold text-gray-800">CAMS Owner</h1>
+            </div>
+            <nav class="mt-6">
+                <a href="Home.html" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Dashboard</a>
+                <a href="bookingDetails.html" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Bookings</a>
+                <a href="customerDetails.html" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Customers</a>
+                <a href="moderatorDetails.html" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Admins/Moderators</a>
+                <a href="financialSummary.html" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Finances</a>
+                <a href="serviceAnalysis.html" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Services</a>
+                <a href="communicationHub.html" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Communication</a>
+                <a href="auditTrail.html" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Audit Logs</a>
+                <a href="dynamicPricing.html" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Dynamic Pricing</a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-8 overflow-y-auto">
+            <div class="container mx-auto">
+                <div class="flex items-center mb-4">
+                    <button id="sidebarToggle" class="mr-4 lg:hidden p-2 rounded-md hover:bg-gray-200">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                    <h1 class="text-2xl font-bold">Bookings Overview</h1>
+                </div>
+                <div class="bg-white shadow-md rounded-lg overflow-hidden">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Room</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Check-in</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Check-out</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payment</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200" id="bookingsTableBody">
+                            <!-- Booking rows will be inserted here by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Edit Booking Modal -->
+    <div id="editBookingModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <h3 class="text-lg font-medium leading-6 text-gray-900 mb-2">Edit Booking</h3>
+            <form id="editBookingForm">
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="editName">Name</label>
+                    <input type="text" id="editName" name="name" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="editRoom">Room</label>
+                    <input type="text" id="editRoom" name="room" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="editCheckIn">Check-in</label>
+                    <input type="date" id="editCheckIn" name="checkIn" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="editCheckOut">Check-out</label>
+                    <input type="date" id="editCheckOut" name="checkOut" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="editStatus">Status</label>
+                    <select id="editStatus" name="status" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                        <option value="Confirmed">Confirmed</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Cancelled">Cancelled</option>
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="editPayment">Payment</label>
+                    <select id="editPayment" name="payment" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                        <option value="Paid">Paid</option>
+                        <option value="Unpaid">Unpaid</option>
+                        <option value="Partially Paid">Partially Paid</option>
+                    </select>
+                </div>
+                <div class="flex items-center justify-between">
+                    <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Save Changes</button>
+                    <button type="button" onclick="closeEditModal()" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Cancel Booking Modal -->
+    <div id="cancelBookingModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <h3 class="text-lg font-medium leading-6 text-gray-900 mb-2">Cancel Booking</h3>
+            <p class="text-sm text-gray-500 mb-4">Are you sure you want to cancel this booking? This action cannot be undone.</p>
+            <div class="flex justify-end">
+                <button onclick="confirmCancelBooking()" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mr-2 focus:outline-none focus:shadow-outline">Yes, cancel booking</button>
+                <button onclick="closeCancelModal()" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">No, keep booking</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Mock data for bookings
+        let bookings = [
+            { id: 1, name: "John Doe", room: "Deluxe Suite", checkIn: "2023-06-01", checkOut: "2023-06-05", status: "Confirmed", payment: "Paid" },
+            { id: 2, name: "Jane Smith", room: "Standard Room", checkIn: "2023-06-02", checkOut: "2023-06-04", status: "Pending", payment: "Unpaid" },
+            { id: 3, name: "Bob Johnson", room: "Family Room", checkIn: "2023-06-03", checkOut: "2023-06-07", status: "Confirmed", payment: "Partially Paid" },
+            { id: 4, name: "Alice Brown", room: "Executive Suite", checkIn: "2023-06-04", checkOut: "2023-06-06", status: "Confirmed", payment: "Paid" },
+            { id: 5, name: "Charlie Wilson", room: "Standard Room", checkIn: "2023-06-05", checkOut: "2023-06-08", status: "Pending", payment: "Unpaid" },
+        ];
+
+        let editingBookingId = null;
+
+        // Function to render bookings table
+        function renderBookings() {
+            const tableBody = document.getElementById('bookingsTableBody');
+            tableBody.innerHTML = '';
+            bookings.forEach(booking => {
+                const row = `
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap">${booking.name}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${booking.room}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${booking.checkIn}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${booking.checkOut}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${booking.status}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${booking.payment}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <button onclick="openEditModal(${booking.id})" class="text-blue-600 hover:text-blue-900 mr-2">Edit</button>
+                            <button onclick="openCancelModal(${booking.id})" class="text-red-600 hover:text-red-900">Cancel</button>
+                        </td>
+                    </tr>
+                `;
+                tableBody.innerHTML += row;
+            });
+        }
+
+        // Function to open edit modal
+        function openEditModal(bookingId) {
+            const booking = bookings.find(b => b.id === bookingId);
+            if (booking) {
+                editingBookingId = bookingId;
+                document.getElementById('editName').value = booking.name;
+                document.getElementById('editRoom').value = booking.room;
+                document.getElementById('editCheckIn').value = booking.checkIn;
+                document.getElementById('editCheckOut').value = booking.checkOut;
+                document.getElementById('editStatus').value = booking.status;
+                document.getElementById('editPayment').value = booking.payment;
+                document.getElementById('editBookingModal').classList.remove('hidden');
+            }
+        }
+
+        // Function to close edit modal
+        function closeEditModal() {
+            document.getElementById('editBookingModal').classList.add('hidden');
+        }
+
+        // Function to save edited booking
+        document.getElementById('editBookingForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const updatedBooking = {
+                id: editingBookingId,
+                name: document.getElementById('editName').value,
+                room: document.getElementById('editRoom').value,
+                checkIn: document.getElementById('editCheckIn').value,
+                checkOut: document.getElementById('editCheckOut').value,
+                status: document.getElementById('editStatus').value,
+                payment: document.getElementById('editPayment').value
+            };
+            bookings = bookings.map(booking => 
+                booking.id === editingBookingId ? updatedBooking : booking
+            );
+            renderBookings();
+            closeEditModal();
+        });
+
+        // Function to open cancel modal
+        function openCancelModal(bookingId) {
+            editingBookingId = bookingId;
+            document.getElementById('cancelBookingModal').classList.remove('hidden');
+        }
+
+        // Function to close cancel modal
+        function closeCancelModal() {
+            document.getElementById('cancelBookingModal').classList.add('hidden');
+        }
+
+        // Function to confirm booking cancellation
+        function confirmCancelBooking() {
+            bookings = bookings.filter(booking => booking.id !== editingBookingId);
+            renderBookings();
+            closeCancelModal();
+        }
+
+        // Sidebar toggle functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar =   document.getElementById('sidebar');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            let isSidebarOpen = false;
+
+            function toggleSidebar() {
+                isSidebarOpen = !isSidebarOpen;
+                sidebar.classList.toggle('-translate-x-full', !isSidebarOpen);
+            }
+
+            sidebarToggle.addEventListener('click', toggleSidebar);
+
+            document.addEventListener('click', function(event) {
+                const isClickInsideSidebar = sidebar.contains(event.target);
+                const isClickOnToggle = sidebarToggle.contains(event.target);
+
+                if (isSidebarOpen && !isClickInsideSidebar && !isClickOnToggle) {
+                    toggleSidebar();
+                }
+            });
+
+            window.addEventListener('resize', function() {
+                if (window.innerWidth >= 1024 && isSidebarOpen) {
+                    toggleSidebar();
+                }
+            });
+
+            // Initial render of bookings
+            renderBookings();
+        });
+    </script>
+</body>
+</html>

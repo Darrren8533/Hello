@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAMS Owner - Communication Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .message-list {
+            height: calc(100vh - 300px);
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-md transform -translate-x-full transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0">
+            <div class="p-4">
+                <h1 class="text-2xl font-bold text-gray-800">CAMS Owner</h1>
+            </div>
+            <nav class="mt-6">
+                <a href="Home.html" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Dashboard</a>
+                <a href="bookingDetails.html" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Bookings</a>
+                <a href="customerDetails.html" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Customers</a>
+                <a href="moderatorDetails.html" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Admins/Moderators</a>
+                <a href="financialSummary.html" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Finances</a>
+                <a href="serviceAnalysis.html" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Services</a>
+                <a href="communicationHub.html" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Communication</a>
+                <a href="auditTrail.html" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Audit Logs</a>
+                <a href="dynamicPricing.html" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Dynamic Pricing</a>
+            </nav>
+        </aside>
+        
+        <div class="container mx-auto p-4">
+            <h1 class="text-2xl font-bold mb-4">Communication Hub</h1>
+            
+            <div class="grid gap-4 md:grid-cols-3">
+                <!-- Contacts and Messaging Section -->
+                <div class="col-span-2 bg-white rounded-lg shadow p-4">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-lg font-semibold">Messages</h2>
+                        <button onclick="openNewMessageModal()" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                            New Message
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-3 gap-4">
+                        <!-- Contacts List -->
+                        <div class="border-r pr-4">
+                            <input type="text" placeholder="Search contacts..." class="w-full p-2 mb-4 border rounded">
+                            <ul id="contactsList" class="space-y-2">
+                                <!-- Contacts will be dynamically inserted here -->
+                            </ul>
+                        </div>
+                        <!-- Message Thread -->
+                        <div class="col-span-2">
+                            <div id="messageThread" class="message-list mb-4">
+                                <!-- Messages will be dynamically inserted here -->
+                            </div>
+                            <div class="flex">
+                                <input type="text" id="messageInput" placeholder="Type a message..." class="flex-grow p-2 border rounded-l">
+                                <button onclick="sendMessage()" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-r">Send</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notifications and Alerts Section -->
+                <div class="bg-white rounded-lg shadow p-4">
+                    <h2 class="text-lg font-semibold mb-4">Notifications</h2>
+                    <ul id="notificationList" class="space-y-2">
+                        <!-- Notifications will be dynamically inserted here -->
+                    </ul>
+                    <h3 class="text-md font-semibold mt-6 mb-2">Alert Settings</h3>
+                    <div class="space-y-2">
+                        <label class="flex items-center">
+                            <input type="checkbox" checked class="form-checkbox">
+                            <span class="ml-2">Email Alerts</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" checked class="form-checkbox">
+                            <span class="ml-2">SMS Alerts</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" checked class="form-checkbox">
+                            <span class="ml-2">Push Notifications</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- New Message Modal -->
+        <div id="newMessageModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden">
+            <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+                <h3 class="text-lg font-medium leading-6 text-gray-900 mb-2">New Message</h3>
+                <div class="mt-2 space-y-4">
+                    <input type="text" id="recipientInput" placeholder="Recipient" class="w-full p-2 border rounded">
+                    <textarea id="newMessageContent" rows="4" placeholder="Type your message here..." class="w-full p-2 border rounded"></textarea>
+                    <div class="flex justify-end">
+                        <button onclick="sendNewMessage()" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-2">Send</button>
+                        <button onclick="closeNewMessageModal()" class="bg-gray-300 hover:bg-gray-400 text-black font-bold py-2 px-4 rounded">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simulated data
+        const contacts = [
+            { id: 1, name: "John Doe", role: "Admin" },
+            { id: 2, name: "Jane Smith", role: "Moderator" },
+            { id: 3, name: "Alice Johnson", role: "Customer" },
+            { id: 4, name: "Bob Williams", role: "Customer" },
+            { id: 5, name: "Charlie Brown", role: "Moderator" }
+        ];
+
+        const messages = [
+            { id: 1, senderId: 1, content: "Hello, how can I help you today?", timestamp: "10:30 AM" },
+            { id: 2, senderId: 3, content: "I have a question about my booking.", timestamp: "10:32 AM" },
+            { id: 3, senderId: 1, content: "Sure, what would you like to know?", timestamp: "10:35 AM" }
+        ];
+
+        const notifications = [
+            { id: 1, type: "message", content: "New message from John Doe", timestamp: "11:45 AM" },
+            { id: 2, type: "support", content: "New support ticket #1234", timestamp: "Yesterday" },
+            { id: 3, type: "update", content: "System maintenance scheduled", timestamp: "2 days ago" }
+        ];
+
+        // Function to render contacts
+        function renderContacts() {
+            const contactsList = document.getElementById('contactsList');
+            contactsList.innerHTML = contacts.map(contact => `
+                <li class="cursor-pointer hover:bg-gray-100 p-2 rounded" onclick="loadMessages(${contact.id})">
+                    <div class="font-semibold">${contact.name}</div>
+                    <div class="text-sm text-gray-500">${contact.role}</div>
+                </li>
+            `).join('');
+        }
+
+        // Function to render messages
+        function renderMessages() {
+            const messageThread = document.getElementById('messageThread');
+            messageThread.innerHTML = messages.map(message => `
+                <div class="mb-4 ${message.senderId === 1 ? 'text-right' : ''}">
+                    <div class="inline-block bg-gray-200 rounded px-4 py-2 max-w-xs">
+                        <p>${message.content}</p>
+                        <span class="text-xs text-gray-500">${message.timestamp}</span>
+                    </div>
+                </div>
+            `).join('');
+            messageThread.scrollTop = messageThread.scrollHeight;
+        }
+
+        // Function to render notifications
+        function renderNotifications() {
+            const notificationList = document.getElementById('notificationList');
+            notificationList.innerHTML = notifications.map(notification => `
+                <li class="bg-gray-100 p-2 rounded">
+                    <div class="font-semibold">${notification.content}</div>
+                    <div class="text-xs text-gray-500">${notification.timestamp}</div>
+                </li>
+            `).join('');
+        }
+
+        // Function to send a message
+        function sendMessage() {
+            const messageInput = document.getElementById('messageInput');
+            if (messageInput.value.trim() !== '') {
+                messages.push({
+                    id: messages.length + 1,
+                    senderId: 1,
+                    content: messageInput.value,
+                    timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                });
+                messageInput.value = '';
+                renderMessages();
+            }
+        }
+
+        // Function to open new message modal
+        function openNewMessageModal() {
+            document.getElementById('newMessageModal').classList.remove('hidden');
+        }
+
+        // Function to close new message modal
+        function closeNewMessageModal() {
+            document.getElementById('newMessageModal').classList.add('hidden');
+        }
+
+        // Function to send a new message
+        function sendNewMessage() {
+            const recipient = document.getElementById('recipientInput').value;
+            const content = document.getElementById('newMessageContent').value;
+            if (recipient.trim() !== '' && content.trim() !== '') {
+                // In a real application, you would send this to the server
+                alert(`Message sent to ${recipient}: ${content}`);
+                closeNewMessageModal();
+            } else {
+                alert('Please fill in all fields');
+            }
+        }
+
+        // Function to load messages for a specific contact (placeholder)
+        function loadMessages(contactId) {
+            // In a real application, you would fetch messages for this contact
+            console.log(`Loading messages for contact ${contactId}`);
+            // For now, we'll just re-render the existing messages
+            renderMessages();
+        }
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', () => {
+            renderContacts();
+            renderMessages();
+            renderNotifications();
+        });
+
+        // Simulated real-time updates
+        setInterval(() => {
+            // Simulate new message
+            if (Math.random() < 0.3) {
+                const newMessage = {
+                    id: messages.length + 1,
+                    senderId: 2,
+                    content: "This is a simulated new message.",
+                    timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                };
+                messages.push(newMessage);
+                renderMessages();
+                
+                // Add notification for new message
+                notifications.unshift({
+                    id: notifications.length + 1,
+                    type: "message",
+                    content: `New message from ${contacts.find(c => c.id === newMessage.senderId).name}`,
+                    timestamp: "Just now"
+                });
+                renderNotifications();
+            }
+
+            // Simulate new notification
+            if (Math.random() < 0.2) {
+                notifications.unshift({
+                    id: notifications.length + 1,
+                    type: "update",
+                    content: "Simulated system notification",
+                    timestamp: "Just now"
+                });
+                renderNotifications();
+            }
+        }, 10000); // Check for updates every 10 seconds
+    </script>
+</body>
+</html>

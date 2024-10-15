@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAMS Owner - Dynamic Pricing and Listing Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="flex h-screen overflow-hidden">
+        <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-md transform -translate-x-full transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 overflow-y-auto">
+            <div class="p-4">
+                <h1 class="text-2xl font-bold text-gray-800">CAMS Owner</h1>
+            </div>
+            <nav class="mt-6">
+                <a href="Home.html" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Dashboard</a>
+                <a href="bookingDetails.html" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Bookings</a>
+                <a href="customerDetails.html" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Customers</a>
+                <a href="moderatorDetails.html" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Admins/Moderators</a>
+                <a href="financialSummary.html" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Finances</a>
+                <a href="serviceAnalysis.html" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Services</a>
+                <a href="communicationHub.html" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Communication</a>
+                <a href="auditTrail.html" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Audit Logs</a>
+                <a href="dynamicPricing.html" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Dynamic Pricing</a>
+            </nav>
+        </aside>
+        <main class="flex-1 overflow-y-auto">
+        <div class="container mx-auto p-4">
+            <h1 class="text-2xl font-bold mb-4">Dynamic Pricing and Listing Management</h1>
+            
+            <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mb-4">
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <h2 class="text-lg font-semibold mb-2">Current Occupancy</h2>
+                    <p class="text-3xl font-bold" id="occupancyRate">75%</p>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <h2 class="text-lg font-semibold mb-2">Average Daily Rate</h2>
+                    <p class="text-3xl font-bold" id="averageDailyRate">$180</p>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <h2 class="text-lg font-semibold mb-2">Revenue per Available Room</h2>
+                    <p class="text-3xl font-bold" id="revPAR">$135</p>
+                </div>
+            </div>
+
+            <div class="bg-white p-4 rounded-lg shadow mb-4">
+                <h2 class="text-lg font-semibold mb-4">Bulk Pricing Update</h2>
+                <div class="flex flex-wrap gap-4">
+                    <div>
+                        <label for="roomType" class="block text-sm font-medium text-gray-700">Room Type</label>
+                        <select id="roomType" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                            <option value="all">All Rooms</option>
+                            <option value="standard">Standard</option>
+                            <option value="deluxe">Deluxe</option>
+                            <option value="suite">Suite</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="priceAdjustment" class="block text-sm font-medium text-gray-700">Price Adjustment</label>
+                        <input type="number" id="priceAdjustment" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" placeholder="Enter amount">
+                    </div>
+                    <div>
+                        <label for="adjustmentType" class="block text-sm font-medium text-gray-700">Adjustment Type</label>
+                        <select id="adjustmentType" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                            <option value="percentage">Percentage</option>
+                            <option value="fixed">Fixed Amount</option>
+                        </select>
+                    </div>
+                    <div class="flex items-end">
+                        <button onclick="bulkUpdatePricing()" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                            Update Pricing
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-4 rounded-lg shadow mb-4">
+                <h2 class="text-lg font-semibold mb-4">Room Listings</h2>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Room</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Current Price</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Occupancy</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200" id="roomListingsBody">
+                            <!-- Room listings will be dynamically inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="bg-white p-4 rounded-lg shadow">
+                <h2 class="text-lg font-semibold mb-4">Notifications</h2>
+                <ul id="notificationList" class="space-y-2">
+                    <!-- Notifications will be dynamically inserted here -->
+                </ul>
+            </div>
+        </div>
+        </main>
+    </div>
+
+    <script>
+        // Simulated room data
+        const rooms = [
+            { id: 1, name: "101", type: "standard", price: 100, occupancy: "Vacant" },
+            { id: 2, name: "102", type: "standard", price: 100, occupancy: "Occupied" },
+            { id: 3, name: "201", type: "deluxe", price: 150, occupancy: "Vacant" },
+            { id: 4, name: "202", type: "deluxe", price: 150, occupancy: "Occupied" },
+            { id: 5, name: "301", type: "suite", price: 250, occupancy: "Vacant" },
+        ];
+
+        // Function to render room listings
+        function renderRoomListings() {
+            const tableBody = document.getElementById('roomListingsBody');
+            tableBody.innerHTML = '';
+            rooms.forEach(room => {
+                const row = `
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap">${room.name}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${room.type}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">$${room.price}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${room.occupancy}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <button onclick="openPriceModal(${room.id})" class="text-indigo-600 hover:text-indigo-900">Adjust Price</button>
+                        </td>
+                    </tr>
+                `;
+                tableBody.innerHTML += row;
+            });
+        }
+
+        // Function to handle bulk price updates
+        function bulkUpdatePricing() {
+            const roomType = document.getElementById('roomType').value;
+            const priceAdjustment = parseFloat(document.getElementById('priceAdjustment').value);
+            const adjustmentType = document.getElementById('adjustmentType').value;
+
+            if (isNaN(priceAdjustment)) {
+                alert('Please enter a valid price adjustment.');
+                return;
+            }
+
+            rooms.forEach(room => {
+                if (roomType === 'all' || room.type === roomType) {
+                    if (adjustmentType === 'percentage') {
+                        room.price *= (1 + priceAdjustment / 100);
+                    } else {
+                        room.price += priceAdjustment;
+                    }
+                    room.price = Math.round(room.price * 100) / 100; // Round to 2 decimal places
+                }
+            });
+
+            renderRoomListings();
+            addNotification(`Bulk price update applied to ${roomType} rooms.`);
+            updateStats();
+        }
+
+        // Function to open price adjustment modal for individual rooms
+        function openPriceModal(roomId) {
+            const room = rooms.find(r => r.id === roomId);
+            const newPrice = prompt(`Enter new price for Room ${room.name}:`, room.price);
+            if (newPrice !== null && !isNaN(newPrice)) {
+                room.price = parseFloat(newPrice);
+                renderRoomListings();
+                addNotification(`Price updated for Room ${room.name}.`);
+                updateStats();
+            }
+        }
+
+        // Function to add a notification
+        function addNotification(message) {
+            const notificationList = document.getElementById('notificationList');
+            const notification = document.createElement('li');
+            notification.className = 'p-2 bg-blue-100 rounded fade-in';
+            notification.textContent = message;
+            notificationList.prepend(notification);
+
+            // Remove notification after 5 seconds
+            setTimeout(() => {
+                notification.remove();
+            }, 5000);
+        }
+
+        // Function to update stats
+        function updateStats() {
+            const occupiedRooms = rooms.filter(room => room.occupancy === 'Occupied').length;
+            const occupancyRate = (occupiedRooms / rooms.length * 100).toFixed(0);
+            const averagePrice = (rooms.reduce((sum, room) => sum + room.price, 0) / rooms.length).toFixed(2);
+            const revPAR = (averagePrice * occupiedRooms / rooms.length).toFixed(2);
+
+            document.getElementById('occupancyRate').textContent = occupancyRate + '%';
+            document.getElementById('averageDailyRate').textContent = '$' + averagePrice;
+            document.getElementById('revPAR').textContent = '$' + revPAR;
+        }
+
+        // Initial render
+        renderRoomListings();
+        updateStats();
+
+        // Simulated real-time updates
+        setInterval(() => {
+            const randomRoom = rooms[Math.floor(Math.random() * rooms.length)];
+            randomRoom.occupancy = randomRoom.occupancy === 'Vacant' ? 'Occupied' : 'Vacant';
+            renderRoomListings();
+            updateStats();
+            addNotification(`Room ${randomRoom.name} is now ${randomRoom.occupancy.toLowerCase()}.`);
+        }, 10000); // Update every 10 seconds
+    </script>
+</body>
+</html>

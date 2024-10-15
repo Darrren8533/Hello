@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAMS Owner Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .animate-spin {
+            animation: spin 1s linear infinite;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="flex items-center justify-center min-h-screen">
+        <div class="w-[350px] bg-white shadow-md rounded-lg">
+            <div class="p-6">
+                <h2 class="text-2xl font-bold mb-2">CAMS Owner Login</h2>
+                <p class="text-gray-600 mb-6">Enter your credentials to access the system</p>
+                <form id="loginForm">
+                    <div class="space-y-4">
+                        <div>
+                            <label for="username" class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                            <input type="text" id="username" name="username" placeholder="Enter your username" 
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                            <input type="password" id="password" name="password" placeholder="Enter your password" 
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <input type="checkbox" id="two-factor" class="rounded text-blue-600 focus:ring-blue-500">
+                            <label for="two-factor" class="text-sm text-gray-700">Enable Two-Factor Authentication</label>
+                        </div>
+                        <div id="twoFactorCodeContainer" class="hidden">
+                            <label for="two-factor-code" class="block text-sm font-medium text-gray-700 mb-1">Two-Factor Code</label>
+                            <input type="text" id="two-factor-code" name="two-factor-code" placeholder="Enter 6-digit code"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+                    <div id="errorMessage" class="hidden flex items-center space-x-2 text-red-500 mt-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                        <span class="text-sm"></span>
+                    </div>
+                    
+                        <button type="submit" id="loginButton" class="w-full mt-6 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                            Log In
+                        </button>
+                    
+                </form>
+            </div>
+            <div class="px-6 py-4 bg-gray-50 border-t border-gray-100 rounded-b-lg">
+                <a href="#" class="text-sm text-blue-500 hover:underline">Forgot Password?</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('loginForm');
+            const twoFactorCheckbox = document.getElementById('two-factor');
+            const twoFactorCodeContainer = document.getElementById('twoFactorCodeContainer');
+            const errorMessage = document.getElementById('errorMessage');
+            const loginButton = document.getElementById('loginButton');
+
+            twoFactorCheckbox.addEventListener('change', function() {
+                twoFactorCodeContainer.classList.toggle('hidden', !this.checked);
+            });
+
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+                const twoFactorEnabled = twoFactorCheckbox.checked;
+                const twoFactorCode = document.getElementById('two-factor-code').value;
+
+                errorMessage.classList.add('hidden');
+                loginButton.disabled = true;
+                loginButton.innerHTML = `
+                    <svg class="animate-spin h-5 w-5 mr-3" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Please wait
+                `;
+
+                try {
+                    await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate API call
+
+                    if (username === 'admin' && password === 'password') {
+                        if (twoFactorEnabled) {
+                            if (twoFactorCode === '123456') {
+                                window.location.href = 'Home.html';
+                            } else {
+                                throw new Error('Invalid two-factor code');
+                            }
+                        } else {
+                            window.location.href = 'Home.html';
+                        }
+                    } else {
+                        // throw new Error('Invalid username or password');
+                        throw new Error('username: admin, Password: password');
+                    }
+                } catch (error) {
+                    errorMessage.classList.remove('hidden');
+                    errorMessage.querySelector('span').textContent = error.message;
+                } finally {
+                    loginButton.disabled = false;
+                    loginButton.textContent = 'Log In';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

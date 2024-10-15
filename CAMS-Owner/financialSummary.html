@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAMS Owner - Financial Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/luxon@3.3.0/build/global/luxon.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.3.1/dist/chartjs-adapter-luxon.umd.min.js"></script>
+    <style>
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .animate-spin {
+            animation: spin 1s linear infinite;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-md transform -translate-x-full transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0">
+            <div class="p-4">
+                <h1 class="text-2xl font-bold text-gray-800">CAMS Owner</h1>
+            </div>
+            <nav class="mt-6">
+                <a href="Home.html" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Dashboard</a>
+                <a href="bookingDetails.html" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Bookings</a>
+                <a href="customerDetails.html" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Customers</a>
+                <a href="moderatorDetails.html" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Admins/Moderators</a>
+                <a href="financialSummary.html" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Finances</a>
+                <a href="serviceAnalysis.html" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Services</a>
+                <a href="communicationHub.html" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Communication</a>
+                <a href="auditTrail.html" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Audit Logs</a>
+                <a href="dynamicPricing.html" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Dynamic Pricing</a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100">
+            <div class="container mx-auto px-6 py-8">
+                <div class="flex items-center justify-between mb-4">
+                    <button id="sidebarToggle" class="text-gray-500 focus:outline-none lg:hidden">
+                        <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M4 6H20M4 12H20M4 18H11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                    <h1 class="text-2xl font-bold">Financial Dashboard</h1>
+                </div>
+                
+                <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mb-4">
+                    <div class="bg-white p-4 rounded-lg shadow">
+                        <h2 class="text-sm font-medium text-gray-500">Total Revenue</h2>
+                        <p class="text-2xl font-bold">$111,000</p>
+                        <p class="text-xs text-gray-500">+20.1% from last month</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow">
+                        <h2 class="text-sm font-medium text-gray-500">Bookings</h2>
+                        <p class="text-2xl font-bold">450</p>
+                        <p class="text-xs text-gray-500">+15% from last month</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow">
+                        <h2 class="text-sm font-medium text-gray-500">Average Daily Rate</h2>
+                        <p class="text-2xl font-bold">$246.67</p>
+                        <p class="text-xs text-gray-500">+5% from last month</p>
+                    </div>
+                </div>
+
+                <div class="flex flex-col md:flex-row gap-4 mb-4">
+                    <div class="w-full md:w-1/4">
+                        <div class="bg-white p-4 rounded-lg shadow">
+                            <h2 class="text-lg font-semibold mb-4">Filters</h2>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="text-sm font-medium">Date Range</label>
+                                    <input type="date" id="startDate" class="w-full mt-1 p-2 border rounded">
+                                    <input type="date" id="endDate" class="w-full mt-1 p-2 border rounded">
+                                </div>
+                                <div>
+                                    <label class="text-sm font-medium">Payment Type</label>
+                                    <select id="paymentType" class="w-full mt-1 p-2 border rounded">
+                                        <option value="all">All</option>
+                                        <option value="credit">Credit Card</option>
+                                        <option value="debit">Debit Card</option>
+                                        <option value="cash">Cash</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="text-sm font-medium">Customer Type</label>
+                                    <select id="customerType" class="w-full mt-1 p-2 border rounded">
+                                        <option value="all">All</option>
+                                        <option value="individual">Individual</option>
+                                        <option value="business">Business</option>
+                                        <option value="group">Group</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w-full md:w-3/4">
+                        <div class="bg-white p-4 rounded-lg shadow">
+                            <div class="mb-4">
+                                <button class="px-4 py-2 bg-blue-500 text-white rounded" onclick="showChart('revenue')">Revenue</button>
+                                <button class="px-4 py-2 bg-blue-500 text-white rounded" onclick="showChart('bookings')">Bookings</button>
+                                <button class="px-4 py-2 bg-blue-500 text-white rounded" onclick="showChart('rooms')">Room Categories</button>
+                            </div>
+                            <div id="chartContainer" class="h-[400px]">
+                                <canvas id="chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <h2 class="text-lg font-semibold mb-4">Export Reports</h2>
+                    <p class="text-sm text-gray-500 mb-4">Download financial reports in various formats</p>
+                    <div class="flex space-x-4">
+                        <button onclick="exportData('pdf')" class="px-4 py-2 bg-blue-500 text-white rounded flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                            </svg>
+                            Export as PDF
+                        </button>
+                        <button onclick="exportData('csv')" class="px-4 py-2 bg-blue-500 text-white rounded flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                            </svg>
+                            Export as CSV
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Placeholder data
+        const revenueData = {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+            datasets: [{
+                label: 'Revenue',
+                data: [12000, 19000, 15000, 22000, 18000, 25000],
+                borderColor: 'rgb(75, 192, 192)',
+                tension: 0.1
+            }]
+        };
+
+        const bookingStatusData = {
+            labels: ['Confirmed', 'Pending', 'Cancelled'],
+            datasets: [{
+                data: [300, 50, 100],
+                backgroundColor: ['#36A2EB', '#FFCE56', '#FF6384']
+            }]
+        };
+
+        const roomCategoryData = {
+            labels: ['Standard', 'Deluxe', 'Suite', 'Family'],
+            datasets: [{
+                label: 'Revenue by Room Category',
+                data: [12000, 19000, 30000, 15000],
+                backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0']
+            }]
+        };
+
+        let currentChart;
+
+        function showChart(chartType) {
+            if (currentChart) {
+                currentChart.destroy();
+            }
+
+            const ctx = document.getElementById('chart').getContext('2d');
+            let chartConfig;
+
+            switch(chartType) {
+                case 'revenue':
+                    chartConfig = {
+                        type: 'line',
+                        data: revenueData,
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                x: {
+                                    type: 'category',
+                                },
+                                y: {
+                                    beginAtZero: true
+                                }
+                            }
+                        }
+                    };
+                    break;
+                case 'bookings':
+                    chartConfig = {
+                        type: 'pie',
+                        data: bookingStatusData,
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false
+                        }
+                    };
+                    break;
+                case 'rooms':
+                    chartConfig = {
+                        type: 'bar',
+                        data: roomCategoryData,
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                x: {
+                                    type: 'category',
+                                },
+                                y: {
+                                    beginAtZero: true
+                                }
+                            }
+                        }
+                    };
+                    break;
+            }
+
+            currentChart = new Chart(ctx, chartConfig);
+        }
+
+        function exportData(format) {
+            // Placeholder for export functionality
+            console.log(`Exporting data in ${format} format`);
+            alert(`Exporting data in ${format} format. This feature is not implemented in this demo.`);
+        }
+
+        // Initialize with revenue chart
+        showChart('revenue');
+
+        // Add event listeners for filters
+        document.getElementById('startDate').addEventListener('change', updateCharts);
+        document.getElementById('endDate').addEventListener('change', updateCharts);
+        document.getElementById('paymentType').addEventListener('change', updateCharts);
+        document.getElementById('customerType').addEventListener('change', updateCharts);
+
+        function updateCharts() {
+            // Placeholder for filter functionality
+            console.log('Filters updated. Fetching new data...');
+            // In a real application, you would fetch new data based on the filters and update the charts
+        }
+
+        // Sidebar toggle functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.getElementById('sidebar');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            let isSidebarOpen = false;
+
+            function toggleSidebar() {
+                isSidebarOpen = !isSidebarOpen;
+                sidebar.classList.toggle('-translate-x-full', !isSidebarOpen);
+            }
+
+            sidebarToggle.addEventListener('click', toggleSidebar);
+
+            document.addEventListener('click', function(event) {
+                const isClickInsideSidebar = sidebar.contains(event.target);
+                const isClickOnToggle = sidebarToggle.contains(event.target);
+
+                if (isSidebarOpen && !isClickInsideSidebar && !isClickOnToggle) {
+                    toggleSidebar();
+                }
+            });
+
+            window.addEventListener('resize', function() {
+                if (window.innerWidth >= 1024 && isSidebarOpen) {
+                    toggleSidebar();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
