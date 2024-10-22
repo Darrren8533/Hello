@@ -17,34 +17,83 @@
 <body class="bg-gray-100">
     <div class="flex h-screen">
         <!-- Sidebar -->
-        <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-md transform -translate-x-full transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0">
+        <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-md transform -translate-x-full transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 flex flex-col">
             <div class="p-4">
                 <h1 class="text-2xl font-bold text-gray-800">CAMS Owner</h1>
             </div>
             <nav class="mt-6">
-                <a href="Home.html" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Dashboard</a>
-                <a href="bookingDetails.html" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Bookings</a>
-                <a href="customerDetails.html" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Customers</a>
-                <a href="moderatorDetails.html" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Admins/Moderators</a>
-                <a href="financialSummary.html" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Finances</a>
-                <a href="serviceAnalysis.html" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Services</a>
-                <a href="communicationHub.html" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Communication</a>
-                <a href="auditTrail.html" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Audit Logs</a>
-                <a href="dynamicPricing.html" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Dynamic Pricing</a>
+                <a href="Home.html" class="nav-link block px-4 py-2 text-gray-600 hover:bg-gray-100" data-page="home">Dashboard</a>
+                <a href="bookingDetails.html" class="nav-link block px-4 py-2 text-gray-600 hover:bg-gray-100" data-page="bookingdetails">Bookings</a>
+                <a href="customerDetails.html" class="nav-link block px-4 py-2 text-gray-600 hover:bg-gray-100" data-page="customerdetails">Customers</a>
+                <a href="moderatorDetails.html" class="nav-link block px-4 py-2 text-gray-600 hover:bg-gray-100" data-page="moderatordetails">Admins/Moderators</a>
+                <a href="financialSummary.html" class="nav-link block px-4 py-2 text-gray-600 hover:bg-gray-100" data-page="financialsummary">Finances</a>
+                <a href="serviceAnalysis.html" class="nav-link block px-4 py-2 text-gray-600 hover:bg-gray-100" data-page="serviceanalysis">Services</a>
+                <a href="communicationHub.html" class="nav-link block px-4 py-2 text-gray-600 hover:bg-gray-100" data-page="communicationhub">Communication</a>
+                <a href="auditTrail.html" class="nav-link block px-4 py-2 text-gray-600 hover:bg-gray-100" data-page="audittrail">Audit Logs</a>
+                <a href="dynamicPricing.html" class="nav-link block px-4 py-2 text-gray-600 hover:bg-gray-100" data-page="dynamicpricing">Dynamic Pricing</a>
+                <a href="RBACMatrix.html" class="nav-link block px-4 py-2 text-gray-600 hover:bg-gray-100" data-page="rbacmatrix">RBAC Matrix</a>
             </nav>
+            <div class="p-4 mt-auto">
+                <a href="login.html">
+                    <button class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline-block mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
+                        Logout
+                    </button>
+                </a>
+            </div>
         </aside>
 
         <!-- Main Content -->
         <main class="flex-1 p-8 overflow-y-auto">
             <div class="container mx-auto">
-                <div class="flex items-center mb-4">
-                    <button id="sidebarToggle" class="mr-4 lg:hidden p-2 rounded-md hover:bg-gray-200">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                <div class="flex justify-between items-center mb-6">
+                    <div class="flex items-center">
+                        <button id="sidebarToggle" class="mr-4 lg:hidden p-2 rounded-md hover:bg-gray-200">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                            </svg>
+                        </button>
+                        <h2 class="text-3xl font-bold text-gray-800">Booking Overview</h2>
+                    </div>
+                    <div class="relative">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
-                    </button>
-                    <h1 class="text-2xl font-bold">Bookings Overview</h1>
+                        <input type="search" placeholder="Search Bookings..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
                 </div>
+
+                <!-- Payment Status Info -->
+                <div class="mb-6">
+                    <button id="paymentStatusInfoBtn" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Payment Status Info
+                    </button>
+                    <div id="paymentStatusInfoPopup" class="hidden absolute z-10 mt-2 w-64 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+                        <div class="p-4">
+                            <h3 class="text-lg font-medium text-gray-900 mb-2">Payment Status Definitions</h3>
+                            <ul class="space-y-2">
+                                <li>
+                                    <span class="font-semibold">Paid:</span>
+                                    <span class="text-sm text-gray-500">Full payment received for the booking.</span>
+                                </li>
+                                <li>
+                                    <span class="font-semibold">Partially Paid:</span>
+                                    <span class="text-sm text-gray-500">Partial payment received, remaining balance due.</span>
+                                </li>
+                                <li>
+                                    <span class="font-semibold">Unpaid:</span>
+                                    <span class="text-sm text-gray-500">No payment received for the booking yet.</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="bg-white shadow-md rounded-lg overflow-hidden">
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
@@ -127,7 +176,7 @@
     <script>
         // Mock data for bookings
         let bookings = [
-            { id: 1, name: "John Doe", room: "Deluxe Suite", checkIn: "2023-06-01", checkOut: "2023-06-05", status: "Confirmed", payment: "Paid" },
+            { id: 1, name: "John Doe", room: "Deluxe Suite", checkIn: "2023-06-01", checkOut: "2023-06-05", status: "Confirmed", payment: "Paid"   },
             { id: 2, name: "Jane Smith", room: "Standard Room", checkIn: "2023-06-02", checkOut: "2023-06-04", status: "Pending", payment: "Unpaid" },
             { id: 3, name: "Bob Johnson", room: "Family Room", checkIn: "2023-06-03", checkOut: "2023-06-07", status: "Confirmed", payment: "Partially Paid" },
             { id: 4, name: "Alice Brown", room: "Executive Suite", checkIn: "2023-06-04", checkOut: "2023-06-06", status: "Confirmed", payment: "Paid" },
@@ -218,7 +267,7 @@
 
         // Sidebar toggle functionality
         document.addEventListener('DOMContentLoaded', function() {
-            const sidebar =   document.getElementById('sidebar');
+            const sidebar = document.getElementById('sidebar');
             const sidebarToggle = document.getElementById('sidebarToggle');
             let isSidebarOpen = false;
 
@@ -246,7 +295,40 @@
 
             // Initial render of bookings
             renderBookings();
+
+            // Payment Status Info popup functionality
+            const paymentStatusInfoBtn = document.getElementById('paymentStatusInfoBtn');
+            const paymentStatusInfoPopup = document.getElementById('paymentStatusInfoPopup');
+
+            paymentStatusInfoBtn.addEventListener('click', function() {
+                paymentStatusInfoPopup.classList.toggle('hidden');
+            });
+
+            document.addEventListener('click', function(event) {
+                if (!paymentStatusInfoBtn.contains(event.target) && !paymentStatusInfoPopup.contains(event.target)) {
+                    paymentStatusInfoPopup.classList.add('hidden');
+                }
+            });
         });
+
+        // Highlight current navbar item
+        function highlightCurrentNavItem() {
+            const currentPage = window.location.pathname.split('/').pop().split('.')[0].toLowerCase();
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(link => {
+                const pageName = link.getAttribute('data-page');
+                if (currentPage.includes(pageName)) {
+                    link.classList.add('bg-gray-200', 'text-gray-900');
+                    link.classList.remove('text-gray-600');
+                } else {
+                    link.classList.remove('bg-gray-200', 'text-gray-900');
+                    link.classList.add('text-gray-600');
+                }
+            });
+        }
+
+        // Call the function when the DOM is loaded
+        document.addEventListener('DOMContentLoaded', highlightCurrentNavItem);
     </script>
 </body>
 </html>
