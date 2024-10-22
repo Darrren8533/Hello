@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAMS - RBAC Matrix</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-md transform -translate-x-full transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 flex flex-col">
+            <div class="p-4">
+                <h1 class="text-2xl font-bold text-gray-800">CAMS Owner</h1>
+            </div>
+            <nav class="mt-6">
+                <a href="Home.html" class="nav-link block px-4 py-2 text-gray-600 hover:bg-gray-100" data-page="home">Dashboard</a>
+                <a href="bookingDetails.html" class="nav-link block px-4 py-2 text-gray-600 hover:bg-gray-100" data-page="bookingdetails">Bookings</a>
+                <a href="customerDetails.html" class="nav-link block px-4 py-2 text-gray-600 hover:bg-gray-100" data-page="customerdetails">Customers</a>
+                <a href="moderatorDetails.html" class="nav-link block px-4 py-2 text-gray-600 hover:bg-gray-100" data-page="moderatordetails">Admins/Moderators</a>
+                <a href="financialSummary.html" class="nav-link block px-4 py-2 text-gray-600 hover:bg-gray-100" data-page="financialsummary">Finances</a>
+                <a href="serviceAnalysis.html" class="nav-link block px-4 py-2 text-gray-600 hover:bg-gray-100" data-page="serviceanalysis">Services</a>
+                <a href="communicationHub.html" class="nav-link block px-4 py-2 text-gray-600 hover:bg-gray-100" data-page="communicationhub">Communication</a>
+                <a href="auditTrail.html" class="nav-link block px-4 py-2 text-gray-600 hover:bg-gray-100" data-page="audittrail">Audit Logs</a>
+                <a href="dynamicPricing.html" class="nav-link block px-4 py-2 text-gray-600 hover:bg-gray-100" data-page="dynamicpricing">Dynamic Pricing</a>
+                <a href="RBACMatrix.html" class="nav-link block px-4 py-2 text-gray-600 hover:bg-gray-100" data-page="rbacmatrix">RBAC Matrix</a>
+            </nav>
+            <div class="p-4 mt-auto">
+                <a href="login.html">
+                    <button class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline-block mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
+                        Logout
+                    </button>
+                </a>
+            </div>
+        </aside>
+
+        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100">
+            <div class="container mx-auto px-4 py-8">
+                <h1 class="text-3xl font-bold mb-6">RBAC Permission Matrix</h1>
+                <div class="overflow-x-auto bg-white shadow-md rounded-lg">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Permissions</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Seller</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Master Seller</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Owner</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">View Products</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><input type="checkbox" checked disabled></td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><input type="checkbox" checked disabled></td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><input type="checkbox" checked disabled></td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><input type="checkbox" checked disabled></td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Purchase Products</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><input type="checkbox" checked disabled></td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><input type="checkbox" checked disabled></td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><input type="checkbox" checked disabled></td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><input type="checkbox" checked disabled></td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Manage Own Products</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><input type="checkbox" disabled></td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><input type="checkbox" checked disabled></td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><input type="checkbox" checked disabled></td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><input type="checkbox" checked disabled></td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Manage All Products</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><input type="checkbox" disabled></td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><input type="checkbox" disabled></td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><input type="checkbox" checked disabled></td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><input type="checkbox" checked disabled></td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Manage Sellers</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><input type="checkbox" disabled></td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><input type="checkbox" disabled></td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><input type="checkbox" checked disabled></td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><input type="checkbox" checked disabled></td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">View Analytics</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><input type="checkbox" disabled></td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><input type="checkbox" checked disabled></td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><input type="checkbox" checked disabled></td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><input type="checkbox" checked disabled></td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Manage System Settings</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><input type="checkbox" disabled></td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><input type="checkbox" disabled></td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><input type="checkbox" disabled></td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><input type="checkbox" checked disabled></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="mt-8">
+                    <h2 class="text-2xl font-bold mb-4">Role Permission Editor</h2>
+                    <div class="bg-white shadow-md rounded-lg p-6">
+                        <div class="flex items-center space-x-4 mb-4">
+                            <div class="flex-1">
+                                <label for="userSearch" class="block text-sm font-medium text-gray-700">Search User ID</label>
+                                <input type="text" id="userSearch" name="userSearch" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md" placeholder="Enter user ID...">
+                            </div>
+                            <div class="flex-1">
+                                <label for="roleSelect" class="block text-sm font-medium text-gray-700">Select Role</label>
+                                <select id="roleSelect" name="roleSelect" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                                    <option value="customer">Customer</option>
+                                    <option value="seller">Seller</option>
+                                    <option value="masterSeller">Master Seller</option>
+                                    <option value="owner">Owner</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div id="permissionsList" class="space-y-2 mb-4">
+                            <!-- Permissions checkboxes will be dynamically added here -->
+                        </div>
+                        <button id="savePermissions" class="w-full px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            Save Permissions
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const roleSelect = document.getElementById('roleSelect');
+            const permissionsList = document.getElementById('permissionsList');
+            const savePermissionsButton = document.getElementById('savePermissions');
+            const userSearch = document.getElementById('userSearch');
+
+            const permissions = [
+                { id: 'viewProducts', label: 'View Products' },
+                { id: 'purchaseProducts', label: 'Purchase Products' },
+                { id: 'manageOwnProducts', label: 'Manage Own Products' },
+                { id: 'manageAllProducts', label: 'Manage All Products' },
+                { id: 'manageSellers', label: 'Manage Sellers' },
+                { id: 'viewAnalytics', label: 'View Analytics' },
+                { id: 'manageSystemSettings', label: 'Manage System Settings' }
+            ];
+
+            const rolePermissions = {
+                customer: ['viewProducts', 'purchaseProducts'],
+                seller: ['viewProducts', 'purchaseProducts', 'manageOwnProducts', 'viewAnalytics'],
+                masterSeller: ['viewProducts', 'purchaseProducts', 'manageOwnProducts', 'manageAllProducts', 'manageSellers', 'viewAnalytics'],
+                owner: ['viewProducts', 'purchaseProducts', 'manageOwnProducts', 'manageAllProducts', 'manageSellers', 'viewAnalytics', 'manageSystemSettings']
+            };
+
+            // Simulated user data
+            const users = [
+                { id: '001', name: 'John Doe', role: 'customer' },
+                { id: '002', name: 'Jane Smith', role: 'seller' },
+                { id: '003', name: 'Bob Johnson', role: 'masterSeller' },
+                { id: '004', name: 'Alice Brown', role: 'owner' }
+            ];
+
+            function updatePermissionsList(role) {
+                permissionsList.innerHTML = '';
+                permissions.forEach(permission => {
+                    const div = document.createElement('div');
+                    div.innerHTML = `
+                        <label class="inline-flex items-center">
+                            <input type="checkbox" class="form-checkbox" name="permissions" value="${permission.id}" 
+                                ${rolePermissions[role].includes(permission.id) ? 'checked' : ''}>
+                            <span class="ml-2">${permission.label}</span>
+                        </label>
+                    `;
+                    permissionsList.appendChild(div);
+                });
+            }
+
+            roleSelect.addEventListener('change', function() {
+                updatePermissionsList(this.value);
+            });
+
+            userSearch.addEventListener('input', function() {
+                const userId = this.value;
+                const user = users.find(u => u.id === userId);
+                if (user) {
+                    roleSelect.value = user.role;
+                    updatePermissionsList(user.role);
+                }
+            });
+
+            savePermissionsButton.addEventListener('click', function() {
+                const selectedRole = roleSelect.value;
+                const selectedPermissions = Array.from(document.querySelectorAll('input[name="permissions"]:checked'))
+                    .map(checkbox => checkbox.value);
+
+                rolePermissions[selectedRole] = selectedPermissions;
+
+                // Update the main table
+                selectedPermissions.forEach(permission => {
+                    const checkbox = document.querySelector(`table td:nth-child(${getRoleColumnIndex(selectedRole)}) input[type="checkbox"]`);
+                    if (checkbox) {
+                        checkbox.checked = true;
+                    }
+                });
+
+                alert(`Permissions updated for ${selectedRole}`);
+            });
+
+            function getRoleColumnIndex(role) {
+                const roleOrder = ['customer', 'seller', 'masterSeller', 'owner'];
+                return roleOrder.indexOf(role) + 2; // +2 because the first column is for permission names
+            }
+
+            // Initialize with the first role
+            updatePermissionsList(roleSelect.value);
+        });
+
+        // Highlight current navbar item
+        function highlightCurrentNavItem() {
+            const currentPage = window.location.pathname.split('/').pop().split('.')[0].toLowerCase();
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(link => {
+                const pageName = link.getAttribute('data-page');
+                if (currentPage.includes(pageName)) {
+                    link.classList.add('bg-gray-200', 'text-gray-900');
+                    link.classList.remove('text-gray-600');
+                } else {
+                    link.classList.remove('bg-gray-200', 'text-gray-900');
+                    link.classList.add('text-gray-600');
+                }
+            });
+        }
+
+        // Call the function when the DOM is loaded
+        document.addEventListener('DOMContentLoaded', highlightCurrentNavItem);
+
+    </script>
+</body>
+</html>
