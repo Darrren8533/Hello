@@ -17,21 +17,32 @@
 <body class="bg-gray-100">
     <div class="flex h-screen overflow-hidden">
         <!-- Sidebar -->
-        <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-md transform -translate-x-full transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0">
+        <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-md transform -translate-x-full transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 flex flex-col">
             <div class="p-4">
                 <h1 class="text-2xl font-bold text-gray-800">CAMS Owner</h1>
             </div>
             <nav class="mt-6">
-                <a href="Home.html" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Dashboard</a>
-                <a href="bookingDetails.html" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Bookings</a>
-                <a href="customerDetails.html" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Customers</a>
-                <a href="moderatorDetails.html" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Admins/Moderators</a>
-                <a href="financialSummary.html" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Finances</a>
-                <a href="serviceAnalysis.html" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Services</a>
-                <a href="communicationHub.html" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Communication</a>
-                <a href="auditTrail.html" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Audit Logs</a>
-                <a href="dynamicPricing.html" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Dynamic Pricing</a>
+                <a href="Home.html" class="nav-link block px-4 py-2 text-gray-600 hover:bg-gray-100" data-page="home">Dashboard</a>
+                <a href="bookingDetails.html" class="nav-link block px-4 py-2 text-gray-600 hover:bg-gray-100" data-page="bookingdetails">Bookings</a>
+                <a href="customerDetails.html" class="nav-link block px-4 py-2 text-gray-600 hover:bg-gray-100" data-page="customerdetails">Customers</a>
+                <a href="moderatorDetails.html" class="nav-link block px-4 py-2 text-gray-600 hover:bg-gray-100" data-page="moderatordetails">Admins/Moderators</a>
+                <a href="financialSummary.html" class="nav-link block px-4 py-2 text-gray-600 hover:bg-gray-100" data-page="financialsummary">Finances</a>
+                <a href="serviceAnalysis.html" class="nav-link block px-4 py-2 text-gray-600 hover:bg-gray-100" data-page="serviceanalysis">Services</a>
+                <a href="communicationHub.html" class="nav-link block px-4 py-2 text-gray-600 hover:bg-gray-100" data-page="communicationhub">Communication</a>
+                <a href="auditTrail.html" class="nav-link block px-4 py-2 text-gray-600 hover:bg-gray-100" data-page="audittrail">Audit Logs</a>
+                <a href="dynamicPricing.html" class="nav-link block px-4 py-2 text-gray-600 hover:bg-gray-100" data-page="dynamicpricing">Dynamic Pricing</a>
+                <a href="RBACMatrix.html" class="nav-link block px-4 py-2 text-gray-600 hover:bg-gray-100" data-page="rbacmatrix">RBAC Matrix</a>
             </nav>
+            <div class="p-4 mt-auto">
+                <a href="login.html">
+                    <button class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline-block mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
+                        Logout
+                    </button>
+                </a>
+            </div>
         </aside>
 
         <!-- Main Content -->
@@ -194,6 +205,26 @@
                 // In a real application, you would send this data to the server
             });
         });
+
+        // Highlight current navbar item
+        function highlightCurrentNavItem() {
+            const currentPage = window.location.pathname.split('/').pop().split('.')[0].toLowerCase();
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(link => {
+                const pageName = link.getAttribute('data-page');
+                if (currentPage.includes(pageName)) {
+                    link.classList.add('bg-gray-200', 'text-gray-900');
+                    link.classList.remove('text-gray-600');
+                } else {
+                    link.classList.remove('bg-gray-200', 'text-gray-900');
+                    link.classList.add('text-gray-600');
+                }
+            });
+        }
+
+        // Call the function when the DOM is loaded
+        document.addEventListener('DOMContentLoaded', highlightCurrentNavItem);
+
     </script>
 </body>
 </html>
