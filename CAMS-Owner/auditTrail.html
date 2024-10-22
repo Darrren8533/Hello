@@ -9,37 +9,51 @@
     <script src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body class="bg-gray-100">
     <div class="flex h-screen overflow-hidden">
         <!-- Sidebar -->
-        <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-md transform -translate-x-full transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0">
+        <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-md transform -translate-x-full transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 flex flex-col">
             <div class="p-4">
                 <h1 class="text-2xl font-bold text-gray-800">CAMS Owner</h1>
             </div>
             <nav class="mt-6">
-                <a href="Home.html" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Dashboard</a>
-                <a href="bookingDetails.html" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Bookings</a>
-                <a href="customerDetails.html" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Customers</a>
-                <a href="moderatorDetails.html" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Admins/Moderators</a>
-                <a href="financialSummary.html" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Finances</a>
-                <a href="serviceAnalysis.html" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Services</a>
-                <a href="communicationHub.html" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Communication</a>
-                <a href="auditTrail.html" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Audit Logs</a>
-                <a href="dynamicPricing.html" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Dynamic Pricing</a>
+                <a href="Home.html" class="nav-link block px-4 py-2 text-gray-600 hover:bg-gray-100" data-page="home">Dashboard</a>
+                <a href="bookingDetails.html" class="nav-link block px-4 py-2 text-gray-600 hover:bg-gray-100" data-page="bookingdetails">Bookings</a>
+                <a href="customerDetails.html" class="nav-link block px-4 py-2 text-gray-600 hover:bg-gray-100" data-page="customerdetails">Customers</a>
+                <a href="moderatorDetails.html" class="nav-link block px-4 py-2 text-gray-600 hover:bg-gray-100" data-page="moderatordetails">Admins/Moderators</a>
+                <a href="financialSummary.html" class="nav-link block px-4 py-2 text-gray-600 hover:bg-gray-100" data-page="financialsummary">Finances</a>
+                <a href="serviceAnalysis.html" class="nav-link block px-4 py-2 text-gray-600 hover:bg-gray-100" data-page="serviceanalysis">Services</a>
+                <a href="communicationHub.html" class="nav-link block px-4 py-2 text-gray-600 hover:bg-gray-100" data-page="communicationhub">Communication</a>
+                <a href="auditTrail.html" class="nav-link block px-4 py-2 text-gray-600 hover:bg-gray-100" data-page="audittrail">Audit Logs</a>
+                <a href="dynamicPricing.html" class="nav-link block px-4 py-2 text-gray-600 hover:bg-gray-100" data-page="dynamicpricing">Dynamic Pricing</a>
+                <a href="RBACMatrix.html" class="nav-link block px-4 py-2 text-gray-600 hover:bg-gray-100" data-page="rbacmatrix">RBAC Matrix</a>
             </nav>
+            <div class="p-4 mt-auto">
+                <a href="login.html">
+                    <button class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline-block mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
+                        Logout
+                    </button>
+                </a>
+            </div>
         </aside>
 
         <!-- Main Content -->
         <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100">
             <div class="container mx-auto px-6 py-8">
-                <div class="flex items-center justify-between mb-4">
-                    <button id="sidebarToggle" class="text-gray-500 focus:outline-none lg:hidden">
-                        <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M4 6H20M4 12H20M4 18H11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </button>
-                    <h1 class="text-2xl font-bold">Audit Trail Log</h1>
+                <div class="flex justify-between items-center mb-6">
+                    <div class="flex items-center">
+                        <button id="sidebarToggle" class="mr-4 lg:hidden p-2 rounded-md hover:bg-gray-200">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                            </svg>
+                        </button>
+                        <h2 class="text-3xl font-bold text-gray-800">Audit Trail Log</h2>
+                    </div>
                 </div>
 
                 <!-- Filters -->
@@ -71,9 +85,17 @@
                         </div>
                     </div>
                     <div class="mt-4">
-                        <button onclick="applyFilters()" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                        <button onclick="applyFilters()" class="px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                             Apply Filters
                         </button>
+                    </div>
+                </div>
+
+                <!-- Module Usage Statistics -->
+                <div class="bg-white p-4 rounded-lg shadow mb-6">
+                    <h2 class="text-lg font-semibold mb-4">Module Usage Statistics</h2>
+                    <div style="height: 400px;">
+                        <canvas id="moduleUsageChart"></canvas>
                     </div>
                 </div>
 
@@ -103,12 +125,18 @@
                 </div>
 
                 <!-- Export Options -->
-                <div class="mt-6 flex justify-end">
-                    <button onclick="exportLogs('csv')" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mr-2">
-                        Export as CSV
-                    </button>
-                    <button onclick="exportLogs('pdf')" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
+                <div class="mt-6 flex justify-end space-x-4">
+                    <button onclick="exportLogs('pdf')" class="px-4 py-2 bg-blue-500 text-white rounded flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        </svg>
                         Export as PDF
+                    </button>
+                    <button onclick="exportLogs('csv')" class="px-4 py-2 bg-blue-500 text-white rounded flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        </svg>
+                        Export as CSV
                     </button>
                 </div>
             </div>
@@ -123,8 +151,24 @@
             { timestamp: "2023-06-15 11:45:03", user: "moderator1", action: "profile", details: "Updated profile for user ID 5678" },
             { timestamp: "2023-06-15 13:20:47", user: "admin1", action: "settings", details: "Changed system email settings" },
             { timestamp: "2023-06-15 14:55:39", user: "admin2", action: "booking", details: "Cancelled booking #2345 for Jane Smith" },
-            // Add more log entries as needed
         ];
+
+        // Simulated module usage data
+        const moduleUsageData = {
+            labels: ['Sign Up', 'Dashboard', 'Bookings', 'Property', 'Payments'],
+            datasets: [
+                {
+                    label: 'Time Spent (minutes)',
+                    data: [120, 180, 90, 150, 60],
+                    backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                },
+                {
+                    label: 'Stop Count',
+                    data: [50, 75, 30, 60, 25],
+                    backgroundColor: 'rgba(153, 102, 255, 0.6)',
+                }
+            ]
+        };
 
         // Function to render audit logs
         function renderAuditLogs(logs) {
@@ -169,7 +213,6 @@
 
         // Function to export logs
         function exportLogs(format) {
-            // Implement export logic here
             console.log(`Exporting logs in ${format} format`);
             alert(`Exporting logs in ${format} format. This feature is not implemented in this demo.`);
         }
@@ -177,7 +220,7 @@
         // Initialize date range picker
         $(function() {
             $('input[id="dateFilter"]').daterangepicker({
-                opens: 'left'
+                opens:  'left'
             }, function(start, end, label) {
                 console.log("A new date selection was made: " + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD'));
             });
@@ -213,7 +256,52 @@
 
             // Initial render of audit logs
             renderAuditLogs(auditLogs);
+
+            // Render module usage chart
+            const ctx = document.getElementById('moduleUsageChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: moduleUsageData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: true,
+                            text: 'Module Usage Statistics'
+                        }
+                    }
+                }
+            });
         });
+
+        // Highlight current navbar item
+        function highlightCurrentNavItem() {
+            const currentPage = window.location.pathname.split('/').pop().split('.')[0].toLowerCase();
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(link => {
+                const pageName = link.getAttribute('data-page');
+                if (currentPage.includes(pageName)) {
+                    link.classList.add('bg-gray-200', 'text-gray-900');
+                    link.classList.remove('text-gray-600');
+                } else {
+                    link.classList.remove('bg-gray-200', 'text-gray-900');
+                    link.classList.add('text-gray-600');
+                }
+            });
+        }
+
+        // Call the function when the DOM is loaded
+        document.addEventListener('DOMContentLoaded', highlightCurrentNavItem);
+
     </script>
 </body>
 </html>
