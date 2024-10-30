@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAMS - Booking Requests</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-gray-100">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <aside class="w-64 bg-white shadow-md">
+            <div class="p-4">
+                <h1 class="text-2xl font-bold text-primary">CAMS</h1>
+                <p class="text-sm text-muted-foreground">Property Manager</p>
+            </div>
+            <nav class="mt-6">
+                <a href="index.html">
+                    <button class="w-full text-left px-4 py-2 hover:bg-gray-100">
+                        <i data-lucide="home" class="inline-block mr-2 h-4 w-4"></i>
+                        Dashboard
+                    </button>
+                </a>
+                <a href="properties.html">
+                    <button class="w-full text-left px-4 py-2 hover:bg-gray-100">
+                        <i data-lucide="list" class="inline-block mr-2 h-4 w-4"></i>
+                        Properties
+                    </button>
+                </a>
+                <a href="bookRequest.html">
+                    <button class="w-full text-left px-4 py-2 hover:bg-gray-100">
+                        <i data-lucide="clipboard-list" class="inline-block mr-2 h-4 w-4"></i>
+                        Booking Requests
+                    </button>
+                </a>
+                <a href="notification.html">
+                    <button class="w-full text-left px-4 py-2 hover:bg-gray-100">
+                        <i data-lucide="bell" class="inline-block mr-2 h-4 w-4"></i>
+                        Notifications
+                    </button>
+                </a>
+                <a href="support.html">
+                    <button class="w-full text-left px-4 py-2 hover:bg-gray-100">
+                        <i data-lucide="message-square" class="inline-block mr-2 h-4 w-4"></i>
+                        Support
+                    </button>
+                </a>
+                <a href="profile.html">
+                    <button class="w-full text-left px-4 py-2 hover:bg-gray-100">
+                        <i data-lucide="user" class="inline-block mr-2 h-4 w-4"></i>
+                        Profile
+                    </button>   
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-8 overflow-auto">
+            <header class="flex justify-between items-center mb-8">
+                <h2 class="text-3xl font-bold text-gray-800">Booking Requests</h2>
+                <div class="flex items-center space-x-4">
+                    <button class="p-2 border rounded-full">
+                        <i data-lucide="bell" class="h-4 w-4"></i>
+                    </button>
+                    <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
+                        PM
+                    </div>
+                </div>
+            </header>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white rounded-lg shadow-md p-6 md:col-span-1">
+                    <h3 class="text-xl font-bold mb-2">Request List</h3>
+                    <p class="text-gray-600 mb-4">Review incoming booking requests</p>
+                    <div id="requestList" class="h-[400px] overflow-y-auto">
+                        <!-- Booking requests will be dynamically added here -->
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow-md p-6 md:col-span-2">
+                    <h3 class="text-xl font-bold mb-2">Request Details</h3>
+                    <p class="text-gray-600 mb-4">Review and manage the selected booking request</p>
+                    <div id="requestDetails" class="space-y-4">
+                        <!-- Request details will be dynamically updated here -->
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        // Sample booking request data
+        const bookingRequests = [
+            {
+                id: '1',
+                name: 'Alice Johnson',
+                roomType: 'Deluxe Room',
+                checkIn: '2024-07-01',
+                checkOut: '2024-07-05',
+                status: 'pending',
+                notes: 'No additional notes provided.'
+            },
+            {
+                id: '2',
+                name: 'Bob Smith',
+                roomType: 'Suite',
+                checkIn: '2024-08-10',
+                checkOut: '2024-08-15',
+                status: 'approved',
+                notes: 'Wants a late check-out.'
+            },
+            {
+                id: '3',
+                name: 'Charlie Brown',
+                roomType: 'Standard Room',
+                checkIn: '2024-09-05',
+                checkOut: '2024-09-08',
+                status: 'rejected',
+                notes: 'Requested room on the ground floor.'
+            }
+        ];
+
+        const requestList = document.getElementById('requestList');
+        const requestDetails = document.getElementById('requestDetails');
+
+        // Function to render booking requests list
+        function renderRequestList() {
+            requestList.innerHTML = '';
+            bookingRequests.forEach(request => {
+                const requestItem = document.createElement('div');
+                requestItem.className = 'flex items-center space-x-4 p-2 hover:bg-gray-100 rounded-md cursor-pointer';
+                requestItem.innerHTML = `
+                    <div class="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center">
+                        ${request.name.charAt(0)}${request.name.split(' ')[1].charAt(0)}
+                    </div>
+                    <div>
+                        <p class="font-medium">${request.name}</p>
+                        <p class="text-sm text-gray-600">${request.roomType}</p>
+                    </div>
+                    <span class="px-2 py-1 text-xs font-semibold rounded-full ${
+                        request.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                        request.status === 'approved' ? 'bg-green-100 text-green-800' :
+                        'bg-red-100 text-red-800'
+                    }">
+                        ${request.status}
+                    </span>
+                `;
+                requestItem.addEventListener('click', () => showRequestDetails(request));
+                requestList.appendChild(requestItem);
+            });
+        }
+
+        // Function to display request details
+        function showRequestDetails(request) {
+            requestDetails.innerHTML = `
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h4 class="text-lg font-semibold">${request.name}</h4>
+                        <p class="text-sm text-gray-600">${request.roomType}</p>
+                    </div>
+                    <span class="px-2 py-1 text-xs font-semibold rounded-full ${
+                        request.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                        request.status === 'approved' ? 'bg-green-100 text-green-800' :
+                        'bg-red-100 text-red-800'
+                    }">
+                        ${request.status}
+                    </span>
+                </div>
+                <hr class="border-t border-gray-200">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Check-in Date</label>
+                        <input type="text" value="${request.checkIn}" readonly class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Check-out Date</label>
+                        <input type="text" value="${request.checkOut}" readonly class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                    </div>
+                </div>
+                <hr class="border-t border-gray-200">
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium text-gray-700">Additional Notes</label>
+                    <p class="text-sm text-gray-600">${request.notes}</p>
+                </div>
+                <div class="mt-6 flex justify-end space-x-2">
+                    <button class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
+                        <i data-lucide="x" class="inline-block mr-2 h-4 w-4"></i>
+                        Reject
+                    </button>
+                    <button class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
+                        Suggest New Room
+                    </button>
+                    <button class="px-4 py-2 bg-blue-600 border border-transparent rounded-md text-sm font-medium text-white hover:bg-blue-700">
+                        <i data-lucide="check" class="inline-block mr-2 h-4 w-4"></i>
+                        Accept
+                    </button>
+                </div>
+            `;
+            lucide.createIcons(); // Refresh icons
+        }
+
+        // Render initial request list
+        renderRequestList();
+    </script>
+</body>
+</html>

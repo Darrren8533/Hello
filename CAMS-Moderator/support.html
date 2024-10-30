@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAMS - Support</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style type="text/css">
+        input[type="text"],
+        input[type="email"],
+        select,
+        textarea {
+            border: 1px solid #4A5568; /* Darker border color for better visibility */
+            padding: 8px; /* Add padding for a spacious feel */
+            border-radius: 4px; /* Smooth corners */
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        select:focus,
+        textarea:focus {
+            border-color: #3182CE; /* Blue border on focus */
+            box-shadow: 0 0 5px rgba(49, 130, 206, 0.3); /* Slight shadow on focus */
+        }
+
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="flex h-screen bg-gray-100">
+        <!-- Sidebar -->
+        <aside class="w-64 bg-white shadow-md">
+            <div class="p-4">
+                <h1 class="text-2xl font-bold text-primary">CAMS</h1>
+                <p class="text-sm text-muted-foreground">Property Manager</p>
+            </div>
+            <nav class="mt-6">
+                <a href="index.html">
+                    <button class="w-full text-left px-4 py-2 hover:bg-gray-100">
+                        <i data-lucide="home" class="inline-block mr-2 h-4 w-4"></i>
+                        Dashboard
+                    </button>
+                </a>
+                <a href="properties.html">
+                    <button class="w-full text-left px-4 py-2 hover:bg-gray-100">
+                        <i data-lucide="list" class="inline-block mr-2 h-4 w-4"></i>
+                        Properties
+                    </button>
+                </a>
+                <a href="bookRequest.html">
+                    <button class="w-full text-left px-4 py-2 hover:bg-gray-100">
+                        <i data-lucide="clipboard-list" class="inline-block mr-2 h-4 w-4"></i>
+                        Booking Requests
+                    </button>
+                </a>
+                <a href="notification.html">
+                    <button class="w-full text-left px-4 py-2 hover:bg-gray-100">
+                        <i data-lucide="bell" class="inline-block mr-2 h-4 w-4"></i>
+                        Notifications
+                    </button>
+                </a>
+                <a href="support.html">
+                    <button class="w-full text-left px-4 py-2 hover:bg-gray-100">
+                        <i data-lucide="message-square" class="inline-block mr-2 h-4 w-4"></i>
+                        Support
+                    </button>
+                </a>
+                <a href="profile.html">
+                    <button class="w-full text-left px-4 py-2 hover:bg-gray-100">
+                        <i data-lucide="user" class="inline-block mr-2 h-4 w-4"></i>
+                        Profile
+                    </button>   
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-8 overflow-auto">
+            <header class="flex justify-between items-center mb-8">
+                <h2 class="text-3xl font-bold text-gray-800">Support</h2>
+                <div class="flex items-center space-x-4">
+                    <button class="p-2 border rounded-full">
+                        <i data-lucide="bell" class="h-4 w-4"></i>
+                    </button>
+                    <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">PM</div>
+                </div>
+            </header>
+
+            <!-- Tabs -->
+            <div class="tabs">
+                <div class="flex border-b mb-4">
+                    <button id="faqTab" class="px-4 py-2 border-b-2 border-blue-600 font-semibold" onclick="showTab('faq')">FAQ</button>
+                    <button id="chatTab" class="px-4 py-2 border-b-2 border-transparent hover:border-blue-600" onclick="showTab('chat')">Chat</button>
+                    <button id="ticketTab" class="px-4 py-2 border-b-2 border-transparent hover:border-blue-600" onclick="showTab('ticket')">Submit Ticket</button>
+                </div>
+
+                <!-- FAQ Section -->
+                <div id="faq" class="tab-content">
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-xl font-bold mb-2">Frequently Asked Questions</h3>
+                        <p class="text-gray-600 mb-4">Find quick answers to common questions</p>
+                        <div>
+                            <div class="border-b">
+                                <button class="w-full text-left py-3 flex justify-between items-center focus:outline-none" onclick="toggleFAQ('faq1')">
+                                    <span>How do I reset my password?</span>
+                                    <span>&#9660;</span>
+                                </button>
+                                <div id="faq1" class="hidden text-gray-600 text-sm pb-3">
+                                    To reset your password, go to the login page and click on the 'Forgot Password' link. Follow the instructions sent to your email to create a new password.
+                                </div>
+                            </div>
+                            <div class="border-b">
+                                <button class="w-full text-left py-3 flex justify-between items-center focus:outline-none" onclick="toggleFAQ('faq2')">
+                                    <span>How can I add a new property?</span>
+                                    <span>&#9660;</span>
+                                </button>
+                                <div id="faq2" class="hidden text-gray-600 text-sm pb-3">
+                                    To add a new property, navigate to the Properties page and click on the 'Create New Property' button. Fill in all the required details and submit the form.
+                                </div>
+                            </div>
+                            <div class="border-b">
+                                <button class="w-full text-left py-3 flex justify-between items-center focus:outline-none" onclick="toggleFAQ('faq3')">
+                                    <span>What should I do if a customer complains about a property?</span>
+                                    <span>&#9660;</span>
+                                </button>
+                                <div id="faq3" class="hidden text-gray-600 text-sm pb-3">
+                                    If a customer complains about a property, listen to their concerns and document the issue. Then, investigate the problem and work with the property owner to resolve it. Keep the customer updated throughout the process.
+                                </div>
+                            </div>
+                            <div class="border-b">
+                                <button class="w-full text-left py-3 flex justify-between items-center focus:outline-none" onclick="toggleFAQ('faq4')">
+                                    <span>How do I process a refund for a booking?</span>
+                                    <span>&#9660;</span>
+                                </button>
+                                <div id="faq4" class="hidden text-gray-600 text-sm pb-3">
+                                    To process a refund, go to the Bookings page, find the specific booking, and click on the 'Refund' option. Follow the prompts to complete the refund process. Make sure to communicate with the customer about the refund status.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chat Section -->
+                <div id="chat" class="tab-content hidden">
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-xl font-bold mb-2">Live Chat</h3>
+                        <p class="text-gray-600 mb-4">Chat with our support team in real-time</p>
+                        <div id="chatMessages" class="h-[400px] overflow-y-auto mb-4">
+                            <!-- Messages will appear here -->
+                        </div>
+                        <form onsubmit="sendMessage(event)" class="flex items-center space-x-2">
+                            <input id="chatInput" type="text" placeholder="Type your message..." class="flex-1 p-2 border rounded-md">
+                            <button type="submit" class="p-2 border rounded-md bg-blue-500 text-white">
+                                <i data-lucide="send" class="h-4 w-4"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Submit Ticket Section -->
+                <div id="ticket" class="tab-content hidden">
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-xl font-bold mb-2">Submit a Support Ticket</h3>
+                        <p class="text-gray-600 mb-4">Get help with more complex issues</p>
+                        <form class="space-y-4">
+                            <div>
+                                <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
+                                <input id="name" type="text" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                            </div>
+                            <div>
+                                <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+                                <input id="email" type="email" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                            </div>
+                            <div>
+                                <label for="issue-type" class="block text-sm font-medium text-gray-700">Issue Type</label>
+                                <select id="issue-type" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                                    <option>Technical Issue</option>
+                                    <option>Billing Question</option>
+                                    <option>Feature Request</option>
+                                    <option>Other</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
+                                <textarea id="description" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" rows="4"></textarea>
+                            </div>
+                        </form>
+                        <div class="mt-6 flex justify-between">
+                            <button class="px-4 py-2 border border-gray-300 rounded-md">Cancel</button>
+                            <button class="px-4 py-2 bg-blue-600 text-white rounded-md">Submit Ticket</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        // Function to show the selected tab and hide others
+        function showTab(tab) {
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.add('hidden'));
+            document.getElementById(tab).classList.remove('hidden');
+
+            // Update tab button active state
+            document.querySelectorAll('.tabs button').forEach(button => button.classList.remove('border-blue-600', 'font-semibold'));
+            document.getElementById(tab + 'Tab').classList.add('border-blue-600', 'font-semibold');
+        }
+
+        // Function to handle sending a chat message
+        function sendMessage(event) {
+            event.preventDefault();
+            const message = document.getElementById('chatInput').value.trim();
+            if (message) {
+                // Add user message
+                const chatMessages = document.getElementById('chatMessages');
+                const userMessage = `<div class="text-right mb-4"><div class="inline-block bg-blue-500 text-white p-2 rounded-lg"><p class="font-semibold">Moderator</p><p>${message}</p></div></div>`;
+                chatMessages.insertAdjacentHTML('beforeend', userMessage);
+                document.getElementById('chatInput').value = '';
+
+                // Simulate admin response
+                setTimeout(() => {
+                    const adminMessage = `<div class="text-left mb-4"><div class="inline-block bg-gray-200 p-2 rounded-lg"><p class="font-semibold">Admin</p><p>Thank you for your message. An admin will be with you shortly.</p></div></div>`;
+                    chatMessages.insertAdjacentHTML('beforeend', adminMessage);
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                }, 1000);
+            }
+        }
+        function toggleFAQ(id) {
+            const faqContent = document.getElementById(id);
+            faqContent.classList.toggle('hidden');
+        }
+    </script>
+</body>
+</html>
