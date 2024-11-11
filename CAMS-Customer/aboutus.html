@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About Us - Hello Sarawak</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap/dist/js/bootstrap.bundle.min.js" defer></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Poppins", sans-serif;
+    }
+
+    .navbar {
+      background-color: #806853;
+      height: 92px;
+      margin: 15px;
+      border-radius: 16px;
+      padding: 0.5rem;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .offcanvas {
+      background-color: #493829 !important;
+    }
+
+    .offcanvas-body .nav-link {
+      color: white;
+    }
+
+    .offcanvas-body .nav-link:hover {
+      color: #a2a2a1;
+    }
+
+    .login-button {
+      background: #816C5B;
+      color: #fff;
+      font-size: 14px;
+      padding: 8px 20px;
+      border-radius: 50px;
+      text-decoration: none;
+      transition: 0.3s;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    }
+
+    .login-button:hover {
+      background-color: #ffffff;
+      color: black;
+    }
+
+    .navbar-toggle {
+      border: none;
+      font-size: 1.25rem;
+    }
+
+    .navbar-toggle:focus, .btn-close:focus {
+      box-shadow: none;
+      outline: none;
+      background-color: #493829;
+    }
+
+    .nav-link {
+      font-weight: 500;
+      position: relative;
+    }
+
+    .about-section {
+      padding: 100px 0;
+      background-color: #f8f9fa;
+      margin-top: 3%;
+    }
+
+    .about-section h2 {
+      color: #493829;
+      margin-bottom: 30px;
+    }
+
+    .about-section p {
+      color: #666;
+      line-height: 1.8;
+      margin-bottom: 20px;
+    }
+
+    .team-member {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .team-member img {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 15px;
+    }
+
+    .team-member h4 {
+      color: #493829;
+      margin-bottom: 5px;
+    }
+
+    .team-member p {
+      color: #666;
+    }
+
+    .footer {
+      padding: 4rem 6rem;
+      background: #493829;
+      color: #fff;
+    }
+
+    .footer-row {
+      display: flex;
+      justify-content: left;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 10rem;
+    }
+
+    .top p {
+      font-size: 1.5rem;
+      padding: 1rem 0 0.8rem 0;
+    }
+
+    .icons {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .icon {
+      color: #fff;
+      font-size: 2rem;
+      transition: color 0.3s ease;
+    }
+
+    .icon:hover {
+      color: #816C5B;
+    }
+
+    .bottom {
+      display: flex;
+      gap: 8rem;
+    }
+
+    .bottom div {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .bottom h3 {
+      font-size: 1.5rem;
+      padding: 1rem 0 0.8rem 0;
+    }
+
+    .bottom a {
+      text-decoration: none;
+      color: #fff;
+      padding-bottom: 0.4rem;
+      font-size: 1.1rem;
+      transition: color 0.3s ease;
+    }
+
+    .bottom a:hover {
+      color: #a38d7b;
+      transform: translateX(5px);
+    }
+
+    @media(max-width: 850px) {
+      .footer {
+        padding: 3rem 2rem;
+      }
+      .footer-row {
+        flex-direction: column;
+      }
+      .bottom {
+        flex-direction: column;
+        gap: 2rem;
+      }
+      .bottom div {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div>
+    <nav class="navbar navbar-expand-lg fixed-top">
+      <div class="container-fluid">
+        <h1 class="navbar-brand mx-4 mb-0" style="font-weight: 500; color: #fff; font-size: 23px; transition: 0.3s color;">
+          Hello Sarawak
+        </h1>
+
+        <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
+          <div class="offcanvas-body">
+            <ul class="navbar-nav justify-content-left flex-grow-1 pe-3">
+                <li class="nav-item mx-4"><a class="nav-link mx-lg-2" href="index.html">Home</a></li>
+                <li class="nav-item mx-4"><a class="nav-link mx-lg-2" href="tour.html">Tour</a></li>
+                <li class="nav-item mx-4"><a class="nav-link mx-lg-2" href="cart.html">Cart</a></li>
+                <li class="nav-item mx-4"><a class="nav-link mx-lg-2" href="support.html">Support</a></li>
+                <li class="nav-item mx-4"><a class="nav-link mx-lg-2" href="contactus.html">Contact Us</a></li>
+                <li class="nav-item mx-4"><a class="nav-link mx-lg-2" href="aboutus.html">About Us</a></li>
+                <li class="nav-item mx-4"><a class="nav-link mx-lg-2" href="AboutSarawak.html">About Sarawak</a></li>
+              </ul>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-end">
+          <a href="/login" class="login-button">Login</a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" style="border: none; background: transparent; cursor: pointer;">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+        </div>
+      </div>
+    </nav>
+  </div>
+
+  <div class="about-section">
+    <div class="container">
+      <h2 class="text-center mb-5">About Hello Sarawak</h2>
+      <div class="row">
+        <div class="col-lg-8 mx-auto">
+          <p>Hello Sarawak is your gateway to the enchanting world of Sarawak, Malaysia's largest state on the island of Borneo. Our mission is to showcase the rich cultural heritage, stunning natural beauty, and unique experiences that Sarawak has to offer.</p>
+          <p>Founded in 2020, our team of passionate locals and travel experts have come together to create unforgettable journeys for visitors from around the globe. We believe in sustainable tourism that benefits local communities while preserving the natural environment.</p>
+          <p>From the vibrant streets of Kuching to the lush rainforests of Gunung Mulu National Park, we curate experiences that capture the essence of Sarawak. Whether you're seeking adventure, cultural immersion, or simply a peaceful getaway, Hello Sarawak is here to make your journey truly memorable.</p>
+        </div>
+      </div>
+      <h3 class="text-center mt-5 mb-4">Our Team</h3>
+      <div class="row">
+        <div class="col-md-4">
+          <div class="team-member">
+            <img src="public/Bako.jpg" alt="Team Member 1">
+            <h4>John Doe</h4>
+            <p>Founder & CEO</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="team-member">
+            <img src="public/Beaches.jpg" alt="Team Member 2">
+            <h4>Jane Smith</h4>
+            <p>Head of Operations</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="team-member">
+            <img src="public/Bird.jpg" alt="Team Member 3">
+            <h4>Mike Johnson</h4>
+            <p>Lead Tour Guide</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="footer-row">
+      <div class="top">
+        <div>
+          <h1>Hello Sarawak</h1>
+          <p>Your Journey Begin</p>
+        </div>
+        <div class="icons">
+          <a href="https://www.facebook.com/" target="_blank" class="fa fa-facebook" style="font-size:24px"></a>
+          <a href="https://www.instagram.com/" target="_blank" class="fa fa-instagram" style="font-size:24px"></a>
+          <a href="https://web.whatsapp.com/" target="_blank">
+            <i class="fa fa-whatsapp" style="font-size:24px"></i>
+          </a>
+          <a href="https://x.com/" target="_blank" class="fa fa-twitter" style="font-size:24px"></a>
+        </div>
+      </div>
+
+      <div class="bottom">
+        <div>
+          <h3>Tour</h3>
+          <a href="/">Damai Beach</a>
+          <a href="/">Bako National Park</a>
+          <a href="/">Kuching Waterfront</a>
+          <a href="/">Gunung Mulu National Park</a>
+        </div>
+
+        <div>
+          <h3>Support</h3>
+          <a href="/">FAQ</a>
+          <a href="/">Privacy Policy</a>
+          <a href="/">Help</a>
+        </div>
+
+        <div>
+          <h3>Contact Us</h3>
+          <p>
+            <a href="#" class="fa fa-google"></a>
+            Wilson336933@gmail.com
+          </p>
+          <p>
+            <i class="fa fa-whatsapp" style="font-size:24px"></i>
+            +60162681684
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

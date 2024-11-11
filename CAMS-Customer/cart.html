@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cart - Hello Sarawak</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap/dist/js/bootstrap.bundle.min.js" defer></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Poppins", sans-serif;
+    }
+
+    .navbar {
+      background-color: #806853;
+      height: 92px;
+      margin: 15px;
+      border-radius: 16px;
+      padding: 0.5rem;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .offcanvas {
+      background-color: #493829 !important;
+    }
+
+    .offcanvas-body .nav-link {
+      color: white;
+    }
+
+    .offcanvas-body .nav-link:hover {
+      color: #a2a2a1;
+    }
+
+    .login-button {
+      background: #816C5B;
+      color: #fff;
+      font-size: 14px;
+      padding: 8px 20px;
+      border-radius: 50px;
+      text-decoration: none;
+      transition: 0.3s;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    }
+
+    .login-button:hover {
+      background-color: #ffffff;
+      color: black;
+    }
+
+    .navbar-toggle {
+      border: none;
+      font-size: 1.25rem;
+    }
+
+    .navbar-toggle:focus, .btn-close:focus {
+      box-shadow: none;
+      outline: none;
+      background-color: #493829;
+    }
+
+    .nav-link {
+      font-weight: 500;
+      position: relative;
+    }
+
+    .cart-section {
+      padding: 100px 0;
+      background-color: #f8f9fa;
+      margin-top: 5%;
+    }
+
+    .cart-section h2 {
+      color: #493829;
+      margin-bottom: 30px;
+    }
+
+    .cart-item {
+      background-color: #fff;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .cart-item img {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 5px;
+    }
+
+    .cart-item h5 {
+      color: #493829;
+      margin-bottom: 10px;
+    }
+
+    .cart-item p {
+      color: #666;
+      margin-bottom: 5px;
+    }
+
+    .cart-total {
+      background-color: #fff;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .cart-total h4 {
+      color: #493829;
+      margin-bottom: 20px;
+    }
+
+    .checkout-btn {
+      background-color: #816C5B;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .checkout-btn:hover {
+      background-color: #493829;
+    }
+
+    .footer {
+      padding: 4rem 6rem;
+      background: #493829;
+      color: #fff;
+    }
+
+    .footer-row {
+      display: flex;
+      justify-content: left;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 10rem;
+    }
+
+    .top p {
+      font-size: 1.5rem;
+      padding: 1rem 0 0.8rem 0;
+    }
+
+    .icons {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .icon {
+      color: #fff;
+      font-size: 2rem;
+      transition: color 0.3s ease;
+    }
+
+    .icon:hover {
+      color: #816C5B;
+    }
+
+    .bottom {
+      display: flex;
+      gap: 8rem;
+    }
+
+    .bottom div {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .bottom h3 {
+      font-size: 1.5rem;
+      padding: 1rem 0 0.8rem 0;
+    }
+
+    .bottom a {
+      text-decoration: none;
+      color: #fff;
+      padding-bottom: 0.4rem;
+      font-size: 1.1rem;
+      transition: color 0.3s ease;
+    }
+
+    .bottom a:hover {
+      color: #a38d7b;
+      transform: translateX(5px);
+    }
+
+    @media(max-width: 850px) {
+      .footer {
+        padding: 3rem 2rem;
+      }
+      .footer-row {
+        flex-direction: column;
+      }
+      .bottom {
+        flex-direction: column;
+        gap: 2rem;
+      }
+      .bottom div {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div>
+    <nav class="navbar navbar-expand-lg fixed-top">
+      <div class="container-fluid">
+        <h1 class="navbar-brand mx-4 mb-0" style="font-weight: 500; color: #fff; font-size: 23px; transition: 0.3s color;">
+          Hello Sarawak
+        </h1>
+
+        <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
+          <div class="offcanvas-body">
+            <ul class="navbar-nav justify-content-left flex-grow-1 pe-3">
+                <li class="nav-item mx-4"><a class="nav-link mx-lg-2" href="index.html">Home</a></li>
+                <li class="nav-item mx-4"><a class="nav-link mx-lg-2" href="tour.html">Tour</a></li>
+                <li class="nav-item mx-4"><a class="nav-link mx-lg-2" href="cart.html">Cart</a></li>
+                <li class="nav-item mx-4"><a class="nav-link mx-lg-2" href="support.html">Support</a></li>
+                <li class="nav-item mx-4"><a class="nav-link mx-lg-2" href="contactus.html">Contact Us</a></li>
+                <li class="nav-item mx-4"><a class="nav-link mx-lg-2" href="aboutus.html">About Us</a></li>
+                <li class="nav-item mx-4"><a class="nav-link mx-lg-2" href="AboutSarawak.html">About Sarawak</a></li>
+              </ul>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-end">
+          <a href="/login" class="login-button">Login</a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" style="border: none; background: transparent; cursor: pointer;">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+        </div>
+      </div>
+    </nav>
+  </div>
+
+  <div class="cart-section">
+    <div class="container">
+      <h2 class="text-center mb-5">Your Cart</h2>
+      <div class="row">
+        <div class="col-lg-8">
+          <div class="cart-item">
+            <div class="row align-items-center">
+              <div class="col-md-3">
+                <img src="public/Hero.jpg" alt="Tour 1" class="img-fluid">
+              </div>
+              <div class="col-md-6">
+                <h5>Bako National Park Tour</h5>
+                <p>Date: 15 July 2024</p>
+                <p>Participants: 2 Adults</p>
+              </div>
+              <div class="col-md-3 text-end">
+                <p class="fw-bold">$150.00</p>
+                <button class="btn btn-sm btn-outline-danger">Remove</button>
+              </div>
+            </div>
+          </div>
+          <div class="cart-item">
+            <div class="row align-items-center">
+              <div class="col-md-3">
+                <img src="public/o1.jpg" alt="Tour 2" class="img-fluid">
+              </div>
+              <div class="col-md-6">
+                <h5>Kuching City Tour</h5>
+                <p>Date: 17 July 2024</p>
+                <p>Participants: 2 Adults, 1 Child</p>
+              </div>
+              <div class="col-md-3 text-end">
+                <p class="fw-bold">$120.00</p>
+                <button class="btn btn-sm btn-outline-danger">Remove</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-4">
+          <div class="cart-total">
+            <h4>Cart Total</h4>
+            <div class="d-flex justify-content-between mb-2">
+              <span>Subtotal:</span>
+              <span>$270.00</span>
+            </div>
+            <div class="d-flex justify-content-between mb-2">
+              <span>Tax:</span>
+              <span>$27.00</span>
+            </div>
+            <hr>
+            <div class="d-flex justify-content-between mb-4">
+              <span class="fw-bold">Total:</span>
+              <span class="fw-bold">$297.00</span>
+            </div>
+            <button class="checkout-btn w-100">Proceed to Checkout</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="footer-row">
+      <div class="top">
+        <div>
+          <h1>Hello Sarawak</h1>
+          <p>Your Journey Begin</p>
+        </div>
+        <div class="icons">
+          <a href="https://www.facebook.com/" target="_blank" class="fa fa-facebook" style="font-size:24px"></a>
+          <a href="https://www.instagram.com/" target="_blank" class="fa fa-instagram" style="font-size:24px"></a>
+          <a href="https://web.whatsapp.com/" target="_blank">
+            <i class="fa fa-whatsapp" style="font-size:24px"></i>
+          </a>
+          <a href="https://x.com/" target="_blank" class="fa fa-twitter" style="font-size:24px"></a>
+        </div>
+      </div>
+
+      <div class="bottom">
+        <div>
+          <h3>Tour</h3>
+          <a href="/">Damai Beach</a>
+          <a href="/">Bako National Park</a>
+          <a href="/">Kuching Waterfront</a>
+          <a href="/">Gunung Mulu National Park</a>
+        </div>
+
+        <div>
+          <h3>Support</h3>
+          <a href="/">FAQ</a>
+          <a href="/">Privacy Policy</a>
+          <a href="/">Help</a>
+        </div>
+
+        <div>
+          <h3>Contact Us</h3>
+          <p>
+            <a href="#" class="fa fa-google"></a>
+            Wilson336933@gmail.com
+          </p>
+          <p>
+            <i class="fa fa-whatsapp" style="font-size:24px"></i>
+            +60162681684
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
