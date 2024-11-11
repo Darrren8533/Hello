@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact Us</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Poppins", sans-serif;
+    }
+
+    .contact {
+      position: relative;
+      min-height: 100vh;
+      padding: 50px 100px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      margin-top: 7%;
+    }
+
+    .contact .content {
+      max-width: 800px;
+      text-align: center;
+    }
+
+    .contact .content h2 {
+      font-size: 36px;
+      font-weight: 500;
+      color: #000000;
+    }
+
+    .contact .content p {
+      font-weight: 300;
+      color: #000000;
+    }
+
+    .container_contact_us {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-top: 30px;
+    }
+
+    .container_contact_us .contactInfo {
+      width: 50%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .container_contact_us .contactInfo .box {
+      position: relative;
+      padding: 20px 0;
+      display: flex;
+    }
+
+    .container_contact_us .contactInfo .box .icon_contact_us {
+      color: #000000;
+      font-size: 2rem;
+      margin-right: 10px;
+      min-width: 60px;
+      height: 30px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .container_contact_us .contactInfo .box .text {
+      display: flex;
+      margin-left: 20px;
+      font-size: 16px;
+      color: #000000;
+      flex-direction: column;
+      font-weight: 300;
+    }
+
+    .container_contact_us .contactInfo .box .text h3 {
+      font-weight: 500;
+    }
+
+    .contactForm {
+      width: 40%;
+      padding: 40px;
+      background: #ffffff;
+      box-shadow: 0 7px 20px rgb(191, 191, 191);
+    }
+
+    .contactForm h2 {
+      font-size: 30px;
+      color: #333;
+      font-weight: 500;
+    }
+
+    .contactForm .inputBox {
+      position: relative;
+      width: 100%;
+      margin-top: 10px;
+    }
+
+    .contactForm .inputBox input, .contactForm .inputBox textarea {
+      width: 100%;
+      padding: 5px 0;
+      font-size: 16px;
+      margin: 10px 0;
+      border: none;
+      border-bottom: 2px solid #333;
+      outline: none;
+      resize: none;
+    }
+
+    .contactForm .inputBox span {
+      position: absolute;
+      left: 0;
+      padding: 5px 0;
+      font-size: 16px;
+      margin: 10px 0;
+      pointer-events: none;
+      transition: 0.5s;
+      color: #666;
+    }
+
+    .contactForm .inputBox input:focus ~ span, 
+    .contactForm .inputBox input:valid ~ span, 
+    .contactForm .inputBox textarea:focus ~ span, 
+    .contactForm .inputBox textarea:valid ~ span {
+      color: #87cd51;
+      font-size: 12px;
+      transform: translateY(-20px);
+    }
+
+    .contactForm .btn_submit {
+      width: 100px;
+      background: #87cd51;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      padding: 10px;
+      font-size: 15px;
+      border-radius: 10px;
+      margin-top: 25px;
+    }
+
+    .contactForm .btn_submit:hover {
+      background: #bdf094;
+      color: #000000;
+      transition: 0.4s;
+    }
+
+    @media (max-width: 991px) {
+      .contact {
+        padding: 50px;
+      }
+
+      .container_contact_us {
+        flex-direction: column;
+      }
+
+      .container_contact_us .contactInfo {
+        margin-bottom: 40px;
+      }
+
+      .container_contact_us .contactInfo, .contactForm {
+        width: 100%;
+      }
+
+      .contact .content {
+        margin-top: 45px;
+      }
+    }
+
+    .footer {
+      padding: 4rem 6rem;
+      background: #493829;
+      color: #fff;
+    }
+    .footer-row {
+      display: flex;
+      justify-content: left;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 10rem;
+    }
+    .top p {
+      font-size: 1.5rem;
+      padding: 1rem 0 0.8rem 0;
+    }
+    .icons {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    .icon {
+      color: #fff;
+      font-size: 2rem;
+      transition: color 0.3s ease;
+    }
+    .icon:hover {
+      color: #816C5B;
+    }
+    .bottom {
+      display: flex;
+      gap: 8rem;
+    }
+    .bottom div {
+      display: flex;
+      flex-direction: column;
+    }
+    .bottom h3 {
+      font-size: 1.5rem;
+      padding: 1rem 0 0.8rem 0;
+    }
+    .bottom a {
+      text-decoration: none;
+      color: #fff;
+      padding-bottom: 0.4rem;
+      font-size: 1.1rem;
+      transition: color 0.3s ease;
+    }
+    .bottom a:hover {
+      color: #a38d7b;
+      transform: translateX(5px);
+    }
+    .bottom p {
+      color: #fff;
+      padding-bottom: 0.4rem;
+      font-size: 1.1rem;
+      display: flex;
+      gap: 0.8rem;
+      align-items: center;
+    }
+    .bottom p .icon {
+      font-size: 1.5rem;
+      color: #fff;
+    }
+    @media(max-width: 850px) {
+      .footer {
+        padding: 3rem 2rem;
+      }
+      .footer-row {
+        flex-direction: column;
+      }
+      .bottom {
+        flex-direction: column;
+        gap: 2rem;
+      }
+      .bottom div {
+        width: 100%;
+      }
+    }
+
+    .navbar {
+      background-color: #806853;
+      height: 92px;
+      margin: 15px;
+      border-radius: 16px;
+      padding: 0.5rem;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .offcanvas {
+      background-color: #493829 !important;
+    }
+
+    .offcanvas-body .nav-link {
+      color: white;
+    }
+
+    .offcanvas-body .nav-link:hover {
+      color: #a2a2a1;
+    }
+
+    .login-button {
+      background: #816C5B;
+      color: #fff;
+      font-size: 14px;
+      padding: 8px 20px;
+      border-radius: 50px;
+      text-decoration: none;
+      transition: 0.3s;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    }
+
+    .login-button:hover {
+      background-color: #ffffff;
+      color: black;
+    }
+
+    button.logout-button, a.login-button {
+      background: #816C5B;
+      color: #fff;
+      font-size: 14px;
+      padding: 8px 20px;
+      border-radius: 50px;
+      text-decoration: none;
+      transition: 0.3s;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+      border: none;
+      cursor: pointer;
+    }
+
+    button.logout-button:hover, a.login-button:hover {
+      background-color: #ffffff;
+      color: black;
+    }
+
+    .navbar-toggle {
+      border: none;
+      font-size: 1.25rem;
+    }
+
+    .navbar-toggle:focus, .btn-close:focus {
+      box-shadow: none;
+      outline: none;
+      background-color: #493829;
+    }
+
+    .nav-link {
+      font-weight: 500;
+      position: relative;
+    }
+
+    @media(min-width: 991px) {
+      .nav-link::before {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100%;
+        height: 2px;
+        background-color: #ffffff;
+        visibility: hidden;
+        transition: 0.1s ease-in;
+      }
+
+      .nav-link:hover::before, .nav-link.active::before {
+        width: 100%;
+        visibility: visible;
+      }
+    }
+  </style>
+</head>
+<body>
+
+    <div>
+        <nav class="navbar navbar-expand-lg fixed-top">
+          <div class="container-fluid">
+            <h1 class="navbar-brand mx-4 mb-0" style="font-weight: 500; color: #fff; font-size: 23px; transition: 0.3s color;">
+              Hello Sarawak
+            </h1>
+    
+            <div class="offcanvas offcanvas-end" tabIndex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
+              <div class="offcanvas-body">
+                <ul class="navbar-nav justify-content-left flex-grow-1 pe-3">
+                    <li class="nav-item mx-4"><a class="nav-link mx-lg-2" href="index.html">Home</a></li>
+                    <li class="nav-item mx-4"><a class="nav-link mx-lg-2" href="tour.html">Tour</a></li>
+                    <li class="nav-item mx-4"><a class="nav-link mx-lg-2" href="#">Cart</a></li>
+                    <li class="nav-item mx-4"><a class="nav-link mx-lg-2" href="#">Support</a></li>
+                    <li class="nav-item mx-4"><a class="nav-link mx-lg-2" href="contactus.html">Contact Us</a></li>
+                    <li class="nav-item mx-4"><a class="nav-link mx-lg-2" href="#">About Us</a></li>
+                    <li class="nav-item mx-4"><a class="nav-link mx-lg-2" href="AboutSarawak.html">About Sarawak</a></li>
+                  </ul>
+              </div>
+            </div>
+    
+            <div class="d-flex justify-content-end">
+              <a href="/login" class="login-button">Login</a>
+              <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" style="border: none; background: transparent; cursor: pointer;">
+                <span class="navbar-toggler-icon"></span>
+              </button>
+            </div>
+          </div>
+        </nav>
+      </div>
+
+  <div class="contact">
+    <div class="content">
+      <h2>Contact Us</h2>
+      <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit.</p>
+    </div>
+
+    <div class="container_contact_us">
+      <div class="contactInfo">
+        <div class="box">
+          <span class="icon_contact_us">&#xf3c5;</span> <!-- Location Icon -->
+          <div class="text">
+            <h3>Address</h3>
+            <p>Lorem ipsum dolor sit amet consectetur.</p>
+          </div>
+        </div>
+
+        <div class="box">
+          <span class="icon_contact_us">&#xf0e0;</span> <!-- Email Icon -->
+          <div class="text">
+            <h3>Email</h3>
+            <p>Lorem ipsum dolor sit amet consectetur.</p>
+          </div>
+        </div>
+
+        <div class="box">
+          <span class="icon_contact_us">&#xf095;</span> <!-- Phone Icon -->
+          <div class="text">
+            <h3>Phone</h3>
+            <p>Lorem ipsum dolor sit amet consectetur.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="contactForm">
+        <form>
+          <h2>Send Message</h2>
+
+          <div class="inputBox">
+            <input type="text" name="name" required />
+            <span>Full Name</span>
+          </div>
+
+          <div class="inputBox">
+            <input type="email" name="email" required />
+            <span>Email</span>
+          </div>
+
+          <div class="inputBox">
+            <textarea name="message" required></textarea>
+            <span>Your Message Here</span>
+          </div>
+
+          <button type="submit" class="btn_submit">
+            <span>Send</span>
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="footer-row">
+      <div class="top">
+        <div>
+          <h1>Hello Sarawak</h1>
+          <p>Your Journey Begin</p>
+        </div>
+        <div class="icons">
+          <a href="https://www.facebook.com/" target="_blank" class="fa fa-facebook" style="font-size:24px">
+          </a>
+          <a href="https://www.instagram.com/" target="_blank" class="fa fa-instagram" style="font-size:24px">
+          </a>
+          <a href="https://web.whatsapp.com/" target="_blank">
+            <i class="fa fa-whatsapp" style="font-size:24px"></i>
+          </a>
+          <a href="https://x.com/" target="_blank" class="fa fa-twitter" style="font-size:24px">
+          </a>
+        </div>
+      </div>
+
+      <div class="bottom">
+        <div>
+          <h3>Tour</h3>
+          <a href="/">Damai Beach</a>
+          <a href="/">Bako National Park</a>
+          <a href="/">Kuching Waterfront</a>
+          <a href="/">Gunung Mulu National Park</a>
+        </div>
+
+        <div>
+          <h3>Support</h3>
+          <a href="/">FAQ</a>
+          <a href="/">Privacy Policy</a>
+          <a href="/">Help</a>
+        </div>
+
+        <div>
+          <h3>Contact Us</h3>
+          <p>
+            <a href="#" class="fa fa-google"></a>
+            Wilson336933@gmail.com
+          </p>
+          <p>
+            <i class="fa fa-whatsapp" style="font-size:24px"></i>
+            +60162681684
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

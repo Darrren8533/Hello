@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sarawak</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap/dist/css/bootstrap.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap/dist/js/bootstrap.bundle.min.js" defer></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Poppins", sans-serif;
+    }
+
+    .navbar {
+      background-color: #806853;
+      height: 92px;
+      margin: 15px;
+      border-radius: 16px;
+      padding: 0.5rem;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .offcanvas {
+      background-color: #493829 !important;
+    }
+
+    .offcanvas-body .nav-link {
+      color: white;
+    }
+
+    .offcanvas-body .nav-link:hover {
+      color: #a2a2a1;
+    }
+
+    .login-button {
+      background: #816C5B;
+      color: #fff;
+      font-size: 14px;
+      padding: 8px 20px;
+      border-radius: 50px;
+      text-decoration: none;
+      transition: 0.3s;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    }
+
+    .login-button:hover {
+      background-color: #ffffff;
+      color: black;
+    }
+
+    button.logout-button, a.login-button {
+      background: #816C5B;
+      color: #fff;
+      font-size: 14px;
+      padding: 8px 20px;
+      border-radius: 50px;
+      text-decoration: none;
+      transition: 0.3s;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+      border: none;
+      cursor: pointer;
+    }
+
+    button.logout-button:hover, a.login-button:hover {
+      background-color: #ffffff;
+      color: black;
+    }
+
+    .navbar-toggle {
+      border: none;
+      font-size: 1.25rem;
+    }
+
+    .navbar-toggle:focus, .btn-close:focus {
+      box-shadow: none;
+      outline: none;
+      background-color: #493829;
+    }
+
+    .nav-link {
+      font-weight: 500;
+      position: relative;
+    }
+
+    @media(min-width: 991px) {
+      .nav-link::before {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100%;
+        height: 2px;
+        background-color: #ffffff;
+        visibility: hidden;
+        transition: 0.1s ease-in;
+      }
+
+      .nav-link:hover::before, .nav-link.active::before {
+        width: 100%;
+        visibility: visible;
+      }
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Poppins", sans-serif;
+    }
+
+    .container {
+        width: 100%;
+        height: 100%;
+        margin: 7% auto;
+        padding: 20px 30px;
+    }
+
+    .about {
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        flex-wrap: wrap;
+        margin-top: 5%;
+    }
+
+    .about-image {
+        flex: 1.7;
+        margin-right: 20px;
+        overflow: hidden;
+    }
+
+    .about-image img {
+        max-width: 100%;
+        height: auto;
+        display: block;
+        transition: 0.5s ease;
+        border-radius: 20px;
+    }
+
+    .about-image:hover img {
+        transform: scale(1.3);
+    }
+
+    .about-content {
+        flex: 1.5;
+        padding-right: 10px;
+    }
+
+    .about-content h1 {
+        font-size: 30px;
+        margin-bottom: 15px;
+        color: #333;
+    }
+
+    .about-content p {
+        font-size: 17px;
+        line-height: 1.5;
+        color: #666;
+    }
+
+    @media screen and (max-width: 768px) {
+        .container {
+            padding: 0px;
+        }
+
+        .about {
+            padding: 20px;
+            flex-direction: column;
+        }
+
+        .about-image {
+            margin-right: 0px;
+            margin-bottom: 20px;
+        }
+
+        .about-content {
+            padding: 0px;
+            font-size: 16px;
+        }
+
+        
+    }
+
+    .footer {
+      padding: 4rem 6rem;
+      background: #493829;
+      color: #fff;
+    }
+    .footer-row {
+      display: flex;
+      justify-content: left;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 10rem;
+    }
+    .top p {
+      font-size: 1.5rem;
+      padding: 1rem 0 0.8rem 0;
+    }
+    .icons {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    .icon {
+      color: #fff;
+      font-size: 2rem;
+      transition: color 0.3s ease;
+    }
+    .icon:hover {
+      color: #816C5B;
+    }
+    .bottom {
+      display: flex;
+      gap: 8rem;
+    }
+    .bottom div {
+      display: flex;
+      flex-direction: column;
+    }
+    .bottom h3 {
+      font-size: 1.5rem;
+      padding: 1rem 0 0.8rem 0;
+    }
+    .bottom a {
+      text-decoration: none;
+      color: #fff;
+      padding-bottom: 0.4rem;
+      font-size: 1.1rem;
+      transition: color 0.3s ease;
+    }
+    .bottom a:hover {
+      color: #a38d7b;
+      transform: translateX(5px);
+    }
+    .bottom p {
+      color: #fff;
+      padding-bottom: 0.4rem;
+      font-size: 1.1rem;
+      display: flex;
+      gap: 0.8rem;
+      align-items: center;
+    }
+    .bottom p .icon {
+      font-size: 1.5rem;
+      color: #fff;
+    }
+    @media(max-width: 850px) {
+      .footer {
+        padding: 3rem 2rem;
+      }
+      .footer-row {
+        flex-direction: column;
+      }
+      .bottom {
+        flex-direction: column;
+        gap: 2rem;
+      }
+      .bottom div {
+        width: 100%;
+      }
+    }
+
+  </style>
+</head>
+<body>
+  <div>
+    <nav class="navbar navbar-expand-lg fixed-top">
+      <div class="container-fluid">
+        <h1 class="navbar-brand mx-4 mb-0" style="font-weight: 500; color: #fff; font-size: 23px; transition: 0.3s color;">
+          Hello Sarawak
+        </h1>
+
+        <div class="offcanvas offcanvas-end" tabIndex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
+          <div class="offcanvas-body">
+            <ul class="navbar-nav justify-content-left flex-grow-1 pe-3">
+              <li class="nav-item mx-4"><a class="nav-link mx-lg-2" href="index.html">Home</a></li>
+              <li class="nav-item mx-4"><a class="nav-link mx-lg-2" href="tour.html">Tour</a></li>
+              <li class="nav-item mx-4"><a class="nav-link mx-lg-2" href="#">Cart</a></li>
+              <li class="nav-item mx-4"><a class="nav-link mx-lg-2" href="#">Support</a></li>
+              <li class="nav-item mx-4"><a class="nav-link mx-lg-2" href="contactus.html">Contact Us</a></li>
+              <li class="nav-item mx-4"><a class="nav-link mx-lg-2" href="#">About Us</a></li>
+              <li class="nav-item mx-4"><a class="nav-link mx-lg-2" href="AboutSarawak.html">About Sarawak</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-end">
+          <a href="/login" class="login-button">Login</a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" style="border: none; background: transparent; cursor: pointer;">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+        </div>
+      </div>
+    </nav>
+  </div>
+
+  <div>
+    <div class="container">
+      <section class="about">
+        <div class="about-image">
+          <img src="public/Bird.jpg" alt="bird" />
+        </div>
+        <div class="about-content">
+          <h1>About Sarawak</h1>
+          <p>
+            Nestled on the island of Borneo, Sarawak is Malaysia's largest state, renowned for its rich cultural tapestry, diverse wildlife, and breathtaking natural landscapes. Often referred to as the "Land of the Hornbills," Sarawak offers an unparalleled journey into the heart of Southeast Asia.
+          </p>
+        </div>
+      </section>
+
+      <section class="about">
+        <div class="about-content">
+          <h1>Cultural Diversity</h1>
+          <p>
+            Home to over 27 ethnic groups, including the Iban, Bidayuh, and Orang Ulu, Sarawak boasts a mosaic of traditions, languages, and beliefs. Visitors can immerse themselves in this cultural diversity by exploring traditional longhouses, participating in local festivals, and visiting the Sarawak Cultural Village, which showcases the heritage of these indigenous communities.
+          </p>
+        </div>
+        <div class="about-image">
+          <img src="public/Temple.jpg" alt="temple" />
+        </div>
+      </section>
+
+      <section class="about">
+        <div class="about-image">
+          <img src="public/Bako.jpg" alt="bako" />
+        </div>
+        <div class="about-content">
+          <h1>Natural Wonders</h1>
+          <p>
+            Sarawak's lush rainforests and diverse ecosystems are protected within numerous national parks. Bako National Park, easily accessible from Kuching, is famed for its proboscis monkeys and varied landscapes. Gunung Mulu National Park, a UNESCO World Heritage Site, captivates with its vast cave systems and the iconic limestone Pinnacles.
+          </p>
+        </div>
+      </section>
+
+      <section class="about">
+        <div class="about-content">
+          <h1>Wildlife Encounters</h1>
+          <p>
+            For wildlife enthusiasts, Sarawak offers opportunities to observe orangutans in their natural habitat at centers like the Semenggoh Wildlife Rehabilitation Centre. The state's rivers and coastal areas are also home to diverse marine life and bird species, making it a haven for nature lovers.
+          </p>
+        </div>
+        <div class="about-image">
+          <img src="public/cave.jpg" alt="cave" />
+        </div>
+      </section>
+
+      <section class="about">
+        <div class="about-image">
+          <img src="public/Laksa.jpg" alt="laksa" />
+        </div>
+        <div class="about-content">
+          <h1>Culinary Delights</h1>
+          <p>
+            The state's diverse cultural landscape is mirrored in its cuisine. Dishes like Sarawak laksa, kolo mee, and traditional Iban fare offer a gastronomic journey that delights the senses. Exploring local markets and food stalls provides an authentic taste of Sarawak's culinary heritage.
+          </p>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="footer-row">
+      <div class="top">
+        <div>
+          <h1>Hello Sarawak</h1>
+          <p>Your Journey Begin</p>
+        </div>
+        <div class="icons">
+          <a href="https://www.facebook.com/" target="_blank" class="fa fa-facebook" style="font-size:24px">
+          </a>
+          <a href="https://www.instagram.com/" target="_blank" class="fa fa-instagram" style="font-size:24px">
+          </a>
+          <a href="https://web.whatsapp.com/" target="_blank">
+            <i class="fa fa-whatsapp" style="font-size:24px"></i>
+          </a>
+          <a href="https://x.com/" target="_blank" class="fa fa-twitter" style="font-size:24px">
+          </a>
+        </div>
+      </div>
+
+      <div class="bottom">
+        <div>
+          <h3>Tour</h3>
+          <a href="/">Damai Beach</a>
+          <a href="/">Bako National Park</a>
+          <a href="/">Kuching Waterfront</a>
+          <a href="/">Gunung Mulu National Park</a>
+        </div>
+
+        <div>
+          <h3>Support</h3>
+          <a href="/">FAQ</a>
+          <a href="/">Privacy Policy</a>
+          <a href="/">Help</a>
+        </div>
+
+        <div>
+          <h3>Contact Us</h3>
+          <p>
+            <a href="#" class="fa fa-google"></a>
+            Wilson336933@gmail.com
+          </p>
+          <p>
+            <i class="fa fa-whatsapp" style="font-size:24px"></i>
+            +60162681684
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

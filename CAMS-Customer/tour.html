@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Booking Page</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <style>
+    * {
+      padding: 0;
+      margin: 0;
+      box-sizing: border-box;
+    }
+
+    .home {
+      background-attachment: fixed;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: cover;
+      text-align: center;
+    }
+
+    .home h1 {
+      font-family: 'Great Vibes', 'cursive';
+      font-size: 150px;
+      color: white;
+      padding-top: 10%;
+    }
+
+    .home .container {
+      padding: 20px;
+      max-width: 90%;
+      margin: auto;
+      margin-top: 10%;
+    }
+
+    .home .content.grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 20px;
+      border: 1px solid #ddd;
+      background-color: #ededed;
+      border-radius: 20px;
+    }
+
+    .home .box {
+      padding: 35px;
+      border-radius: 8px;
+      background-color: #ededed;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .home .box span {
+      font-weight: bold;
+      margin-bottom: 10px;
+      font-size: large;
+    }
+
+    .home .box input {
+      padding: 10px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      width: 100%;
+    }
+
+    .mtop {
+      margin-top: 40px;
+    }
+
+    .grid2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      grid-gap: 30px;
+    }
+
+    .room-details-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.6);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .room-details {
+      background: #fff;
+      padding: 30px;
+      max-width: 100%;
+      width: 100%;
+      height: 100%;
+      border-radius: 12px;
+      position: relative;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .room-details-content {
+      display: flex;
+      gap: 20px;
+    }
+
+    .carousel-button {
+      background-color: #ebebeb;
+      border: none;
+      font-size: 24px;
+      padding: 10px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      height: 100%;
+    }
+
+    .carousel-button:hover {
+      background-color: #d9d9d9;
+    }
+
+    .main-image.fullscreen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      object-fit: contain;
+      background-color: rgba(0, 0, 0, 0.9);
+      cursor: zoom-out;
+      z-index: 1000;
+    }
+
+    .main-image {
+      cursor: zoom-in;
+      width: 100%;
+      height: 600px;
+      border-radius: 8px;
+    }
+
+    .thumbnails {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+      overflow-x: auto;
+    }
+
+    .thumbnail img {
+      width: 80px;
+      height: 60px;
+      cursor: pointer;
+      object-fit: cover;
+      border-radius: 5px;
+      border: 2px solid transparent;
+      transition: border-color 0.3s;
+    }
+
+    .thumbnail img:hover, .thumbnail img.active {
+      border-color: #007bff;
+    }
+
+    .room-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto; 
+      max-height: 70%; 
+    }
+
+    .icon_close {
+      position: absolute;
+      top: 1px;
+      right: -55px;
+      background: transparent;
+      border: none;
+      font-size: 2rem;
+      cursor: pointer;
+      color: #000000;
+      margin-right: 60px;
+    }
+
+    .icon_close:hover {
+      color: #fa0000;
+    }
+
+    .booking-form button {
+      padding: 12px;
+      font-size: 1rem;
+      color: #fff;
+      background-color: #007bff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .booking-form button:hover {
+      background-color: #0056b3;
+    }
+
+    .view-button {
+      display: flex;
+      justify-content: space-between;
+      font-size: 14px;
+      padding: 8px 20px;
+      border-radius: 50px;
+      text-decoration: none;
+      transition: 0.3s;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+      background: #CC8C18;
+      color: white;
+      outline: none;
+      border: none;
+    }
+
+    .view-button:hover {
+      background-color: #653600;
+      color: white;
+    }
+
+    .view_button_availability {
+      display: block;
+      font-size: 15px;
+      padding: 8px 20px;
+      border-radius: 50px;
+      transition: 0.3s;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+      background: #CC8C18;
+      color: white;
+      outline: none;
+      border: none;
+      margin: 0 auto;
+    }
+
+    .view_button_availability:hover {
+      background-color: #653600;
+      color: white;
+    }
+
+    @media (max-width: 768px) {
+      .grid2 {
+        grid-template-columns: 1fr;
+      }
+
+      .view_button_availability {
+        width: 120%;
+        max-width: 200px;
+        padding: 10px;
+        margin-left: 90px;
+      }
+    }
+
+    .navbar {
+      background-color: #806853;
+      height: 92px;
+      margin: 15px;
+      border-radius: 16px;
+      padding: 0.5rem;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .offcanvas {
+      background-color: #493829 !important;
+    }
+
+    .offcanvas-body .nav-link {
+      color: white;
+    }
+
+    .offcanvas-body .nav-link:hover {
+      color: #a2a2a1;
+    }
+
+    .login-button {
+      background: #816C5B;
+      color: #fff;
+      font-size: 14px;
+      padding: 8px 20px;
+      border-radius: 50px;
+      text-decoration: none;
+      transition: 0.3s;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    }
+
+    .login-button:hover {
+      background-color: #ffffff;
+      color: black;
+    }
+
+    button.logout-button, a.login-button {
+      background: #816C5B;
+      color: #fff;
+      font-size: 14px;
+      padding: 8px 20px;
+      border-radius: 50px;
+      text-decoration: none;
+      transition: 0.3s;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+      border: none;
+      cursor: pointer;
+    }
+
+    button.logout-button:hover, a.login-button:hover {
+      background-color: #ffffff;
+      color: black;
+    }
+
+    .navbar-toggle {
+      border: none;
+      font-size: 1.25rem;
+    }
+
+    .navbar-toggle:focus, .btn-close:focus {
+      box-shadow: none;
+      outline: none;
+      background-color: #493829;
+    }
+
+    .nav-link {
+      font-weight: 500;
+      position: relative;
+    }
+
+    @media(min-width: 991px) {
+      .nav-link::before {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100%;
+        height: 2px;
+        background-color: #ffffff;
+        visibility: hidden;
+        transition: 0.1s ease-in;
+      }
+
+      .nav-link:hover::before, .nav-link.active::before {
+        width: 100%;
+        visibility: visible;
+      }
+    }
+
+    .footer {
+      padding: 4rem 6rem;
+      background: #493829;
+      color: #fff;
+    }
+    .footer-row {
+      display: flex;
+      justify-content: left;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 10rem;
+    }
+    .top p {
+      font-size: 1.5rem;
+      padding: 1rem 0 0.8rem 0;
+    }
+    .icons {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    .icon {
+      color: #fff;
+      font-size: 2rem;
+      transition: color 0.3s ease;
+    }
+    .icon:hover {
+      color: #816C5B;
+    }
+    .bottom {
+      display: flex;
+      gap: 8rem;
+    }
+    .bottom div {
+      display: flex;
+      flex-direction: column;
+    }
+    .bottom h3 {
+      font-size: 1.5rem;
+      padding: 1rem 0 0.8rem 0;
+    }
+    .bottom a {
+      text-decoration: none;
+      color: #fff;
+      padding-bottom: 0.4rem;
+      font-size: 1.1rem;
+      transition: color 0.3s ease;
+    }
+    .bottom a:hover {
+      color: #a38d7b;
+      transform: translateX(5px);
+    }
+    .bottom p {
+      color: #fff;
+      padding-bottom: 0.4rem;
+      font-size: 1.1rem;
+      display: flex;
+      gap: 0.8rem;
+      align-items: center;
+    }
+    .bottom p .icon {
+      font-size: 1.5rem;
+      color: #fff;
+    }
+    @media(max-width: 850px) {
+      .footer {
+        padding: 3rem 2rem;
+      }
+      .footer-row {
+        flex-direction: column;
+      }
+      .bottom {
+        flex-direction: column;
+        gap: 2rem;
+      }
+      .bottom div {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  
+    <nav class="navbar navbar-expand-lg fixed-top">
+        <div class="container-fluid">
+          <h1 class="navbar-brand mx-4 mb-0" style="font-weight: 500; color: #fff; font-size: 23px; transition: 0.3s color;">
+            Hello Sarawak
+          </h1>
+  
+          <div class="offcanvas offcanvas-end" tabIndex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
+            <div class="offcanvas-body">
+                <ul class="navbar-nav justify-content-left flex-grow-1 pe-3">
+                    <li class="nav-item mx-4"><a class="nav-link mx-lg-2" href="index.html">Home</a></li>
+                    <li class="nav-item mx-4"><a class="nav-link mx-lg-2" href="tour.html">Tour</a></li>
+                    <li class="nav-item mx-4"><a class="nav-link mx-lg-2" href="#">Cart</a></li>
+                    <li class="nav-item mx-4"><a class="nav-link mx-lg-2" href="#">Support</a></li>
+                    <li class="nav-item mx-4"><a class="nav-link mx-lg-2" href="contactus.html">Contact Us</a></li>
+                    <li class="nav-item mx-4"><a class="nav-link mx-lg-2" href="#">About Us</a></li>
+                    <li class="nav-item mx-4"><a class="nav-link mx-lg-2" href="AboutSarawak.html">About Sarawak</a></li>
+                  </ul>
+            </div>
+          </div>
+  
+          <div class="d-flex justify-content-end">
+            <a href="/login" class="login-button">Login</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" style="border: none; background: transparent; cursor: pointer;">
+              <span class="navbar-toggler-icon"></span>
+            </button>
+          </div>
+        </div>
+      </nav>
+
+    <!-- Home Section -->
+    <section class="home" id="home">
+      <div class="container">
+        <div class="content grid">
+          <div class="box">
+            <span>ARRIVAL DATE</span> <br />
+            <input type="date" name="arrivalDate" />
+          </div>
+          <div class="box">
+            <span>DEPARTURE DATE</span> <br />
+            <input type="date" name="departureDate" />
+          </div>
+          <div class="box">
+            <span>ADULTS</span> <br />
+            <input type="number" placeholder="1" />
+          </div>
+          <div class="box">
+            <span>CHILDREN </span> <br />
+            <input type="number" placeholder="0" />
+          </div>   
+          <div class="box">
+            <button class="view_button_availability">
+              Check Availability
+              <i class="fas fa-arrow-circle-right"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div className="container">
+        <h2>Available Properties</h2> 
+        <div className="content grid2 mtop">
+            <p>No properties available.</p>
+        </div>
+
+    </div>
+    </section>
+
+    <!-- <section className="offer mtop" id="services">
+        <div className="container">
+            <h2>Available Properties</h2> 
+            <div className="content grid2 mtop">
+                <p>No properties available.</p>
+            </div>
+
+        </div>
+    </section> -->
+
+    <!-- Footer placeholder -->
+    <div class="footer">
+        <div class="footer-row">
+          <div class="top">
+            <div>
+              <h1>Hello Sarawak</h1>
+              <p>Your Journey Begin</p>
+            </div>
+            <div class="icons">
+              <a href="https://www.facebook.com/" target="_blank" class="fa fa-facebook" style="font-size:24px">
+              </a>
+              <a href="https://www.instagram.com/" target="_blank" class="fa fa-instagram" style="font-size:24px">
+              </a>
+              <a href="https://web.whatsapp.com/" target="_blank">
+                <i class="fa fa-whatsapp" style="font-size:24px"></i>
+              </a>
+              <a href="https://x.com/" target="_blank" class="fa fa-twitter" style="font-size:24px">
+              </a>
+            </div>
+          </div>
+    
+          <div class="bottom">
+            <div>
+              <h3>Tour</h3>
+              <a href="/">Damai Beach</a>
+              <a href="/">Bako National Park</a>
+              <a href="/">Kuching Waterfront</a>
+              <a href="/">Gunung Mulu National Park</a>
+            </div>
+    
+            <div>
+              <h3>Support</h3>
+              <a href="/">FAQ</a>
+              <a href="/">Privacy Policy</a>
+              <a href="/">Help</a>
+            </div>
+    
+            <div>
+              <h3>Contact Us</h3>
+              <p>
+                <a href="#" class="fa fa-google"></a>
+                Wilson336933@gmail.com
+              </p>
+              <p>
+                <i class="fa fa-whatsapp" style="font-size:24px"></i>
+                +60162681684
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+</body>
+</html>
