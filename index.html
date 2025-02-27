@@ -52,7 +52,7 @@
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
     
-    #next-piece {
+    #next-piece, #hold-piece {
       display: grid;
       grid-template-columns: repeat(4, 25px);
       grid-template-rows: repeat(4, 25px);
@@ -168,6 +168,9 @@
     <div id="board"></div>
     
     <div class="info-panel">
+      <h3>保存的方块</h3>
+      <div id="hold-piece"></div>
+      
       <h3>下一个方块</h3>
       <div id="next-piece"></div>
       
@@ -192,6 +195,7 @@
       <li>方向键 ↑: 旋转方块</li>
       <li>方向键 ↓: 加速下落</li>
       <li>空格键: 立即下落到底部</li>
+      <li>Shift键: 储存/交换方块</li>
     </ul>
   </div>
   
@@ -211,6 +215,8 @@
     let board = [];
     let currentPiece;
     let nextPiece;
+    let holdPiece = null;
+    let hasSwapped = false;
     let gameInterval;
     let isPaused = false;
     let gameOver = false;
@@ -265,6 +271,17 @@
           cell.className = 'next-cell';
           cell.id = `next-${r}-${c}`;
           nextPieceElement.appendChild(cell);
+        }
+      }
+      
+      // 创建"保存的方块"预览区
+      const holdPieceElement = document.getElementById('hold-piece');
+      for (let r = 0; r < 4; r++) {
+        for (let c = 0; c < 4; c++) {
+          const cell = document.createElement('div');
+          cell.className = 'next-cell';
+          cell.id = `hold-${r}-${c}`;
+          holdPieceElement.appendChild(cell);
         }
       }
     }
@@ -512,10 +529,69 @@
       currentPiece = nextPiece;
       nextPiece = getRandomPiece();
       drawNextPiece();
+      hasSwapped = false; // 重置交换状态
       
       // 检查新方块是否可以放置
       if (!isValidMove(currentPiece, 0, 0)) {
         endGame();
+      }
+    }
+    
+    // 储存方块
+    function holdCurrentPiece() {
+      if (gameOver || isPaused || hasSwapped) return;
+      
+      if (holdPiece === null) {
+        // 首次保存
+        holdPiece = JSON.parse(JSON.stringify(currentPiece));
+        holdPiece.x = 0;
+        holdPiece.y = 0;
+        currentPiece = nextPiece;
+        nextPiece = getRandomPiece();
+        drawNextPiece();
+      } else {
+        // 交换当前方块和保存的方块
+        const temp = JSON.parse(JSON.stringify(currentPiece));
+        currentPiece = JSON.parse(JSON.stringify(holdPiece));
+        currentPiece.x = 3;
+        currentPiece.y = 0;
+        holdPiece = temp;
+        holdPiece.x = 0;
+        holdPiece.y = 0;
+      }
+      
+      // 绘制保存的方块
+      drawHoldPiece();
+      
+      // 检查交换后的方块是否可以放置
+      if (!isValidMove(currentPiece, 0, 0)) {
+        endGame();
+      }
+      
+      hasSwapped = true; // 标记已经交换过
+      draw();
+    }
+    
+    // 绘制保存的方块
+    function drawHoldPiece() {
+      if (!holdPiece) return;
+      
+      // 清除预览区
+      for (let r = 0; r < 4; r++) {
+        for (let c = 0; c < 4; c++) {
+          const cell = document.getElementById(`hold-${r}-${c}`);
+          cell.className = 'next-cell';
+        }
+      }
+      
+      // 绘制保存的方块
+      for (let r = 0; r < holdPiece.shape.length; r++) {
+        for (let c = 0; c < holdPiece.shape[r].length; c++) {
+          if (holdPiece.shape[r][c]) {
+            const cell = document.getElementById(`hold-${r}-${c}`);
+            cell.classList.add(holdPiece.color);
+          }
+        }
       }
     }
     
@@ -567,12 +643,22 @@
       speed = 1000;
       gameOver = false;
       isPaused = false;
+      holdPiece = null;
+      hasSwapped = false;
       
       // 更新显示
       scoreElement.textContent = score;
       linesElement.textContent = lines;
       levelElement.textContent = level;
       pauseButton.textContent = '暂停';
+      
+      // 清除保存的方块显示
+      for (let r = 0; r < 4; r++) {
+        for (let c = 0; c < 4; c++) {
+          const cell = document.getElementById(`hold-${r}-${c}`);
+          if (cell) cell.className = 'next-cell';
+        }
+      }
       
       // 隐藏游戏结束界面
       gameOverElement.style.display = 'none';
@@ -622,22 +708,31 @@
         
         switch(event.key) {
           case 'ArrowLeft':
+            event.preventDefault(); // 阻止默认行为
             movePiece('left');
             break;
           case 'ArrowRight':
+            event.preventDefault(); // 阻止默认行为
             movePiece('right');
             break;
           case 'ArrowDown':
+            event.preventDefault(); // 阻止默认行为
             movePiece('down');
             break;
           case 'ArrowUp':
+            event.preventDefault(); // 阻止默认行为
             rotatePiece();
             break;
           case ' ':
+            event.preventDefault(); // 阻止默认行为
             dropPiece();
             break;
           case 'p':
             togglePause();
+            break;
+          case 'Shift':
+            event.preventDefault(); // 阻止默认行为
+            holdCurrentPiece();
             break;
         }
       });
