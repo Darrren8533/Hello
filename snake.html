@@ -11,6 +11,8 @@
       background-color: #f0f0f0;
       margin: 0;
       padding: 20px;
+      /* 使用这个代替完全禁止滚动 */
+      overflow-y: auto;
     }
     
     h1 {
@@ -210,6 +212,14 @@
   </div>
   
   <script>
+    // 全局键盘事件 - 在整个文档上禁止方向键的默认行为
+    document.addEventListener('keydown', function(e) {
+      if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '].includes(e.key)) {
+        e.preventDefault();
+        return false; // 允许事件继续传播
+      }
+    }, { passive: false }); // 不使用capture，允许事件冒泡
+    
     // 游戏常量
     const BOARD_SIZE = 400;
     const GRID_SIZE = 20;
@@ -454,21 +464,19 @@
       pauseButton.disabled = true;
     }
     
-    // 键盘控制
+    // 键盘控制 - 专门用于游戏控制的事件处理
     function handleKeydown(e) {
-      // 只在游戏中时阻止方向键滚动页面
-      if (!isGameOver && !startButton.disabled && 
-          ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
-        e.preventDefault();
-      }
+      // 如果游戏未开始，不处理输入
+      if (startButton.disabled === false) return;
       
-      // 游戏控制
+      // 暂停控制
       if (e.key === ' ') {
-        if (!isGameOver && !startButton.disabled) {
-          togglePause();
-        }
+        togglePause();
         return;
       }
+      
+      // 如果游戏已结束或已暂停，不处理方向键
+      if (isGameOver || isPaused) return;
       
       // 方向控制 (防止180度转弯)
       switch (e.key) {
