@@ -95,6 +95,17 @@
       cursor: not-allowed;
     }
     
+    .return-button {
+      background-color: #2196F3;
+      position: absolute;
+      top: 20px;
+      left: 20px;
+    }
+    
+    .return-button:hover {
+      background-color: #0b7dda;
+    }
+    
     .game-over {
       display: none;
       position: absolute;
@@ -170,6 +181,8 @@
   </style>
 </head>
 <body>
+  <button id="return-button" class="return-button">返回游戏大厅</button>
+  
   <h1>贪吃蛇游戏</h1>
   
   <div class="game-container">
@@ -209,6 +222,7 @@
     <h2>游戏结束!</h2>
     <p>最终分数: <span id="final-score">0</span></p>
     <button id="play-again">再玩一次</button>
+    <button id="return-from-game-over" class="return-button">返回游戏大厅</button>
   </div>
   
   <script>
@@ -232,6 +246,7 @@
     const startButton = document.getElementById('start-button');
     const pauseButton = document.getElementById('pause-button');
     const resetButton = document.getElementById('reset-button');
+    const returnButton = document.getElementById('return-button');
     const gameOverElement = document.getElementById('game-over');
     const finalScoreElement = document.getElementById('final-score');
     const playAgainButton = document.getElementById('play-again');
@@ -549,6 +564,12 @@
     pauseButton.addEventListener('click', togglePause);
     resetButton.addEventListener('click', initGame);
     playAgainButton.addEventListener('click', initGame);
+    returnButton.addEventListener('click', function() {
+      window.location.href = 'index.html';
+    });
+    document.getElementById('return-from-game-over').addEventListener('click', function() {
+      window.location.href = 'game-hub';
+    });
     document.addEventListener('keydown', handleKeydown);
     window.addEventListener('resize', adjustBoardSize);
     
