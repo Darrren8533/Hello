@@ -5,6 +5,24 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>俄罗斯方块</title>
   <style>
+    .return-button {
+      background-color: #2196F3;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      font-size: 16px;
+      transition: background-color 0.3s;
+    }
+    
+    .return-button:hover {
+      background-color: #0b7dda;
+    }
+    
     body {
       font-family: Arial, sans-serif;
       text-align: center;
@@ -162,6 +180,8 @@
   </style>
 </head>
 <body>
+  <button id="return-button" class="return-button">返回游戏大厅</button>
+  
   <h1>俄罗斯方块</h1>
   
   <div class="game-container">
@@ -203,6 +223,7 @@
     <h2>游戏结束!</h2>
     <p>最终分数: <span id="final-score">0</span></p>
     <button id="play-again">再玩一次</button>
+    <button id="return-from-game-over" class="return-button" style="position: static; margin-top: 10px;">返回游戏大厅</button>
   </div>
   
   <script>
@@ -248,6 +269,7 @@
     const gameOverElement = document.getElementById('game-over');
     const finalScoreElement = document.getElementById('final-score');
     const playAgainButton = document.getElementById('play-again');
+    const returnButton = document.getElementById('return-button');
     
     // 初始化游戏面板
     function initBoard() {
@@ -702,6 +724,11 @@
         startGame();
       });
       
+      // 游戏结束后返回游戏大厅
+      document.getElementById('return-from-game-over').addEventListener('click', function() {
+        window.location.href = 'index.html';
+      });
+      
       // 键盘控制
       document.addEventListener('keydown', event => {
         if (gameOver) return;
@@ -740,6 +767,12 @@
     
     // 启动游戏
     window.addEventListener('load', init);
+    
+    // 返回游戏大厅
+    returnButton.addEventListener('click', function() {
+      window.location.href = 'index.html';
+    });
+
   </script>
 </body>
 </html>
