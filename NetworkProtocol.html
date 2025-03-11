@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>网络协议测试</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+        }
+        .quiz-container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .question {
+            margin-bottom: 25px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 15px;
+        }
+        .options {
+            margin-left: 20px;
+        }
+        label {
+            display: block;
+            margin: 10px 0;
+            cursor: pointer;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .result {
+            text-align: center;
+            font-size: 20px;
+            margin: 20px auto;
+            padding: 25px;
+            border-radius: 10px;
+            max-width: 500px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            z-index: 100;
+        }
+        .result h2 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 99;
+            display: none;
+        }
+        .correct {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .incorrect {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .hide {
+            display: none;
+        }
+        .progress {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .question-highlight {
+            font-weight: bold;
+            color: #3498db;
+        }
+        .explanation {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-left: 4px solid #3498db;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h1>网络协议测试</h1>
+        <div>
+            <button id="language-btn" style="background-color: #2ecc71;">切换为英文</button>
+            <button id="reset-btn" style="background-color: #e74c3c;">重置当前题目</button>
+        </div>
+    </div>
+    <div class="progress">题目: <span id="current-question">1</span>/10</div>
+    <div class="quiz-container" id="quiz-container">
+        <!-- 题目将通过 JavaScript 动态加载 -->
+    </div>
+    <button id="submit-btn">提交答案</button>
+    <button id="next-btn" class="hide">下一题</button>
+    <button id="restart-btn" class="hide">重新测试</button>
+    <div id="overlay" class="overlay"></div>
+    <div id="result" class="result hide"></div>
+
+    <script>
+        // 语言标志 (true 为中文, false 为英文)
+        let isChinese = true;
+
+        // 所有题目数据 - 中文版
+        const allQuestionsChinese = [
+            {
+                question: "OSI模型共有几层？",
+                options: ["4层", "5层", "7层", "9层"],
+                answer: 2,
+                explanation: "OSI模型共有7层，从下至上依次是：物理层、数据链路层、网络层、传输层、会话层、表示层、应用层。"
+            },
+            {
+                question: "TCP/IP模型与OSI模型相比，有几层？",
+                options: ["4层", "5层", "7层", "9层"],
+                answer: 0,
+                explanation: "TCP/IP模型共有4层：网络接口层、互联网层、传输层和应用层。"
+            },
+            {
+                question: "以下哪个协议工作在传输层？",
+                options: ["HTTP", "IP", "TCP", "ICMP"],
+                answer: 2,
+                explanation: "TCP（传输控制协议）工作在传输层，负责在网络上的主机之间提供可靠的数据传输服务。"
+            },
+            {
+                question: "MAC地址的长度是多少位？",
+                options: ["32位", "48位", "64位", "128位"],
+                answer: 1,
+                explanation: "MAC地址长度为48位（6字节），通常以十六进制表示，如00:1A:2B:3C:4D:5E。"
+            },
+            {
+                question: "ARP协议的主要功能是什么？",
+                options: ["域名解析", "IP地址分配", "将IP地址转换为MAC地址", "路由选择"],
+                answer: 2,
+                explanation: "ARP（地址解析协议）的主要功能是将IP地址解析为对应的MAC地址。"
+            },
+            {
+                question: "IPv6地址的长度是多少位？",
+                options: ["32位", "64位", "128位", "256位"],
+                answer: 2,
+                explanation: "IPv6地址长度为128位（16字节），通常表示为8组四位十六进制数，如2001:0db8:85a3:0000:0000:8a2e:0370:7334。"
+            },
+            {
+                question: "以下哪个不是数据链路层的功能？",
+                options: ["物理寻址", "错误检测", "流量控制", "路由选择"],
+                answer: 3,
+                explanation: "路由选择是网络层的功能，而不是数据链路层的功能。"
+            },
+            {
+                question: "以下哪个协议使用三次握手建立连接？",
+                options: ["UDP", "TCP", "HTTP", "ICMP"],
+                answer: 1,
+                explanation: "TCP协议使用三次握手（SYN, SYN-ACK, ACK）来建立连接，确保双方都准备好进行数据传输。"
+            },
+            {
+                question: "DNS服务主要使用哪个传输层协议？",
+                options: ["TCP", "UDP", "同时使用TCP和UDP", "SCTP"],
+                answer: 2,
+                explanation: "DNS服务主要使用UDP进行查询，但当响应数据超过512字节或需要区域传送时，会使用TCP，因此DNS同时使用TCP和UDP。"
+            },
+            {
+                question: "DHCP协议的主要功能是什么？",
+                options: ["域名解析", "自动分配IP地址", "文件传输", "电子邮件传输"],
+                answer: 1,
+                explanation: "DHCP（动态主机配置协议）的主要功能是自动为网络设备分配IP地址、子网掩码、默认网关等网络参数。"
+            },
+            {
+                question: "路由器工作在OSI模型的哪一层？",
+                options: ["物理层", "数据链路层", "网络层", "传输层"],
+                answer: 2,
+                explanation: "路由器工作在OSI模型的网络层（第3层），负责在不同网络之间转发数据包并选择最佳路径。"
+            },
+            {
+                question: "以下哪个不是应用层协议？",
+                options: ["HTTP", "FTP", "SMTP", "TCP"],
+                answer: 3,
+                explanation: "TCP（传输控制协议）是传输层协议，而HTTP、FTP和SMTP都是应用层协议。"
+            },
+            {
+                question: "NAT技术主要用于解决什么问题？",
+                options: ["网络安全问题", "IP地址短缺问题", "网络性能问题", "域名解析问题"],
+                answer: 1,
+                explanation: "NAT（网络地址转换）主要用于解决IPv4地址短缺问题，允许多个内部设备共享一个公共IP地址。"
+            },
+            {
+                question: "HTTP默认使用的端口号是多少？",
+                options: ["21", "25", "80", "443"],
+                answer: 2,
+                explanation: "HTTP默认使用80端口，而HTTPS默认使用443端口。"
+            },
+            {
+                question: "以下哪个协议不使用TCP？",
+                options: ["HTTP", "FTP", "SMTP", "DNS查询"],
+                answer: 3,
+                explanation: "DNS查询通常使用UDP，而HTTP、FTP和SMTP都使用TCP。"
+            },
+            {
+                question: "ICMP协议的主要功能是什么？",
+                options: ["路由选择", "错误报告和网络诊断", "文件传输", "域名解析"],
+                answer: 1,
+                explanation: "ICMP（互联网控制消息协议）主要用于错误报告和网络诊断，如ping命令就使用ICMP。"
+            },
+            {
+                question: "以下哪种技术用于将域名转换为IP地址？",
+                options: ["DHCP", "NAT", "DNS", "ARP"],
+                answer: 2,
+                explanation: "DNS（域名系统）用于将域名（如www.example.com）转换为IP地址。"
+            },
+            {
+                question: "以下哪个不是TCP的特性？",
+                options: ["面向连接", "可靠传输", "流量控制", "无序传输"],
+                answer: 3,
+                explanation: "TCP提供有序传输，确保数据按发送顺序到达；无序传输是UDP的特性。"
+            },
+            {
+                question: "HTTPS相比HTTP增加了什么功能？",
+                options: ["更快的传输速度", "加密和身份验证", "更大的传输容量", "自动重定向"],
+                answer: 1,
+                explanation: "HTTPS在HTTP的基础上增加了SSL/TLS加密和身份验证，提供了更安全的数据传输。"
+            },
+            {
+                question: "WiFi的802.11标准工作在OSI模型的哪一层？",
+                options: ["物理层和数据链路层", "网络层", "传输层", "应用层"],
+                answer: 0,
+                explanation: "WiFi的802.11标准工作在OSI模型的物理层和数据链路层，定义了无线局域网的通信方式。"
+            },
+            {
+                question: "以下哪个是用于文件传输的协议？",
+                options: ["SMTP", "HTTP", "FTP", "SNMP"],
+                answer: 2,
+                explanation: "FTP（文件传输协议）专门用于在网络上传输文件。"
+            },
+            {
+                question: "子网掩码的主要作用是什么？",
+                options: ["加密数据", "分割广播域", "分配IP地址", "提高传输速度"],
+                answer: 1,
+                explanation: "子网掩码用于将IP网络分割成子网，从而分割广播域，提高网络效率。"
+            },
+            {
+                question: "TCP的三次握手过程中，最后一次握手的主要目的是什么？",
+                options: ["确认服务器收到了客户端的请求", "确认客户端收到了服务器的响应", "建立数据传输通道", "协商传输窗口大小"],
+                answer: 1,
+                explanation: "TCP三次握手的最后一步是客户端向服务器发送ACK，确认客户端已收到服务器的SYN-ACK响应，建立双向连接。"
+            },
+            {
+                question: "以下哪个不是常见的路由协议？",
+                options: ["OSPF", "BGP", "RIP", "SMTP"],
+                answer: 3,
+                explanation: "SMTP（简单邮件传输协议）是用于电子邮件传输的应用层协议，而不是路由协议。OSPF、BGP和RIP都是路由协议。"
+            },
+            {
+                question: "VLAN技术主要用于解决什么问题？",
+                options: ["网络安全问题", "广播风暴问题", "IP地址短缺问题", "路由选择问题"],
+                answer: 1,
+                explanation: "VLAN（虚拟局域网）技术主要用于将一个物理网络分割成多个逻辑网络，隔离广播域，减少广播风暴。"
+            },
+            {
+                question: "SSH默认使用的端口号是多少？",
+                options: ["21", "22", "23", "25"],
+                answer: 1,
+                explanation: "SSH（安全Shell）默认使用22端口，提供加密的远程登录和文件传输服务。"
+            },
+            {
+                question: "以下哪个协议用于电子邮件的接收？",
+                options: ["SMTP", "POP3", "HTTP", "FTP"],
+                answer: 1,
+                explanation: "POP3（邮局协议第3版）用于从邮件服务器接收电子邮件，而SMTP用于发送电子邮件。"
+            },
+            {
+                question: "802.1X是什么类型的协议？",
+                options: ["路由协议", "安全认证协议", "文件传输协议", "网络管理协议"],
+                answer: 1,
+                explanation: "802.1X是一种安全认证协议，用于网络接入控制，确保只有授权用户才能接入网络。"
+            },
+            {
+                question: "以下哪个不是IPv6相对于IPv4的优势？",
+                options: ["更大的地址空间", "简化的报头格式", "内置安全机制", "更高的传输速度"],
+                answer: 3,
+                explanation: "IPv6相对于IPv4的主要优势包括更大的地址空间、简化的报头格式和内置的安全机制，但它并不直接提供更高的传输速度。"
+            },
+            {
+                question: "CSMA/CD技术主要用于哪种网络？",
+                options: ["令牌环网", "以太网", "无线局域网", "光纤网络"],
+                answer: 1,
+                explanation: "CSMA/CD（载波侦听多路访问/冲突检测）技术主要用于有线以太网，用于解决多个设备同时传输导致的冲突问题。"
+            },
+            {
+                question: "以下哪个网络设备工作在数据链路层？",
+                options: ["路由器", "交换机", "负载均衡器", "防火墙"],
+                answer: 1,
+                explanation: "交换机工作在数据链路层（第2层），根据MAC地址转发数据帧。"
+            },
+            {
+                question: "什么是TTL？",
+                options: ["一种加密协议", "数据包的生存时间", "网络传输时延", "一种路由协议"],
+                answer: 1,
+                explanation: "TTL（生存时间）是IP数据包头部的一个字段，用于限制数据包在网络中传输的跳数，防止数据包无限循环。"
+            },
+            {
+                question: "以下哪个不是常见的网络攻击类型？",
+                options: ["DDoS攻击", "中间人攻击", "SQL注入", "路由优化"],
+                answer: 3,
+                explanation: "路由优化是网络管理中的一种正常操作，而不是攻击类型。DDoS攻击、中间人攻击和SQL注入都是常见的网络攻击类型。"
+            },
+            {
+                question: "SNMP协议主要用于什么目的？",
+                options: ["网络设备管理和监控", "文件传输", "域名解析", "时间同步"],
+                answer: 0,
+                explanation: "SNMP（简单网络管理协议）主要用于网络设备的管理和监控，允许管理员收集设备状态信息和配置设备。"
+            },
+            {
+                question: "以下哪个协议用于时间同步？",
+                options: ["NTP", "SMTP", "HTTP", "FTP"],
+                answer: 0,
+                explanation: "NTP（网络时间协议）用于在计算机网络中同步时间，确保网络中的所有设备具有相同的时间。"
+            },
+            {
+                question: "什么是MPLS技术？",
+                options: ["一种路由协议", "一种包交换技术", "一种加密标准", "一种文件传输协议"],
+                answer: 1,
+                explanation: "MPLS（多协议标签交换）是一种高性能的包交换技术，通过标签而不是IP地址来转发数据包，提高网络效率。"
+            },
+            {
+                question: "以下哪个不是无线网络安全协议？",
+                options: ["WEP", "WPA", "WPA2", "IPsec"],
+                answer: 3,
+                explanation: "IPsec是一种用于IP网络安全的协议，而WEP、WPA和WPA2都是无线网络安全协议。"
+            },
+            {
+                question: "SDN的核心思想是什么？",
+                options: ["提高网络传输速度", "加强网络安全", "将控制平面与数据平面分离", "简化网络配置"],
+                answer: 2,
+                explanation: "SDN（软件定义网络）的核心思想是将网络的控制平面与数据平面分离，通过集中控制提高网络灵活性和可编程性。"
+            },
+            {
+                question: "以下哪个不是QoS的主要目标？",
+                options: ["减少延迟", "降低丢包率", "提高带宽利用率", "增强网络安全"],
+                answer: 3,
+                explanation: "QoS（服务质量）的主要目标是确保网络服务性能，如减少延迟、降低丢包率和提高带宽利用率，而增强网络安全不是QoS的主要目标。"
+            },
+            {
+                question: "BGP协议主要用于什么场景？",
+                options: ["局域网内部路由", "互联网自治系统之间的路由", "无线网络接入控制", "网络地址转换"],
+                answer: 1,
+                explanation: "BGP（边界网关协议）主要用于互联网上自治系统（AS）之间的路由选择，是互联网骨干的主要路由协议。"
+            },
+            {
+                question: "以下哪个协议不是用于安全通信的？",
+                options: ["SSL/TLS", "IPsec", "SSH", "DHCP"],
+                answer: 3,
+                explanation: "DHCP用于自动分配IP地址，而不是用于安全通信。SSL/TLS、IPsec和SSH都是用于提供安全通信的协议。"
+            },
+            {
+                question: "OSPF和RIP相比有什么主要优势？",
+                options: ["更简单的配置", "更低的资源消耗", "更快的收敛速度", "支持更大的网络规模"],
+                answer: 2,
+                explanation: "OSPF（开放最短路径优先）相比RIP（路由信息协议）的主要优势包括更快的收敛速度、支持更大的网络规模和路由基于开销而非跳数。"
+            },
+            {
+                question: "TCP端口号的范围是多少？",
+                options: ["0-255", "0-1023", "0-65535", "1-1024"],
+                answer: 2,
+                explanation: "TCP端口号的范围是0-65535，其中0-1023为知名端口，1024-49151为注册端口，49152-65535为动态或私有端口。"
+            },
+            {
+                question: "以下哪个协议用于网络发现？",
+                options: ["ARP", "DHCP", "ICMP", "LLDP"],
+                answer: 3,
+                explanation: "LLDP（链路层发现协议）用于网络设备发现其直接连接的邻居设备，获取网络拓扑信息。"
+            },
+            {
+                question: "什么是网络拥塞控制？",
+                options: ["限制网络连接数量", "防止病毒传播", "避免网络过载", "监控网络流量"],
+                answer: 2,
+                explanation: "网络拥塞控制是一种机制，用于避免网络过载，通过调整数据传输速率来保持网络性能。"
+            },
+            {
+                question: "以下哪个不是常见的网络拓扑结构？",
+                options: ["星型", "总线型", "环型", "螺旋型"],
+                answer: 3,
+                explanation: "螺旋型不是常见的网络拓扑结构，常见的网络拓扑结构包括星型、总线型、环型、网状和混合型。"
+            },
+            {
+                question: "网络层的主要功能是什么？",
+                options: ["提供端到端的数据传输", "物理寻址", "逻辑寻址和路由选择", "用户接口"],
+                answer: 2,
+                explanation: "网络层的主要功能是提供逻辑寻址（如IP地址）和路由选择，确定数据从源到目的地的最佳路径。"
+            }
+        ];
+
+        // 所有题目数据 - 英文版
+        const allQuestionsEnglish = [
+            {
+                question: "How many layers does the OSI model have?",
+                options: ["4 layers", "5 layers", "7 layers", "9 layers"],
+                answer: 2,
+                explanation: "The OSI model has 7 layers, from bottom to top: Physical, Data Link, Network, Transport, Session, Presentation, and Application."
+            },
+            {
+                question: "How many layers does the TCP/IP model have compared to the OSI model?",
+                options: ["4 layers", "5 layers", "7 layers", "9 layers"],
+                answer: 0,
+                explanation: "The TCP/IP model has 4 layers: Network Interface, Internet, Transport, and Application."
+            },
+            {
+                question: "Which of the following protocols works at the Transport layer?",
+                options: ["HTTP", "IP", "TCP", "ICMP"],
+                answer: 2,
+                explanation: "TCP (Transmission Control Protocol) works at the Transport layer, responsible for providing reliable data transmission between hosts on a network."
+            },
+            {
+                question: "What is the length of a MAC address?",
+                options: ["32 bits", "48 bits", "64 bits", "128 bits"],
+                answer: 1,
+                explanation: "A MAC address is 48 bits (6 bytes) long, typically represented in hexadecimal format like 00:1A:2B:3C:4D:5E."
+            },
+            {
+                question: "What is the main function of the ARP protocol?",
+                options: ["Domain name resolution", "IP address assignment", "Converting IP addresses to MAC addresses", "Route selection"],
+                answer: 2,
+                explanation: "ARP (Address Resolution Protocol) is mainly used to resolve IP addresses to their corresponding MAC addresses."
+            },
+            {
+                question: "What is the length of an IPv6 address?",
+                options: ["32 bits", "64 bits", "128 bits", "256 bits"],
+                answer: 2,
+                explanation: "An IPv6 address is 128 bits (16 bytes) long, typically represented as 8 groups of four hexadecimal digits, such as 2001:0db8:85a3:0000:0000:8a2e:0370:7334."
+            },
+            {
+                question: "Which of the following is NOT a function of the Data Link layer?",
+                options: ["Physical addressing", "Error detection", "Flow control", "Routing"],
+                answer: 3,
+                explanation: "Routing is a function of the Network layer, not the Data Link layer."
+            },
+            {
+                question: "Which protocol uses a three-way handshake to establish connections?",
+                options: ["UDP", "TCP", "HTTP", "ICMP"],
+                answer: 1,
+                explanation: "TCP uses a three-way handshake (SYN, SYN-ACK, ACK) to establish connections, ensuring both parties are ready for data transmission."
+            },
+            {
+                question: "Which transport layer protocol is primarily used by DNS services?",
+                options: ["TCP", "UDP", "Both TCP and UDP", "SCTP"],
+                answer: 2,
+                explanation: "DNS services primarily use UDP for queries, but use TCP when the response exceeds 512 bytes or for zone transfers, so DNS uses both TCP and UDP."
+            },
+            {
+                question: "What is the main function of the DHCP protocol?",
+                options: ["Domain name resolution", "Automatic IP address assignment", "File transfer", "Email transmission"],
+                answer: 1,
+                explanation: "DHCP (Dynamic Host Configuration Protocol) is mainly used to automatically assign IP addresses, subnet masks, default gateways, and other network parameters to devices."
+            },
+            {
+                question: "At which layer of the OSI model do routers operate?",
+                options: ["Physical layer", "Data Link layer", "Network layer", "Transport layer"],
+                answer: 2,
+                explanation: "Routers operate at the Network layer (Layer 3) of the OSI model, responsible for forwarding data packets between different networks and selecting the best path."
+            },
+            {
+                question: "Which of the following is NOT an Application layer protocol?",
+                options: ["HTTP", "FTP", "SMTP", "TCP"],
+                answer: 3,
+                explanation: "TCP (Transmission Control Protocol) is a Transport layer protocol, while HTTP, FTP, and SMTP are Application layer protocols."
+            },
+            {
+                question: "What problem does NAT technology primarily address?",
+                options: ["Network security issues", "IP address shortage issues", "Network performance issues", "Domain name resolution issues"],
+                answer: 1,
+                explanation: "NAT (Network Address Translation) is primarily used to address IPv4 address shortage issues, allowing multiple internal devices to share a single public IP address."
+            },
+            {
+                question: "What is the default port number used by HTTP?",
+                options: ["21", "25", "80", "443"],
+                answer: 2,
+                explanation: "HTTP uses port 80 by default, while HTTPS uses port 443."
+            },
+            {
+                question: "Which of the following protocols does NOT use TCP?",
+                options: ["HTTP", "FTP", "SMTP", "DNS queries"],
+                answer: 3,
+                explanation: "DNS queries typically use UDP, while HTTP, FTP, and SMTP use TCP."
+            },
+            {
+                question: "What is the main function of the ICMP protocol?",
+                options: ["Routing", "Error reporting and network diagnostics", "File transfer", "Domain name resolution"],
+                answer: 1,
+                explanation: "ICMP (Internet Control Message Protocol) is mainly used for error reporting and network diagnostics, such as the ping command."
+            },
+            {
+                question: "Which technology is used to convert domain names to IP addresses?",
+                options: ["DHCP", "NAT", "DNS", "ARP"],
+                answer: 2,
+                explanation: "DNS (Domain Name System) is used to convert domain names (like www.example.com) to IP addresses."
+            },
+            {
+                question: "Which of the following is NOT a characteristic of TCP?",
+                options: ["Connection-oriented", "Reliable transmission", "Flow control", "Unordered delivery"],
+                answer: 3,
+                explanation: "TCP provides ordered delivery, ensuring data arrives in the same order it was sent; unordered delivery is a characteristic of UDP."
+            },
+            {
+                question: "What functionality does HTTPS add compared to HTTP?",
+                options: ["Faster transmission speed", "Encryption and authentication", "Larger transmission capacity", "Automatic redirection"],
+                answer: 1,
+                explanation: "HTTPS adds SSL/TLS encryption and authentication on top of HTTP, providing more secure data transmission."
+            },
+            {
+                question: "At which layer of the OSI model does the WiFi 802.11 standard operate?",
+                options: ["Physical and Data Link layers", "Network layer", "Transport layer", "Application layer"],
+                answer: 0,
+                explanation: "The WiFi 802.11 standard operates at the Physical and Data Link layers of the OSI model, defining how wireless LANs communicate."
+            },
+            {
+                question: "Which of the following is a protocol used for file transfer?",
+                options: ["SMTP", "HTTP", "FTP", "SNMP"],
+                answer: 2,
+                explanation: "FTP (File Transfer Protocol) is specifically designed for transferring files over a network."
+            },
+            {
+                question: "What is the main purpose of a subnet mask?",
+                options: ["Encrypting data", "Dividing broadcast domains", "Assigning IP addresses", "Increasing transmission speed"],
+                answer: 1,
+                explanation: "Subnet masks are used to divide IP networks into subnets, thereby dividing broadcast domains and improving network efficiency."
+            },
+            {
+                question: "What is the main purpose of the last step in TCP's three-way handshake?",
+                options: ["Confirming the server received the client's request", "Confirming the client received the server's response", "Establishing a data transmission channel", "Negotiating the transmission window size"],
+                answer: 1,
+                explanation: "The last step of the TCP three-way handshake is the client sending an ACK to the server, confirming that the client has received the server's SYN-ACK response, establishing a bidirectional connection."
+            },
+            {
+                question: "Which of the following is NOT a common routing protocol?",
+                options: ["OSPF", "BGP", "RIP", "SMTP"],
+                answer: 3,
+                explanation: "SMTP (Simple Mail Transfer Protocol) is an Application layer protocol used for email transmission, not a routing protocol. OSPF, BGP, and RIP are routing protocols."
+            },
+            {
+                question: "What problem does VLAN technology primarily address?",
+                options: ["Network security issues", "Broadcast storm issues", "IP address shortage issues", "Routing issues"],
+                answer: 1,
+                explanation: "VLAN (Virtual Local Area Network) technology is primarily used to divide a physical network into multiple logical networks, isolating broadcast domains and reducing broadcast storms."
+            },
+            {
+                question: "What is the default port number used by SSH?",
+                options: ["21", "22", "23", "25"],
+                answer: 1,
+                explanation: "SSH (Secure Shell) uses port 22 by default, providing encrypted remote login and file transfer services."
+            },
+            {
+                question: "Which protocol is used for receiving emails?",
+                options: ["SMTP", "POP3", "HTTP", "FTP"],
+                answer: 1,
+                explanation: "POP3 (Post Office Protocol version 3) is used to receive emails from mail servers, while SMTP is used to send emails."
+            },
+            {
+                question: "What type of protocol is 802.1X?",
+                options: ["Routing protocol", "Security authentication protocol", "File transfer protocol", "Network management protocol"],
+                answer: 1,
+                explanation: "802.1X is a security authentication protocol used for network access control, ensuring only authorized users can access the network."
+            },
+            {
+                question: "Which of the following is NOT an advantage of IPv6 over IPv4?",
+                options: ["Larger address space", "Simplified header format", "Built-in security mechanisms", "Higher transmission speed"],
+                answer: 3,
+                explanation: "The main advantages of IPv6 over IPv4 include a larger address space, simplified header format, and built-in security mechanisms, but it does not directly provide higher transmission speed."
+            },
+            {
+                question: "CSMA/CD technology is primarily used in which type of network?",
+                options: ["Token Ring", "Ethernet", "Wireless LAN", "Fiber optic network"],
+                answer: 1,
+                explanation: "CSMA/CD (Carrier Sense Multiple Access/Collision Detection) technology is primarily used in wired Ethernet networks to resolve collisions caused by multiple devices transmitting simultaneously."
+            },
+            {
+                question: "Which network device operates at the Data Link layer?",
+                options: ["Router", "Switch", "Load balancer", "Firewall"],
+                answer: 1,
+                explanation: "Switches operate at the Data Link layer (Layer 2), forwarding data frames based on MAC addresses."
+            },
+            {
+                question: "What is TTL?",
+                options: ["An encryption protocol", "Time-to-live for data packets", "Network transmission delay", "A routing protocol"],
+                answer: 1,
+                explanation: "TTL (Time-to-Live) is a field in the IP packet header that limits the number of hops a packet can take through the network, preventing infinite packet loops."
+            },
+            {
+                question: "Which of the following is NOT a common type of network attack?",
+                options: ["DDoS attack", "Man-in-the-middle attack", "SQL injection", "Route optimization"],
+                answer: 3,
+                explanation: "Route optimization is a normal operation in network management, not an attack type. DDoS attacks, man-in-the-middle attacks, and SQL injection are common types of network attacks."
+            },
+            {
+                question: "What is the main purpose of the SNMP protocol?",
+                options: ["Network device management and monitoring", "File transfer", "Domain name resolution", "Time synchronization"],
+                answer: 0,
+                explanation: "SNMP (Simple Network Management Protocol) is primarily used for managing and monitoring network devices, allowing administrators to collect device status information and configure devices."
+            },
+            {
+                question: "Which protocol is used for time synchronization?",
+                options: ["NTP", "SMTP", "HTTP", "FTP"],
+                answer: 0,
+                explanation: "NTP (Network Time Protocol) is used to synchronize time across computers in a network, ensuring all devices have the same time."
+            },
+            {
+                question: "What is MPLS technology?",
+                options: ["A routing protocol", "A packet switching technology", "An encryption standard", "A file transfer protocol"],
+                answer: 1,
+                explanation: "MPLS (Multiprotocol Label Switching) is a high-performance packet switching technology that forwards packets based on labels rather than IP addresses, improving network efficiency."
+            },
+            {
+                question: "Which of the following is NOT a wireless network security protocol?",
+                options: ["WEP", "WPA", "WPA2", "IPsec"],
+                answer: 3,
+                explanation: "IPsec is a protocol for securing IP networks, while WEP, WPA, and WPA2 are wireless network security protocols."
+            },
+            {
+                question: "What is the core idea of SDN?",
+                options: ["Increasing network transmission speed", "Enhancing network security", "Separating the control plane from the data plane", "Simplifying network configuration"],
+                answer: 2,
+                explanation: "The core idea of SDN (Software-Defined Networking) is to separate the network's control plane from the data plane, enabling centralized control for improved network flexibility and programmability."
+            },
+            {
+                question: "Which of the following is NOT a main goal of QoS?",
+                options: ["Reducing latency", "Lowering packet loss rates", "Improving bandwidth utilization", "Enhancing network security"],
+                answer: 3,
+                explanation: "The main goals of QoS (Quality of Service) are to ensure network service performance, such as reducing latency, lowering packet loss rates, and improving bandwidth utilization, while enhancing network security is not a main goal of QoS."
+            },
+            {
+                question: "In which scenario is the BGP protocol primarily used?",
+                options: ["Internal routing within LANs", "Routing between autonomous systems on the Internet", "Wireless network access control", "Network address translation"],
+                answer: 1,
+                explanation: "BGP (Border Gateway Protocol) is primarily used for routing between autonomous systems (AS) on the Internet, serving as the main routing protocol for the Internet backbone."
+            },
+            {
+                question: "Which of the following protocols is NOT used for secure communication?",
+                options: ["SSL/TLS", "IPsec", "SSH", "DHCP"],
+                answer: 3,
+                explanation: "DHCP is used for automatic IP address assignment, not for secure communication. SSL/TLS, IPsec, and SSH are all protocols used to provide secure communication."
+            },
+            {
+                question: "What is the main advantage of OSPF compared to RIP?",
+                options: ["Simpler configuration", "Lower resource consumption", "Faster convergence speed", "Support for larger network scales"],
+                answer: 2,
+                explanation: "The main advantages of OSPF (Open Shortest Path First) compared to RIP (Routing Information Protocol) include faster convergence speed, support for larger network scales, and routing based on cost rather than hop count."
+            },
+            {
+                question: "What is the range of TCP port numbers?",
+                options: ["0-255", "0-1023", "0-65535", "1-1024"],
+                answer: 2,
+                explanation: "The range of TCP port numbers is 0-65535, with 0-1023 being well-known ports, 1024-49151 being registered ports, and 49152-65535 being dynamic or private ports."
+            },
+            {
+                question: "Which protocol is used for network discovery?",
+                options: ["ARP", "DHCP", "ICMP", "LLDP"],
+                answer: 3,
+                explanation: "LLDP (Link Layer Discovery Protocol) is used for network devices to discover their directly connected neighbor devices, obtaining network topology information."
+            },
+            {
+                question: "What is network congestion control?",
+                options: ["Limiting the number of network connections", "Preventing virus spread", "Avoiding network overload", "Monitoring network traffic"],
+                answer: 2,
+                explanation: "Network congestion control is a mechanism used to avoid network overload by adjusting data transmission rates to maintain network performance."
+            },
+            {
+                question: "Which of the following is NOT a common network topology?",
+                options: ["Star", "Bus", "Ring", "Spiral"],
+                answer: 3,
+                explanation: "Spiral is not a common network topology. Common network topologies include star, bus, ring, mesh, and hybrid."
+            },
+            {
+                question: "What is the main function of the Network layer?",
+                options: ["Providing end-to-end data transmission", "Physical addressing", "Logical addressing and routing", "User interface"],
+                answer: 2,
+                explanation: "The main function of the Network layer is to provide logical addressing (such as IP addresses) and routing, determining the best path for data to travel from source to destination."
+            }
+        ];
+
+        // 默认使用中文题目
+        let allQuestions = allQuestionsChinese;
+
+        // 变量初始化
+        let currentQuestions = [];
+        let currentIndex = 0;
+        let score = 0;
+        let userAnswers = [];
+
+        // DOM元素
+        const quizContainer = document.getElementById('quiz-container');
+        const submitBtn = document.getElementById('submit-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const restartBtn = document.getElementById('restart-btn');
+        const resultDiv = document.getElementById('result');
+        let currentQuestionSpan = document.getElementById('current-question');
+
+        // 初始化测试
+        function initQuiz() {
+            // 随机选择10道题目
+            currentQuestions = getRandomQuestions(allQuestions, 10);
+            currentIndex = 0;
+            score = 0;
+            userAnswers = Array(currentQuestions.length).fill(-1);
+            
+            // 显示第一道题目
+            showQuestion(currentIndex);
+            
+            // 重置UI状态
+            submitBtn.classList.remove('hide');
+            nextBtn.classList.add('hide');
+            restartBtn.classList.add('hide');
+            resultDiv.classList.add('hide');
+            
+            // 更新进度
+            updateProgress();
+        }
+
+        // 从所有题目中随机选择n道
+        function getRandomQuestions(questions, n) {
+            const shuffled = [...questions].sort(() => 0.5 - Math.random());
+            return shuffled.slice(0, n);
+        }
+
+        // 显示当前题目
+        function showQuestion(index) {
+            const question = currentQuestions[index];
+            
+            let questionHTML = `
+                <div class="question">
+                    <h3>${index + 1}. <span class="question-highlight">${question.question}</span></h3>
+                    <div class="options">
+            `;
+            
+            question.options.forEach((option, i) => {
+                const isChecked = userAnswers[index] === i ? 'checked' : '';
+                questionHTML += `
+                    <label>
+                        <input type="radio" name="question${index}" value="${i}" ${isChecked}>
+                        ${option}
+                    </label>
+                `;
+            });
+            
+            questionHTML += `
+                    </div>
+                    <div class="explanation" id="explanation${index}">${question.explanation}</div>
+                </div>
+            `;
+            
+            quizContainer.innerHTML = questionHTML;
+            
+            // 添加单选按钮事件监听
+            document.querySelectorAll(`input[name="question${index}"]`).forEach(radio => {
+                radio.addEventListener('change', (e) => {
+                    userAnswers[index] = parseInt(e.target.value);
+                });
+            });
+        }
+
+        // 更新进度显示
+        function updateProgress() {
+            currentQuestionSpan.textContent = currentIndex + 1;
+        }
+
+        // 检查答案并显示结果
+        function checkAnswer() {
+            const currentQuestion = currentQuestions[currentIndex];
+            const userAnswer = userAnswers[currentIndex];
+            const explanationDiv = document.getElementById(`explanation${currentIndex}`);
+            
+            if (userAnswer === -1) {
+                alert('请选择一个答案！');
+                return false;
+            }
+            
+            const optionElements = document.querySelectorAll(`input[name="question${currentIndex}"]`);
+            
+            // 禁用所有选项
+            optionElements.forEach(option => {
+                option.disabled = true;
+            });
+            
+            // 标记正确和错误答案
+            optionElements.forEach((option, index) => {
+                const optionLabel = option.parentElement;
+                
+                if (index === currentQuestion.answer) {
+                    optionLabel.style.color = 'green';
+                    optionLabel.style.fontWeight = 'bold';
+                } else if (index === userAnswer) {
+                    optionLabel.style.color = 'red';
+                    optionLabel.style.textDecoration = 'line-through';
+                }
+            });
+            
+            // 显示解释
+            if (explanationDiv) {
+                explanationDiv.style.display = 'block';
+            }
+            
+            // 更新分数
+            if (userAnswer === currentQuestion.answer) {
+                score++;
+            }
+            
+            return true;
+        }
+
+        // 显示最终结果
+        function showResult() {
+            const percentage = (score / currentQuestions.length) * 100;
+            
+            if (isChinese) {
+                resultDiv.innerHTML = `
+                    <h2>测试结果</h2>
+                    <p>你的得分: ${score} / ${currentQuestions.length} (${percentage.toFixed(1)}%)</p>
+                    <p>${getResultMessage(percentage)}</p>
+                    <button id="close-result" style="margin-top: 15px; background-color: #e74c3c;">关闭</button>
+                `;
+            } else {
+                resultDiv.innerHTML = `
+                    <h2>Quiz Result</h2>
+                    <p>Your score: ${score} / ${currentQuestions.length} (${percentage.toFixed(1)}%)</p>
+                    <p>${getResultMessage(percentage)}</p>
+                    <button id="close-result" style="margin-top: 15px; background-color: #e74c3c;">Close</button>
+                `;
+            }
+            
+            // 显示结果和背景遮罩
+            resultDiv.classList.remove('hide');
+            document.getElementById('overlay').style.display = 'block';
+            
+            // 隐藏提交和下一题按钮
+            submitBtn.classList.add('hide');
+            nextBtn.classList.add('hide');
+            
+            // 添加关闭按钮事件
+            document.getElementById('close-result').addEventListener('click', () => {
+                resultDiv.classList.add('hide');
+                document.getElementById('overlay').style.display = 'none';
+                restartBtn.classList.remove('hide');
+            });
+        }
+
+        // 根据得分返回结果消息
+        function getResultMessage(percentage) {
+            if (isChinese) {
+                if (percentage >= 90) {
+                    return '太棒了！你对网络协议有很深的理解！';
+                } else if (percentage >= 70) {
+                    return '很好！你掌握了大部分网络协议知识。';
+                } else if (percentage >= 50) {
+                    return '及格！你了解基本的网络协议知识，但还有提升空间。';
+                } else {
+                    return '需要加强学习！建议重新复习网络协议基础知识。';
+                }
+            } else {
+                if (percentage >= 90) {
+                    return 'Excellent! You have a deep understanding of network protocols!';
+                } else if (percentage >= 70) {
+                    return 'Good job! You have mastered most of the network protocol knowledge.';
+                } else if (percentage >= 50) {
+                    return 'Pass! You understand the basics of network protocols, but there is room for improvement.';
+                } else {
+                    return 'Need more study! It is recommended to review the basics of network protocols.';
+                }
+            }
+        }
+
+        // 切换语言
+        function toggleLanguage() {
+            // 保存当前题目的索引信息，以便在切换语言后找到对应题目
+            const currentQuestionIndices = currentQuestions.map(q => {
+                if (isChinese) {
+                    // 从中文切换到英文，需要找到对应的英文题目
+                    return allQuestionsChinese.findIndex(cq => cq.question === q.question);
+                } else {
+                    // 从英文切换到中文，需要找到对应的中文题目
+                    return allQuestionsEnglish.findIndex(eq => eq.question === q.question);
+                }
+            });
+            
+            // 切换语言标志
+            isChinese = !isChinese;
+            
+            // 更新界面文本
+            if (isChinese) {
+                allQuestions = allQuestionsChinese;
+                document.getElementById('language-btn').textContent = '切换为英文';
+                document.title = '网络协议测试';
+                document.querySelector('h1').textContent = '网络协议测试';
+                document.querySelector('.progress').innerHTML = '题目: <span id="current-question">' + (currentIndex + 1) + '</span>/10';
+                submitBtn.textContent = '提交答案';
+                nextBtn.textContent = '下一题';
+                restartBtn.textContent = '重新测试';
+                document.getElementById('reset-btn').textContent = '重置当前题目';
+            } else {
+                allQuestions = allQuestionsEnglish;
+                document.getElementById('language-btn').textContent = 'Switch to Chinese';
+                document.title = 'Network Protocol Quiz';
+                document.querySelector('h1').textContent = 'Network Protocol Quiz';
+                document.querySelector('.progress').innerHTML = 'Question: <span id="current-question">' + (currentIndex + 1) + '</span>/10';
+                submitBtn.textContent = 'Submit Answer';
+                nextBtn.textContent = 'Next Question';
+                restartBtn.textContent = 'Restart Quiz';
+                document.getElementById('reset-btn').textContent = 'Reset Current Question';
+            }
+            
+            // 更新currentQuestionSpan引用，因为DOM元素已经被替换
+            currentQuestionSpan = document.getElementById('current-question');
+            
+            // 用另一种语言的相同题目替换当前题目
+            currentQuestions = currentQuestionIndices.map(index => allQuestions[index]);
+            
+            // 重新显示当前题目
+            showQuestion(currentIndex);
+        }
+        
+        // 重置当前题目
+        function resetCurrentQuestion() {
+            // 重置当前题目的用户答案
+            userAnswers[currentIndex] = -1;
+            
+            // 重新显示当前题目
+            showQuestion(currentIndex);
+            
+            // 重置按钮状态
+            if (submitBtn.classList.contains('hide')) {
+                submitBtn.classList.remove('hide');
+                nextBtn.classList.add('hide');
+            }
+        }
+
+        // 事件监听
+        submitBtn.addEventListener('click', () => {
+            if (checkAnswer()) {
+                submitBtn.classList.add('hide');
+                
+                if (currentIndex < currentQuestions.length - 1) {
+                    nextBtn.classList.remove('hide');
+                } else {
+                    showResult();
+                }
+            }
+        });
+
+        nextBtn.addEventListener('click', () => {
+            currentIndex++;
+            showQuestion(currentIndex);
+            updateProgress();
+            
+            submitBtn.classList.remove('hide');
+            nextBtn.classList.add('hide');
+        });
+
+        restartBtn.addEventListener('click', () => {
+            initQuiz();
+        });
+        
+        // 语言切换按钮事件监听
+        document.getElementById('language-btn').addEventListener('click', toggleLanguage);
+        
+        // 重置当前题目按钮事件监听
+        document.getElementById('reset-btn').addEventListener('click', resetCurrentQuestion);
+
+        // 初始化测试
+        initQuiz();
+    </script>
+</body>
+</html>
