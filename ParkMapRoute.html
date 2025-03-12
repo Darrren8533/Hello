@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Park Explorer - Interactive Maps</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            color: #333;
+            background-color: #f5f5f5;
+        }
+        
+        header {
+            background-color: #2E7D32;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        nav {
+            background-color: #1B5E20;
+            display: flex;
+            justify-content: center;
+            padding: 0.5rem;
+        }
+        
+        nav button {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            margin: 0 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        
+        nav button:hover {
+            background-color: #388E3C;
+        }
+        
+        nav button.active {
+            background-color: #81C784;
+            color: #1B5E20;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .map-container {
+            height: 500px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        
+        .map-placeholder {
+            height: 100%;
+            background-color: #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        .map-overlay {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: white;
+            padding: 10px;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            z-index: 1000;
+            max-width: 300px;
+        }
+        
+        .map-overlay h3 {
+            margin-top: 0;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+        }
+        
+        .info-panel {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .feature-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .feature-item {
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            flex: 1 0 200px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .feature-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .feature-icon {
+            width: 40px;
+            height: 40px;
+            background-color: #E8F5E9;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            color: #2E7D32;
+            font-size: 20px;
+        }
+        
+        .loading-indicator {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border-left-color: #4CAF50;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .map-markers {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        
+        .marker {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: red;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            cursor: pointer;
+            pointer-events: auto;
+            transition: transform 0.2s;
+        }
+        
+        .marker:hover {
+            transform: translate(-50%, -50%) scale(1.2);
+        }
+        
+        .marker.wildlife {
+            background-color: #FFC107;
+        }
+        
+        .marker.activity {
+            background-color: #2196F3;
+        }
+        
+        .marker.accommodation {
+            background-color: #9C27B0;
+        }
+        
+        .marker.trail {
+            background-color: #4CAF50;
+            border-radius: 0;
+            width: 10px;
+            height: 10px;
+        }
+        
+        .tooltip {
+            position: absolute;
+            background-color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            font-size: 14px;
+            z-index: 1001;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+            max-width: 200px;
+        }
+        
+        .trail-path {
+            position: absolute;
+            stroke: #4CAF50;
+            stroke-width: 3;
+            stroke-dasharray: 5, 5;
+            fill: none;
+            pointer-events: none;
+        }
+        
+        .legend {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-right: 15px;
+        }
+        
+        .legend-color {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        
+        .filter-container {
+            margin-bottom: 20px;
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .filter-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .filter-checkbox {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+        
+        .filter-checkbox input {
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Park Explorer</h1>
+        <p>Discover trails, wildlife, activities, and accommodations in your favorite parks</p>
+    </header>
+    
+    <nav>
+        <button id="trailsBtn" class="active">Trails</button>
+        <button id="wildlifeBtn">Wildlife</button>
+        <button id="activitiesBtn">Activities</button>
+        <button id="accommodationsBtn">Accommodations</button>
+    </nav>
+    
+    <div class="container">
+        <div class="filter-container">
+            <h3>Filters</h3>
+            <div class="filter-options" id="filterOptions">
+                <!-- Filters will be dynamically added here based on the selected category -->
+            </div>
+        </div>
+        
+        <div class="map-container">
+            <div class="map-placeholder" id="mapPlaceholder">
+                <div class="loading-indicator">
+                    <div class="spinner"></div>
+                    <p>Loading map data...</p>
+                </div>
+                
+                <!-- We'll add the SVG map here -->
+                <svg width="100%" height="100%" id="parkMap">
+                    <!-- Park outline -->
+                    <path d="M100,100 L700,50 L800,400 L400,450 L150,350 Z" fill="#E8F5E9" stroke="#388E3C" stroke-width="2"></path>
+                    
+                    <!-- Water features -->
+                    <ellipse cx="400" cy="250" rx="120" ry="70" fill="#B3E5FC" stroke="#0288D1" stroke-width="1"></ellipse>
+                    <path d="M600,300 C650,320 700,280 750,330" stroke="#B3E5FC" stroke-width="8" fill="none"></path>
+                    
+                    <!-- Forest areas -->
+                    <circle cx="250" cy="150" r="50" fill="#81C784" stroke="#388E3C" stroke-width="1"></circle>
+                    <circle cx="200" cy="200" r="70" fill="#81C784" stroke="#388E3C" stroke-width="1"></circle>
+                    <circle cx="600" cy="150" r="60" fill="#81C784" stroke="#388E3C" stroke-width="1"></circle>
+                    
+                    <!-- Parking and entrances -->
+                    <rect x="100" y="110" width="20" height="20" fill="#78909C"></rect>
+                    <rect x="680" y="60" width="20" height="20" fill="#78909C"></rect>
+                </svg>
+                
+                <!-- Map markers container -->
+                <div class="map-markers" id="mapMarkers"></div>
+                
+                <!-- Tooltip -->
+                <div class="tooltip" id="tooltip"></div>
+            </div>
+            
+            <div class="map-overlay hidden" id="mapOverlay">
+                <h3 id="overlayTitle">Information</h3>
+                <div id="overlayContent"></div>
+            </div>
+        </div>
+        
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #4CAF50;"></div>
+                <span>Trails</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #FFC107;"></div>
+                <span>Wildlife</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #2196F3;"></div>
+                <span>Activities</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #9C27B0;"></div>
+                <span>Accommodations</span>
+            </div>
+        </div>
+        
+        <div class="info-panel">
+            <h2 id="categoryTitle">Trails</h2>
+            <p id="categoryDescription">Explore the various hiking and walking trails throughout the park. Click on a trail marker on the map to view more details.</p>
+            
+            <div class="feature-list" id="featureList">
+                <!-- Feature items will be dynamically added here -->
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Mock data for the park features
+        const parkData = {
+            trails: [
+                { id: 1, name: "Sunset Ridge Trail", difficulty: "Moderate", length: "3.5 miles", time: "2-3 hours", elevation: "450 ft", description: "A beautiful ridge trail offering spectacular sunset views and diverse forest environments.", coordinates: [300, 150], path: "M300,150 C350,180 400,160 450,200 C500,240 550,230 600,250" },
+                { id: 2, name: "Lakeside Loop", difficulty: "Easy", length: "2.1 miles", time: "1-1.5 hours", elevation: "100 ft", description: "A gentle trail circling the central lake with plenty of wildlife viewing opportunities.", coordinates: [400, 300], path: "M400,300 C450,320 500,330 430,350 C380,380 330,350 380,320 C420,300 400,300 400,300" },
+                { id: 3, name: "Forest Exploration Path", difficulty: "Easy", length: "1.2 miles", time: "45 min", elevation: "50 ft", description: "A short interpretive trail through old-growth forest with educational signage.", coordinates: [200, 180], path: "M200,180 C220,200 250,210 230,230 C210,250 180,240 190,220 C200,200 200,180 200,180" },
+                { id: 4, name: "Summit Challenge", difficulty: "Hard", length: "5.8 miles", time: "4-5 hours", elevation: "1,200 ft", description: "A challenging trail to the highest point in the park with rewarding panoramic views.", coordinates: [600, 100], path: "M600,100 C650,120 700,150 720,200 C740,250 730,300 700,330" }
+            ],
+            wildlife: [
+                { id: 1, name: "Deer Viewing Area", species: ["White-tailed Deer", "Mule Deer"], bestTime: "Dawn, Dusk", description: "A quiet meadow where deer frequently graze in the early morning and evening hours.", coordinates: [250, 200] },
+                { id: 2, name: "Birdwatching Point", species: ["Bald Eagle", "Osprey", "Great Blue Heron"], bestTime: "Morning", description: "Excellent viewing point for waterfowl and birds of prey near the lake.", coordinates: [450, 250] },
+                { id: 3, name: "Fox Territory", species: ["Red Fox"], bestTime: "Early Morning", description: "Area where foxes are commonly spotted hunting for small rodents.", coordinates: [350, 150] },
+                { id: 4, name: "Butterfly Garden", species: ["Monarch", "Swallowtail", "Painted Lady"], bestTime: "Midday", description: "Garden planted with native flowers to attract various butterfly species.", coordinates: [500, 200] }
+            ],
+            activities: [
+                { id: 1, name: "Canoe Rentals", type: "Water", cost: "$15/hour", description: "Rent canoes to explore the central lake. Life jackets and paddles included.", coordinates: [380, 250] },
+                { id: 2, name: "Rock Climbing Wall", type: "Adventure", cost: "$10/session", description: "Artificial climbing wall with routes for beginners to advanced climbers.", coordinates: [650, 150] },
+                { id: 3, name: "Mountain Biking Trails", type: "Biking", cost: "Free (Bring your bike)", description: "Network of trails specifically designed for mountain biking with varying difficulty levels.", coordinates: [550, 350] },
+                { id: 4, name: "Fishing Spot", type: "Fishing", cost: "Permit: $5/day", description: "Designated fishing area stocked with trout. Fishing permits required.", coordinates: [420, 280] }
+            ],
+            accommodations: [
+                { id: 1, name: "Lakeside Cabins", type: "Cabin", cost: "$120/night", amenities: ["Kitchenette", "Bathroom", "Heating", "Electricity"], description: "Cozy cabins with lake views, perfect for families.", coordinates: [350, 320] },
+                { id: 2, name: "Forest Campground", type: "Camping", cost: "$25/night", amenities: ["Fire Pits", "Picnic Tables", "Bathrooms Nearby"], description: "Primitive camping sites nestled in the forest with access to hiking trails.", coordinates: [180, 250] },
+                { id: 3, name: "RV Park", type: "RV", cost: "$35/night", amenities: ["Electric Hookups", "Water", "Dump Station", "Wifi"], description: "Spacious RV sites with full hookups and amenities.", coordinates: [120, 150] },
+                { id: 4, name: "Treehouse Retreat", type: "Specialty", cost: "$180/night", amenities: ["Queen Bed", "Composting Toilet", "Solar Lights", "Deck"], description: "Unique accommodation built in the trees offering a one-of-a-kind experience.", coordinates: [600, 180] }
+            ]
+        };
+        
+        // DOM elements
+        const trailsBtn = document.getElementById('trailsBtn');
+        const wildlifeBtn = document.getElementById('wildlifeBtn');
+        const activitiesBtn = document.getElementById('activitiesBtn');
+        const accommodationsBtn = document.getElementById('accommodationsBtn');
+        const mapMarkers = document.getElementById('mapMarkers');
+        const tooltip = document.getElementById('tooltip');
+        const mapOverlay = document.getElementById('mapOverlay');
+        const overlayTitle = document.getElementById('overlayTitle');
+        const overlayContent = document.getElementById('overlayContent');
+        const categoryTitle = document.getElementById('categoryTitle');
+        const categoryDescription = document.getElementById('categoryDescription');
+        const featureList = document.getElementById('featureList');
+        const filterOptions = document.getElementById('filterOptions');
+        
+        let currentCategory = 'trails';
+        let activeFilters = {};
+        
+        // Initialize the page
+        function init() {
+            // Set up event listeners for navigation buttons
+            trailsBtn.addEventListener('click', () => switchCategory('trails'));
+            wildlifeBtn.addEventListener('click', () => switchCategory('wildlife'));
+            activitiesBtn.addEventListener('click', () => switchCategory('activities'));
+            accommodationsBtn.addEventListener('click', () => switchCategory('accommodations'));
+            
+            // Load initial data
+            switchCategory('trails');
+            
+            // Hide loading indicator after a short delay
+            setTimeout(() => {
+                document.querySelector('.loading-indicator').classList.add('hidden');
+            }, 1000);
+        }
+        
+        // Switch between different map categories
+        function switchCategory(category) {
+            currentCategory = category;
+            
+            // Update active button
+            document.querySelectorAll('nav button').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`${category}Btn`).classList.add('active');
+            
+            // Update category title and description
+            categoryTitle.textContent = category.charAt(0).toUpperCase() + category.slice(1);
+            
+            switch(category) {
+                case 'trails':
+                    categoryDescription.textContent = 'Explore the various hiking and walking trails throughout the park. Click on a trail marker on the map to view more details.';
+                    break;
+                case 'wildlife':
+                    categoryDescription.textContent = 'Discover the diverse wildlife that inhabits the park. Markers show the best viewing areas for different species.';
+                    break;
+                case 'activities':
+                    categoryDescription.textContent = 'Find recreational activities available within the park, from water sports to adventure experiences.';
+                    break;
+                case 'accommodations':
+                    categoryDescription.textContent = 'Browse accommodation options from camping to cabins for your stay in the park.';
+                    break;
+            }
+            
+            // Create filter options
+            createFilterOptions(category);
+            
+            // Clear existing markers and paths
+            mapMarkers.innerHTML = '';
+            document.querySelectorAll('.trail-path').forEach(path => path.remove());
+            
+            // Load data for the selected category
+            loadCategoryData(category);
+            
+            // Hide overlay
+            mapOverlay.classList.add('hidden');
+        }
+        
+        // Create filter options based on category
+        function createFilterOptions(category) {
+            filterOptions.innerHTML = '';
+            activeFilters = {};
+            
+            let filterProperties = [];
+            
+            switch(category) {
+                case 'trails':
+                    filterProperties = ['difficulty'];
+                    break;
+                case 'wildlife':
+                    filterProperties = ['bestTime'];
+                    break;
+                case 'activities':
+                    filterProperties = ['type'];
+                    break;
+                case 'accommodations':
+                    filterProperties = ['type'];
+                    break;
+            }
+            
+            filterProperties.forEach(property => {
+                const uniqueValues = [...new Set(parkData[category].map(item => item[property]))];
+                
+                const filterGroupTitle = document.createElement('div');
+                filterGroupTitle.style.fontWeight = 'bold';
+                filterGroupTitle.style.marginRight = '10px';
+                filterGroupTitle.textContent = `${property.charAt(0).toUpperCase() + property.slice(1)}:`;
+                filterOptions.appendChild(filterGroupTitle);
+                
+                uniqueValues.forEach(value => {
+                    if (!value) return;
+                    
+                    const label = document.createElement('label');
+                    label.className = 'filter-checkbox';
+                    
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.value = value;
+                    checkbox.dataset.property = property;
+                    
+                    checkbox.addEventListener('change', function() {
+                        if (!activeFilters[property]) {
+                            activeFilters[property] = [];
+                        }
+                        
+                        if (this.checked) {
+                            activeFilters[property].push(value);
+                        } else {
+                            activeFilters[property] = activeFilters[property].filter(v => v !== value);
+                            if (activeFilters[property].length === 0) {
+                                delete activeFilters[property];
+                            }
+                        }
+                        
+                        applyFilters();
+                    });
+                    
+                    label.appendChild(checkbox);
+                    label.appendChild(document.createTextNode(value));
+                    filterOptions.appendChild(label);
+                });
+            });
+        }
+        
+        // Apply active filters to the displayed items
+        function applyFilters() {
+            const items = parkData[currentCategory];
+            let filteredItems = [...items];
+            
+            // Apply each filter
+            Object.entries(activeFilters).forEach(([property, values]) => {
+                if (values.length > 0) {
+                    filteredItems = filteredItems.filter(item => {
+                        // Handle arrays (e.g., species in wildlife)
+                        if (Array.isArray(item[property])) {
+                            return item[property].some(val => values.includes(val));
+                        }
+                        // Handle regular properties
+                        return values.includes(item[property]);
+                    });
+                }
+            });
+            
+            // Update list and map
+            loadFeatureList(filteredItems);
+            updateMapMarkers(filteredItems);
+        }
+        
+        // Load feature list based on filtered items
+        function loadFeatureList(items) {
+            featureList.innerHTML = '';
+            
+            items.forEach(item => {
+                const featureItem = document.createElement('div');
+                featureItem.className = 'feature-item';
+                featureItem.dataset.id = item.id;
+                
+                featureItem.addEventListener('click', () => {
+                    showItemDetails(item);
+                    highlightMarker(item.id);
+                });
+                
+                const iconDiv = document.createElement('div');
+                iconDiv.className = 'feature-icon';
+                
+                let iconText = '';
+                switch(currentCategory) {
+                    case 'trails': iconText = '🥾'; break;
+                    case 'wildlife': iconText = '🦌'; break;
+                    case 'activities': iconText = '🚣'; break;
+                    case 'accommodations': iconText = '🏕️'; break;
+                }
+                
+                iconDiv.textContent = iconText;
+                
+                const contentDiv = document.createElement('div');
+                contentDiv.innerHTML = `
+                    <strong>${item.name}</strong>
+                    <div>${getItemSubtitle(item)}</div>
+                `;
+                
+                featureItem.appendChild(iconDiv);
+                featureItem.appendChild(contentDiv);
+                featureList.appendChild(featureItem);
+            });
+            
+            if (items.length === 0) {
+                featureList.innerHTML = '<p>No items match your selected filters. Try adjusting your filters.</p>';
+            }
+        }
+        
+        // Get appropriate subtitle based on item category
+        function getItemSubtitle(item) {
+            switch(currentCategory) {
+                case 'trails':
+                    return `${item.difficulty} • ${item.length}`;
+                case 'wildlife':
+                    return `${item.species.join(', ')}`;
+                case 'activities':
+                    return `${item.type} • ${item.cost}`;
+                case 'accommodations':
+                    return `${item.type} • ${item.cost}`;
+                default:
+                    return '';
+            }
+        }
+        
+        // Load data for the selected category
+        function loadCategoryData(category) {
+            const items = parkData[category];
+            
+            // Create markers on the map
+            updateMapMarkers(items);
+            
+            // Populate the feature list
+            loadFeatureList(items);
+        }
+        
+        // Update map markers based on filtered items
+        function updateMapMarkers(items) {
+            mapMarkers.innerHTML = '';
+            document.querySelectorAll('.trail-path').forEach(path => path.remove());
+            
+            items.forEach(item => {
+                // Create marker
+                const marker = document.createElement('div');
+                marker.className = `marker ${currentCategory.slice(0, -1)}`;
+                marker.dataset.id = item.id;
+                marker.style.left = `${item.coordinates[0]}px`;
+                marker.style.top = `${item.coordinates[1]}px`;
+                
+                // Add trail paths for the trails category
+                if (currentCategory === 'trails' && item.path) {
+                    const svg = document.getElementById('parkMap');
+                    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                    path.setAttribute('d', item.path);
+                    path.setAttribute('class', 'trail-path');
+                    path.dataset.id = item.id;
+                    svg.appendChild(path);
+                }
+                
+                // Add tooltip behavior
+                marker.addEventListener('mouseenter', (e) => {
+                    tooltip.textContent = item.name;
+                    tooltip.style.left = `${e.pageX + 15}px`;
+                    tooltip.style.top = `${e.pageY - 15}px`;
+                    tooltip.style.opacity = '1';
+                });
+                
+                marker.addEventListener('mousemove', (e) => {
+                    tooltip.style.left = `${e.pageX + 15}px`;
+                    tooltip.style.top = `${e.pageY - 15}px`;
+                });
+                
+                marker.addEventListener('mouseleave', () => {
+                    tooltip.style.opacity = '0';
+                });
+                
+                // Show details when marker is clicked
+                marker.addEventListener('click', () => {
+                    showItemDetails(item);
+                    highlightMarker(item.id);
+                });
+                
+                mapMarkers.appendChild(marker);
+            });
+        }
+        
+        // Show item details in the overlay
+        function showItemDetails(item) {
+            overlayTitle.textContent = item.name;
+            
+            let content = '';
+            
+            switch(currentCategory) {
+                case 'trails':
+                    content = `
+                        <p><strong>Difficulty:</strong> ${item.difficulty}</p>
+                        <p><strong>Length:</strong> ${item.length}</p>
+                        <p><strong>Estimated Time:</strong> ${item.time}</p>
+                        <p><strong>Elevation Gain:</strong> ${item.elevation}</p>
+                        <p>${item.description}</p>
+                    `;
+                    break;
+                case 'wildlife':
+                    content = `
+                        <p><strong>Species:</strong> ${item.species.join(', ')}</p>
+                        <p><strong>Best Viewing Time:</strong> ${item.bestTime}</p>
+                        <p>${item.description}</p>
+                    `;
+                    break;
+                case 'activities':
+                    content = `
+                        <p><strong>Type:</strong> ${item.type}</p>
+                        <p><strong>Cost:</strong> ${item.cost}</p>
+                        <p>${item.description}</p>
+                    `;
+                    break;
+                case 'accommodations':
+                    content = `
+                        <p><strong>Type:</strong> ${item.type}</p>
+                        <p><strong>Cost:</strong> ${item.cost}</p>
+                        <p><strong>Amenities:</strong> ${item.amenities.join(', ')}</p>
+                        <p>${item.description}</p>
+                    `;
+                    break;
+            }
+            
+            overlayContent.innerHTML = content;
+            mapOverlay.classList.remove('hidden');
+        }
+        
+        // Highlight the selected marker
+        function highlightMarker(id) {
+            // Reset all markers
+            document.querySelectorAll('.marker').forEach(marker => {
+                marker.style.transform = 'translate(-50%, -50%)';
+                marker.style.zIndex = '1';
+            });
+            
+            document.querySelectorAll('.trail-path').forEach(path => {
+                path.style.strokeWidth = '3';
+                path.style.zIndex = '1';
+            });
+            
+            // Highlight selected marker
+            const selectedMarker = document.querySelector(`.marker[data-id="${id}"]`);
+            if (selectedMarker) {
+                selectedMarker.style.transform = 'translate(-50%, -50%) scale(1.5)';
+                selectedMarker.style.zIndex = '1000';
+            }
+            
+            // Highlight selected trail path
+            const selectedPath = document.querySelector(`.trail-path[data-id="${id}"]`);
+            if (selectedPath) {
+                selectedPath.style.strokeWidth = '5';
+                selectedPath.style.zIndex = '1000';
+            }
+        }
+        
+        // Initialize the page
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>
