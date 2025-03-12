@@ -1,4 +1,4 @@
 Hello, I'm Darren. 
-If you want to play game, you can access here: https://darrren8533.github.io/Hello/
+If you want to play game, you can access here: https://darrren8533.github.io/Hello/Game
 
-Network Test: https://darrren8533.github.io/Hello/NetworkProtocol
+Network Test: https://darrren8533.github.io/Hello/Network/NetworkProtocol
