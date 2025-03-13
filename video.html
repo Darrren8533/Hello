@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <title>现代视频播放器</title>
+    <style>
+        :root {
+            --primary-color: #5b78f6;
+            --bg-color: #121212;
+            --text-color: #ffffff;
+            --overlay-color: rgba(0, 0, 0, 0.6);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .video-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px; /* 减小最大宽度 */
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            background: #000;
+        }
+        
+        video {
+            width: 100%;
+            max-height: 80vh; /* 限制视频高度为视口高度的80% */
+            display: block;
+            border-radius: 12px;
+        }
+        
+        .video-controls {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            padding: 20px;
+            background: linear-gradient(to top, var(--overlay-color), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .video-container:hover .video-controls {
+            opacity: 1;
+        }
+        
+        .progress-container {
+            width: 100%;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            width: 0;
+            background: var(--primary-color);
+            border-radius: 5px;
+            transition: width 0.1s linear;
+        }
+        
+        .buttons-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .left-controls, .right-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        button {
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+        }
+        
+        button:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        button:active {
+            transform: scale(0.95);
+        }
+        
+        .play-btn svg {
+            width: 18px;
+            height: 18px;
+        }
+        
+        .volume-container {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .volume-slider {
+            width: 80px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            appearance: none;
+            cursor: pointer;
+        }
+        
+        .volume-slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 12px;
+            height: 12px;
+            background: var(--primary-color);
+            border-radius: 50%;
+        }
+        
+        .time {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .speed-btn, .fullscreen-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .speed-options {
+            position: absolute;
+            bottom: 70px;
+            right: 20px;
+            background: rgba(28, 28, 28, 0.9);
+            border-radius: 8px;
+            padding: 10px;
+            display: none;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .speed-option {
+            padding: 5px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .speed-option:hover, .speed-option.active {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .show {
+            display: flex;
+        }
+        
+        .title-bar {
+            position: absolute;
+            top: 0;
+            width: 100%;
+            padding: 15px 20px;
+            background: linear-gradient(to bottom, var(--overlay-color), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .video-container:hover .title-bar {
+            opacity: 1;
+        }
+        
+        .video-title {
+            font-size: 18px;
+            font-weight: 500;
+        }
+        
+        @media (max-width: 768px) {
+            .video-container {
+                max-width: 95%;
+                max-height: 70vh;
+            }
+            
+            .time {
+                display: none;
+            }
+            
+            .volume-slider {
+                width: 60px;
+            }
+            
+            .buttons-container {
+                scale: 0.9;
+            }
+        }
+        
+        /* 针对非常小的屏幕的额外适配 */
+        @media (max-width: 480px) {
+            .video-container {
+                max-width: 90%;
+                max-height: 60vh;
+            }
+            
+            .volume-container {
+                display: none;
+            }
+            
+            .buttons-container {
+                scale: 0.8;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="video-container">
+        <div class="title-bar">
+            <div class="video-title">WhatsApp Video 2025-03-14</div>
+        </div>
+        
+        <video id="videoPlayer">
+            <source src="WhatsApp Video 2025-03-14 at 01.52.11_525d4e26.mp4" type="video/mp4">
+            您的浏览器不支持HTML5视频标签。
+        </video>
+        
+        <div class="video-controls">
+            <div class="progress-container" id="progressContainer">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            
+            <div class="buttons-container">
+                <div class="left-controls">
+                    <button class="play-btn" id="playBtn">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M8 5v14l11-7z"/>
+                        </svg>
+                    </button>
+                    
+                    <div class="volume-container">
+                        <button class="volume-btn" id="volumeBtn">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+                            </svg>
+                        </button>
+                        <input type="range" class="volume-slider" id="volumeSlider" min="0" max="1" step="0.1" value="1">
+                    </div>
+                    
+                    <span class="time" id="timeDisplay">0:00 / 0:00</span>
+                </div>
+                
+                <div class="right-controls">
+                    <button class="speed-btn" id="speedBtn">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M20.38 8.57l-1.23 1.85a8 8 0 0 1-.22 7.58H5.07A8 8 0 0 1 15.58 6.85l1.85-1.23A10 10 0 0 0 3.35 19a2 2 0 0 0 1.72 1h13.85a2 2 0 0 0 1.74-1 10 10 0 0 0-.27-10.44z"/>
+                            <path d="M10.59 15.41a2 2 0 0 0 2.83 0l5.66-8.49-8.49 5.66a2 2 0 0 0 0 2.83z"/>
+                        </svg>
+                    </button>
+                    
+                    <div class="speed-options" id="speedOptions">
+                        <div class="speed-option" data-speed="0.5">0.5x</div>
+                        <div class="speed-option" data-speed="0.75">0.75x</div>
+                        <div class="speed-option active" data-speed="1">1x</div>
+                        <div class="speed-option" data-speed="1.25">1.25x</div>
+                        <div class="speed-option" data-speed="1.5">1.5x</div>
+                        <div class="speed-option" data-speed="2">2x</div>
+                    </div>
+                    
+                    <button class="fullscreen-btn" id="fullscreenBtn">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const videoPlayer = document.getElementById('videoPlayer');
+            const playBtn = document.getElementById('playBtn');
+            const progressContainer = document.getElementById('progressContainer');
+            const progressBar = document.getElementById('progressBar');
+            const volumeBtn = document.getElementById('volumeBtn');
+            const volumeSlider = document.getElementById('volumeSlider');
+            const timeDisplay = document.getElementById('timeDisplay');
+            const fullscreenBtn = document.getElementById('fullscreenBtn');
+            const speedBtn = document.getElementById('speedBtn');
+            const speedOptions = document.getElementById('speedOptions');
+            
+            // 播放/暂停功能
+            playBtn.addEventListener('click', function() {
+                if (videoPlayer.paused) {
+                    videoPlayer.play();
+                    playBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
+                } else {
+                    videoPlayer.pause();
+                    playBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
+                }
+            });
+            
+            // 同样点击视频也可以播放/暂停
+            videoPlayer.addEventListener('click', function() {
+                playBtn.click();
+            });
+            
+            // 更新进度条
+            videoPlayer.addEventListener('timeupdate', function() {
+                const percentage = (videoPlayer.currentTime / videoPlayer.duration) * 100;
+                progressBar.style.width = `${percentage}%`;
+                
+                // 更新时间显示
+                const currentMinutes = Math.floor(videoPlayer.currentTime / 60);
+                const currentSeconds = Math.floor(videoPlayer.currentTime % 60);
+                const durationMinutes = Math.floor(videoPlayer.duration / 60) || 0;
+                const durationSeconds = Math.floor(videoPlayer.duration % 60) || 0;
+                
+                timeDisplay.textContent = `${currentMinutes}:${currentSeconds < 10 ? '0' : ''}${currentSeconds} / ${durationMinutes}:${durationSeconds < 10 ? '0' : ''}${durationSeconds}`;
+            });
+            
+            // 点击进度条跳转
+            progressContainer.addEventListener('click', function(e) {
+                const progressWidth = this.clientWidth;
+                const clickX = e.offsetX;
+                const videoDuration = videoPlayer.duration;
+                
+                videoPlayer.currentTime = (clickX / progressWidth) * videoDuration;
+            });
+            
+            // 音量控制
+            volumeSlider.addEventListener('input', function() {
+                videoPlayer.volume = this.value;
+                
+                // 更新音量图标
+                if (this.value == 0) {
+                    volumeBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>';
+                } else if (this.value < 0.5) {
+                    volumeBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>';
+                } else {
+                    volumeBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>';
+                }
+            });
+            
+            // 点击音量图标静音
+            volumeBtn.addEventListener('click', function() {
+                if (videoPlayer.volume > 0) {
+                    videoPlayer.dataset.prevVolume = videoPlayer.volume;
+                    videoPlayer.volume = 0;
+                    volumeSlider.value = 0;
+                    volumeBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>';
+                } else {
+                    const prevVolume = videoPlayer.dataset.prevVolume || 1;
+                    videoPlayer.volume = prevVolume;
+                    volumeSlider.value = prevVolume;
+                    
+                    if (prevVolume < 0.5) {
+                        volumeBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>';
+                    } else {
+                        volumeBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>';
+                    }
+                }
+            });
+            
+            // 全屏功能
+            fullscreenBtn.addEventListener('click', function() {
+                if (!document.fullscreenElement) {
+                    if (document.documentElement.requestFullscreen) {
+                        document.querySelector('.video-container').requestFullscreen();
+                    } else if (document.documentElement.mozRequestFullScreen) {
+                        document.querySelector('.video-container').mozRequestFullScreen();
+                    } else if (document.documentElement.webkitRequestFullscreen) {
+                        document.querySelector('.video-container').webkitRequestFullscreen();
+                    } else if (document.documentElement.msRequestFullscreen) {
+                        document.querySelector('.video-container').msRequestFullscreen();
+                    }
+                    
+                    fullscreenBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"/></svg>';
+                } else {
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen();
+                    } else if (document.mozCancelFullScreen) {
+                        document.mozCancelFullScreen();
+                    } else if (document.webkitExitFullscreen) {
+                        document.webkitExitFullscreen();
+                    } else if (document.msExitFullscreen) {
+                        document.msExitFullscreen();
+                    }
+                    
+                    fullscreenBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>';
+                }
+            });
+            
+            // 播放速度控制
+            speedBtn.addEventListener('click', function() {
+                speedOptions.classList.toggle('show');
+            });
+            
+            // 点击其他地方关闭播放速度选项
+            document.addEventListener('click', function(e) {
+                if (e.target !== speedBtn && !speedOptions.contains(e.target)) {
+                    speedOptions.classList.remove('show');
+                }
+            });
+            
+            // 设置播放速度
+            const speedOptionElements = document.querySelectorAll('.speed-option');
+            speedOptionElements.forEach(option => {
+                option.addEventListener('click', function() {
+                    const speed = parseFloat(this.getAttribute('data-speed'));
+                    videoPlayer.playbackRate = speed;
+                    
+                    // 更新活动状态
+                    speedOptionElements.forEach(opt => opt.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    speedOptions.classList.remove('show');
+                });
+            });
+            
+            // 视频结束时重置播放按钮
+            videoPlayer.addEventListener('ended', function() {
+                playBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
+            });
+            
+            // 键盘控制
+            document.addEventListener('keydown', function(e) {
+                if (e.code === 'Space') {
+                    // 空格键播放/暂停
+                    playBtn.click();
+                    e.preventDefault();
+                } else if (e.code === 'ArrowRight') {
+                    // 右箭头快进5秒
+                    videoPlayer.currentTime += 5;
+                    e.preventDefault();
+                } else if (e.code === 'ArrowLeft') {
+                    // 左箭头倒退5秒
+                    videoPlayer.currentTime -= 5;
+                    e.preventDefault();
+                } else if (e.code === 'ArrowUp') {
+                    // 上箭头增加音量
+                    videoPlayer.volume = Math.min(videoPlayer.volume + 0.1, 1);
+                    volumeSlider.value = videoPlayer.volume;
+                    volumeSlider.dispatchEvent(new Event('input'));
+                    e.preventDefault();
+                } else if (e.code === 'ArrowDown') {
+                    // 下箭头减少音量
+                    videoPlayer.volume = Math.max(videoPlayer.volume - 0.1, 0);
+                    volumeSlider.value = videoPlayer.volume;
+                    volumeSlider.dispatchEvent(new Event('input'));
+                    e.preventDefault();
+                } else if (e.code === 'KeyF') {
+                    // F键全屏
+                    fullscreenBtn.click();
+                    e.preventDefault();
+                } else if (e.code === 'KeyM') {
+                    // M键静音
+                    volumeBtn.click();
+                    e.preventDefault();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
