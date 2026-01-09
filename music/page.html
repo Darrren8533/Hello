@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>重传机制 (Retransmission)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Songti SC', 'STSong', 'SimSun', serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.8;
+            color: #2d3748;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            animation: fadeIn 1s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 60px 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+
+        .title {
+            font-size: 2.8em;
+            color: white;
+            margin-bottom: 15px;
+            font-weight: 600;
+            position: relative;
+            z-index: 1;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .subtitle {
+            font-size: 1.1em;
+            color: rgba(255, 255, 255, 0.9);
+            position: relative;
+            z-index: 1;
+            font-style: italic;
+        }
+
+        .content {
+            padding: 50px 60px;
+            font-size: 1.1em;
+        }
+
+        .chapter {
+            margin-bottom: 50px;
+            opacity: 0;
+            animation: slideIn 0.8s ease-out forwards;
+        }
+
+        .chapter:nth-child(1) { animation-delay: 0.2s; }
+        .chapter:nth-child(2) { animation-delay: 0.4s; }
+        .chapter:nth-child(3) { animation-delay: 0.6s; }
+        .chapter:nth-child(4) { animation-delay: 0.8s; }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .chapter-title {
+            font-size: 1.6em;
+            color: #667eea;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #667eea;
+            font-weight: 600;
+            position: relative;
+        }
+
+        .chapter-title::after {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            left: 0;
+            width: 60px;
+            height: 3px;
+            background: #764ba2;
+        }
+
+        .paragraph {
+            text-indent: 2em;
+            margin-bottom: 1.5em;
+            text-align: justify;
+            transition: background-color 0.3s ease;
+        }
+
+        .paragraph:hover {
+            background-color: rgba(102, 126, 234, 0.05);
+            padding: 5px;
+            border-radius: 5px;
+        }
+
+        .code-block {
+            background: #2d3748;
+            color: #68d391;
+            padding: 25px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            margin: 20px 0;
+            overflow-x: auto;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            font-size: 0.95em;
+            line-height: 1.6;
+        }
+
+        .code-block .keyword {
+            color: #fc8181;
+        }
+
+        .code-block .string {
+            color: #f6e05e;
+        }
+
+        .code-block .comment {
+            color: #a0aec0;
+        }
+
+        .footer {
+            background: #f7fafc;
+            padding: 30px;
+            text-align: center;
+            color: #718096;
+            font-size: 0.95em;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s ease;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(102, 126, 234, 0.5);
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                padding: 30px 25px;
+                font-size: 1em;
+            }
+
+            .title {
+                font-size: 2em;
+            }
+
+            .chapter-title {
+                font-size: 1.3em;
+            }
+        }
+
+        ::selection {
+            background: rgba(102, 126, 234, 0.3);
+            color: #2d3748;
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-bar" id="progressBar"></div>
+    
+    <!-- Hidden audio element for background music -->
+    <audio id="backgroundMusic" loop>
+        <!-- <source src="music.mp3.mp3" type="audio/mpeg"> -->
+        <source src="shao.mp3" type="audio/ogg">
+        Your browser does not support the audio element.
+    </audio>
+    
+    <div class="container">
+        <div class="header">
+            <h1 class="title">Network and Switching</h1>
+            <p class="subtitle">深度扩展版</p>
+        </div>
+
+        <div class="content">
+            <div class="chapter">
+                <h2 class="chapter-title">第一章：物理层的碰撞</h2>
+                <p class="paragraph">砂拉越大学的 402 机房总是弥漫着一种陈旧的电子味和散热风扇的嗡鸣声。Wilson 瘫坐在人体工学椅上，盯着屏幕上那行刺眼的 Connection Timed Out，那是他这学期第三次在《网络与交换技术》的实验课上遭遇滑铁卢。</p>
+                <p class="paragraph">"如果我是交换机，我会直接把你这个无效数据包丢进垃圾桶。"</p>
+                <p class="paragraph">一个清冷且带着一丝戏谑的声音从他头顶落下来。</p>
+                <p class="paragraph">Wilson 不用回头都知道是谁。Sheena 教授正抱着文件夹站在他身后，她今天穿了一件米白色的真丝衬衫,领口的一枚银色胸针闪着凌厉的光。她才二十八岁，却已经是计算机系的王牌讲师，以"挂科率最高"和"嘴毒"著称。</p>
+                <p class="paragraph">"Sheena 老师……"Wilson 苦着脸，指着屏幕，"我明明按照你讲的三次握手逻辑去配置了，可它就是握不上啊。"</p>
+                <p class="paragraph">"那是你理解的'握手'太粗鲁了。"Sheena 弯下腰，从 Wilson 手里夺过鼠标。那一瞬间，她身上那种清冷的柑橘调香水味直接撞进了 Wilson 的呼吸里。</p>
+                <p class="paragraph">她一边飞速地修改着路由配置，一边毒舌道："你是把 TCP 协议当成你的情书了吗？逻辑混乱，参数错误，连基本的序列号都对不上。Wilson，我真的很怀疑你是怎么考进 CS 系的，靠玄学吗？"</p>
+                <p class="paragraph">虽然话不好听，但 Wilson 发现，她在他的实验手册上改动时，特意用红笔在边缘写了一行极其秀气的字："基础不牢，地动山摇。去翻书第 85 页，别再让我看到这种低级错误。"</p>
+            </div>
+
+            <div class="chapter">
+                <h2 class="chapter-title">第二章：带宽不足的关怀</h2>
+                <p class="paragraph">Wilson 之所以成为这门课的"钉子户"，并不是因为他笨。大二那年他家里出了变故，为了筹医药费，他整整一个学期都在校外跑外卖，错过了最核心的课程。</p>
+                <p class="paragraph">那天晚上十点，机房的灯灭了大半，只有 Wilson 这一角还亮着。</p>
+                <p class="paragraph">"还不滚回去睡觉？指望这台电脑给你发毕业证？"Sheena 拎着包路过，脚步声在空旷的走廊里格外清晰。</p>
+                <p class="paragraph">Wilson 揉了揉发酸的眼睛，诚实地回答："老师，我得把上次欠的实验补回来，不然这学期又要重修了。"</p>
+                <p class="paragraph">Sheena 停住了脚步。她看着 Wilson 凌乱的头发和眼下的青色，眼神微微一动，但嘴上依旧不饶人："你是想把我的机房电费刷爆吗？"</p>
+                <p class="paragraph">她走过来，从包里翻出一块还没开封的巧克力和一罐热咖啡，随手扔在桌上。</p>
+                <p class="paragraph">"便利店促销买一送一，剩下的。赶紧吃了滚蛋，别在我的实验室里低血糖晕倒，我还要写事故报告，麻烦死了。"</p>
+                <p class="paragraph">Wilson 看着那罐写着"新品上市"字样的咖啡，心里嘀咕：这新品从来不打折，哪来的买一送一？ 但看着 Sheena 略显局促转过身的背影，他突然觉得，这位高冷的老师好像也没有那么难以接近。</p>
+            </div>
+
+            <div class="chapter">
+                <h2 class="chapter-title">第三章：弱信号的共振</h2>
+                <p class="paragraph">期中考试前夕，一场突如其来的暴雨困住了还没来得及撤离的学生。</p>
+                <p class="paragraph">机房的窗户被狂风吹得砰砰作响，突然"啪"的一声，全校停电。黑暗瞬间像潮水一样淹没了整个空间，唯独 UPS 应急灯发出微弱的红光。</p>
+                <p class="paragraph">"啊！"</p>
+                <p class="paragraph">一声惊呼从讲台方向传来。Wilson 借着手机微光看去，发现刚才还威风八面的 Sheena 教授，竟然缩在讲台后面，身体微微颤抖。</p>
+                <p class="paragraph">"Sheena 老师？" Wilson 走过去，发现她紧闭着双眼，脸色苍白。</p>
+                <p class="paragraph">"别过来……我，我只是对黑暗环境有轻微的……应激反应。"她即便在这种时候，还在试图维持她身为教授的尊严。</p>
+                <p class="paragraph">Wilson 没理会她的嘴硬。他走过去，并排坐在她身边的冰冷地板上，用自己宽大的卫衣袖子轻轻碰了碰她的手臂。</p>
+                <p class="paragraph">"老师，你可以把我当成一台备用电源。"Wilson 声音低沉，带着一点少年特有的磁性，"只要你连接上我，信号就不会中断。"</p>
+                <p class="paragraph">Sheena 愣住了，半晌，她竟然没有推开他，反而把头埋进了膝盖里，声音闷闷的："你要是考不及格，我就把这台'电源'给报废了。"</p>
+                <p class="paragraph">"那你可得好好给我补课。"Wilson 趁机握住了她冰凉的手指，"我这个'硬件'配置不错，就是'软件'驱动还没安装好。"</p>
+                <p class="paragraph">那一夜，在黑暗的机房里，他们聊了很多。Sheena 讲了她在国外留学的孤独，Wilson 讲了他家里的变故。原本冰冷的师生关系，在那个雨夜被一种名为"共情"的协议给重写了。</p>
+            </div>
+
+            <div class="chapter">
+                <h2 class="chapter-title">第四章：满分校验</h2>
+                <p class="paragraph">期末考场上，Sheena 穿着一身干练的黑色长裙巡考。</p>
+                <p class="paragraph">当她走到 Wilson 桌边时，Wilson 故意抬起头，冲她眨了眨眼。Sheena 狠狠地瞪了他一眼，用口型无声地说了句："好好写你的卷子！"但转身时，她的嘴角却无法抑制地勾起了一抹弧度。</p>
+                <p class="paragraph">出成绩那天，Wilson 没在系统里查分，而是直接去了办公室。</p>
+                <p class="paragraph">"老师，我查不到成绩。"Wilson 站在门口，一脸严肃。</p>
+                <p class="paragraph">Sheena 正在录入系统，闻言挑了挑眉："不可能，我亲自录入的，你这次考得……还算像个人样。"</p>
+                <p class="paragraph">"但我查的是我的人生分值。"Wilson 走到她桌前，递过去一份打印好的"录取通知书"。</p>
+                <p class="paragraph">Sheena 疑惑地接过一看，上面用代码写着：</p>
+                <div class="code-block"><span class="keyword">class</span> Relationship:<br>
+                    &emsp;<span class="keyword">def</span> __init__(self):<br>
+                    &emsp;&emsp;self.status = <span class="string">"Single"</span><br>
+                    &emsp;&emsp;self.teacher = <span class="string">"Sheena"</span><br>
+                    &emsp;&emsp;self.student = <span class="string">"Wilson"</span><br>
+<br>
+&emsp;<span class="keyword">def</span> update_to_lovers(self):<br>
+&emsp;&emsp;<span class="keyword">if</span> Wilson.final_exam >= <span class="string">50</span>:<br>
+&emsp;&emsp;self.status = <span class="string">"In Love"</span><br>
+&emsp;&emsp;<span class="keyword">return</span> <span class="string">"请求建立长久连接，不接受超时重传。"</span><br><br>
+
+<span class="keyword">print</span>(Relationship().update_to_lovers())</div>
+                <p class="paragraph">Sheena 看完，半天没说话。她摘下眼镜，揉了揉有些发红的眼睛，然后拿起桌上的红色水彩笔，在那张纸上画了一个大大的、极其认真的红勾。</p>
+                <p class="paragraph">"Wilson，你这代码写错了。"她抬头看他，眼里闪烁着温柔的光，"这不叫'录取通知书'，这叫'终身合同'。"</p>
+                <p class="paragraph">"那你要签吗？教授。"</p>
+                <p class="paragraph">"签啊。"Sheena 站起身，隔着办公桌拉住了他的领口，恶狠狠地（却又温柔地）说，"但如果你毕业后敢偷偷改密码，我就把你的档案给拉黑了！"</p>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>— 完 —</p>
+            <p style="margin-top: 10px; font-size: 0.9em;">爱情就像网络协议，需要不断重传，才能建立稳定连接</p>
+        </div>
+    </div>
+
+    <script>
+        // Background music auto-play on first user interaction
+        let musicPlayed = false;
+        const backgroundMusic = document.getElementById('backgroundMusic');
+        
+        function playMusic() {
+            if (!musicPlayed && backgroundMusic) {
+                backgroundMusic.play().then(() => {
+                    musicPlayed = true;
+                    console.log('Background music started playing');
+                }).catch(error => {
+                    console.log('Music playback failed:', error);
+                });
+            }
+        }
+        
+        // Listen for first scroll
+        window.addEventListener('scroll', () => {
+            playMusic();
+        }, { once: true });
+        
+        // Listen for first click anywhere on the page
+        document.addEventListener('click', () => {
+            playMusic();
+        }, { once: true });
+        
+        // Listen for first touch (mobile devices)
+        document.addEventListener('touchstart', () => {
+            playMusic();
+        }, { once: true });
+        
+        // 阅读进度条
+        window.addEventListener('scroll', () => {
+            const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = (winScroll / height) * 100;
+            document.getElementById('progressBar').style.width = scrolled + '%';
+        });
+
+        // 平滑滚动
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+</html>
