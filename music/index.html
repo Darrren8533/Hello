@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SoundFlow - 音乐网站</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(to bottom, #0f172a, #581c87, #0f172a);
+            color: white;
+            overflow-x: hidden;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 2rem;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+            background: linear-gradient(to right, #c084fc, #f9a8d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #c084fc;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1.5rem;
+            border: none;
+            border-radius: 2rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(to right, #a855f7, #ec4899);
+            color: white;
+            font-weight: 600;
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 0 30px rgba(168, 85, 247, 0.5);
+            transform: scale(1.05);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            color: #c084fc;
+        }
+
+        .hero {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 0 2rem;
+            position: relative;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at center, rgba(168, 85, 247, 0.3), transparent);
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        .hero h1 {
+            font-size: 5rem;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(to right, #c084fc, #f9a8d4, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradient 3s ease infinite;
+            background-size: 200% auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        @keyframes gradient {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .hero p {
+            font-size: 1.5rem;
+            color: #d1d5db;
+            margin-bottom: 3rem;
+            max-width: 42rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero .btn-primary {
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        section {
+            padding: 5rem 2rem;
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .tracks-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .track-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .track-card:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-5px);
+        }
+
+        .track-content {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .track-cover {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #a855f7, #ec4899);
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .play-btn {
+            position: absolute;
+            bottom: -10px;
+            right: -10px;
+            width: 40px;
+            height: 40px;
+            background: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s;
+        }
+
+        .play-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .play-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: #581c87;
+        }
+
+        .track-info {
+            flex: 1;
+        }
+
+        .track-title {
+            font-size: 1.25rem;
+            font-weight: bold;
+            margin-bottom: 0.25rem;
+        }
+
+        .track-artist {
+            color: #9ca3af;
+            margin-bottom: 0.5rem;
+        }
+
+        .track-meta {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        .genre-tag {
+            background: rgba(168, 85, 247, 0.2);
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+        }
+
+        .artists-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .artist-card {
+            height: 320px;
+            border-radius: 1rem;
+            overflow: hidden;
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .artist-card:hover {
+            transform: scale(1.05);
+        }
+
+        .artist-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+            z-index: 1;
+        }
+
+        .artist-1 { background: linear-gradient(135deg, #a78bfa, #ec4899); }
+        .artist-2 { background: linear-gradient(135deg, #60a5fa, #06b6d4); }
+        .artist-3 { background: linear-gradient(135deg, #34d399, #10b981); }
+
+        .artist-info {
+            position: absolute;
+            bottom: 1.5rem;
+            left: 1.5rem;
+            z-index: 2;
+        }
+
+        .artist-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .artist-followers {
+            color: #d1d5db;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .cta-section {
+            text-align: center;
+            padding: 8rem 2rem;
+        }
+
+        .cta-box {
+            background: linear-gradient(to right, rgba(147, 51, 234, 0.2), rgba(219, 39, 119, 0.2));
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 2rem;
+            padding: 4rem;
+        }
+
+        .cta-box h2 {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .cta-box p {
+            font-size: 1.25rem;
+            color: #d1d5db;
+            margin-bottom: 2.5rem;
+        }
+
+        footer {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 3rem 2rem;
+        }
+
+        .footer-content {
+            max-width: 1280px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+        }
+
+        .footer-section h4 {
+            margin-bottom: 1rem;
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section a {
+            color: #9ca3af;
+            text-decoration: none;
+            font-size: 0.875rem;
+            line-height: 2;
+            transition: color 0.3s;
+        }
+
+        .footer-section a:hover {
+            color: #c084fc;
+        }
+
+        .footer-bottom {
+            max-width: 1280px;
+            margin: 3rem auto 0;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+
+        /* Player Page Styles */
+        .player-page {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to bottom, #0f172a, #581c87, #0f172a);
+            z-index: 200;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 2rem;
+        }
+
+        .player-page.active {
+            display: flex;
+        }
+
+        .player-header {
+            width: 100%;
+            max-width: 600px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
+        }
+
+        .back-btn svg {
+            stroke: white;
+            width: 24px;
+            height: 24px;
+        }
+
+        .player-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .vinyl-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            margin-bottom: 3rem;
+        }
+
+        .vinyl {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #a855f7, #ec4899, #f97316);
+            background-image: url('wilson.jpeg');
+            background-size: cover;
+            background-position: center;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+
+        .vinyl::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle, transparent 25%, rgba(0, 0, 0, 0.1) 25%, rgba(0, 0, 0, 0.1) 30%, transparent 30%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .vinyl.spinning {
+            animation: spin 3s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .vinyl-center {
+            width: 80px;
+            height: 80px;
+            background: #0f172a;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .vinyl-center-dot {
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+        }
+
+        .vinyl-ring {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+        }
+
+        .track-details {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .track-details h2 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .track-details p {
+            color: #9ca3af;
+            font-size: 1.2rem;
+        }
+
+        .player-controls {
+            width: 100%;
+            max-width: 500px;
+            padding-bottom: 2rem;
+        }
+
+        .progress-section {
+            margin-bottom: 2rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+            cursor: pointer;
+            position: relative;
+            margin-bottom: 0.5rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(to right, #a855f7, #ec4899);
+            border-radius: 3px;
+            width: 0%;
+            transition: width 0.1s;
+            position: relative;
+        }
+
+        .progress-handle {
+            position: absolute;
+            right: -8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 16px;
+            height: 16px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .time-display {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.875rem;
+            color: #9ca3af;
+        }
+
+        .control-buttons {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .control-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
+        }
+
+        .control-btn.play-pause {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(to right, #a855f7, #ec4899);
+        }
+
+        .control-btn.play-pause:hover {
+            box-shadow: 0 0 30px rgba(168, 85, 247, 0.5);
+        }
+
+        .control-btn svg {
+            stroke: white;
+            fill: white;
+            width: 24px;
+            height: 24px;
+        }
+
+        .control-btn.play-pause svg {
+            width: 32px;
+            height: 32px;
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .hero h1 {
+                font-size: 3rem;
+            }
+
+            .hero p {
+                font-size: 1.2rem;
+            }
+
+            .tracks-grid,
+            .artists-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .vinyl-container {
+                width: 250px;
+                height: 250px;
+            }
+
+            .track-details h2 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Player Page -->
+    <div class="player-page" id="playerPage">
+        <div class="player-header">
+            <button class="back-btn" onclick="closePlayer()">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+            </button>
+            <div></div>
+        </div>
+
+        <div class="player-main">
+            <div class="vinyl-container">
+                <div class="vinyl" id="vinyl">
+                    <div class="vinyl-ring"></div>
+                    <div class="vinyl-center">
+                        <div class="vinyl-center-dot"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="track-details">
+                <h2 id="playerTrackTitle">Track Name</h2>
+                <p id="playerTrackArtist">Artist Name</p>
+            </div>
+        </div>
+
+        <div class="player-controls">
+            <div class="progress-section">
+                <div class="progress-bar" id="progressBar">
+                    <div class="progress-fill" id="progressFill">
+                        <div class="progress-handle"></div>
+                    </div>
+                </div>
+                <div class="time-display">
+                    <span id="currentTime">0:00</span>
+                    <span id="totalTime">0:00</span>
+                </div>
+            </div>
+
+            <div class="control-buttons">
+                <button class="control-btn" onclick="previousTrack()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
+                        <polygon points="19 20 9 12 19 4 19 20" fill="white" stroke="none"></polygon>
+                        <line x1="5" y1="19" x2="5" y2="5"></line>
+                    </svg>
+                </button>
+
+                <button class="control-btn play-pause" id="playerPlayBtn" onclick="togglePlayerPlay()">
+                    <svg viewBox="0 0 24 24">
+                        <polygon points="5 3 19 12 5 21 5 3" fill="white" stroke="none"></polygon>
+                    </svg>
+                </button>
+
+                <button class="control-btn" onclick="nextTrack()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
+                        <polygon points="5 4 15 12 5 20 5 4" fill="white" stroke="none"></polygon>
+                        <line x1="19" y1="5" x2="19" y2="19"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <nav>
+        <div class="logo">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+            </svg>
+            <span>SoundFlow</span>
+        </div>
+        <div class="nav-links">
+            <a href="#">发现</a>
+            <a href="#">排行榜</a>
+            <a href="#">艺术家</a>
+            <a href="#">播客</a>
+        </div>
+        <div class="nav-buttons">
+            <button class="btn btn-secondary">登录</button>
+            <button class="btn btn-primary">免费试用</button>
+        </div>
+    </nav>
+
+    <div class="hero">
+        <h1>感受音乐</h1>
+        <p>千万首歌曲，无限可能。探索你的下一首最爱</p>
+        <button class="btn btn-primary">开始聆听</button>
+    </div>
+
+    <section>
+        <div class="section-title">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="2">
+                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+                <polyline points="17 6 23 6 23 12"></polyline>
+            </svg>
+            <h2>热门单曲</h2>
+        </div>
+        <div class="tracks-grid">
+            <div class="track-card" onclick="openPlayer(0)" data-index="0">
+                <div class="track-content">
+                    <div class="track-cover">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="white">
+                            <path d="M9 18V5l12-2v13M9 13l12-2"></path>
+                        </svg>
+                        <button class="play-btn" onclick="event.stopPropagation(); openPlayer(0)">
+                            <svg viewBox="0 0 24 24">
+                                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="track-info">
+                        <div class="track-title">Da Mian</div>
+                        <div class="track-artist">Cyndi Wang</div>
+                        <div class="track-meta">
+                            <span class="genre-tag">Pop</span>
+                            <span>8.9M plays</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="track-card" onclick="openPlayer(1)" data-index="1">
+                <div class="track-content">
+                    <div class="track-cover">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="white">
+                            <path d="M9 18V5l12-2v13M9 13l12-2"></path>
+                        </svg>
+                        <button class="play-btn" onclick="event.stopPropagation(); openPlayer(1)">
+                            <svg viewBox="0 0 24 24">
+                                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="track-info">
+                        <div class="track-title">Bu Yi Han</div>
+                        <div class="track-artist">Ronghao Li</div>
+                        <div class="track-meta">
+                            <span class="genre-tag">Pop/R&B</span>
+                            <span>12.5M plays</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="track-card" onclick="openPlayer(2)" data-index="2">
+                <div class="track-content">
+                    <div class="track-cover">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="white">
+                            <path d="M9 18V5l12-2v13M9 13l12-2"></path>
+                        </svg>
+                        <button class="play-btn" onclick="event.stopPropagation(); openPlayer(2)">
+                            <svg viewBox="0 0 24 24">
+                                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="track-info">
+                        <div class="track-title">Wo Huai Nian De</div>
+                        <div class="track-artist">Stefanie Sun</div>
+                        <div class="track-meta">
+                            <span class="genre-tag">Pop</span>
+                            <span>15.3M plays</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="track-card" onclick="openPlayer(3)" data-index="3">
+                <div class="track-content">
+                    <div class="track-cover">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="white">
+                            <path d="M9 18V5l12-2v13M9 13l12-2"></path>
+                        </svg>
+                        <button class="play-btn" onclick="event.stopPropagation(); openPlayer(3)">
+                            <svg viewBox="0 0 24 24">
+                                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="track-info">
+                        <div class="track-title">Yu Ai</div>
+                        <div class="track-artist">Rainie Yang</div>
+                        <div class="track-meta">
+                            <span class="genre-tag">Pop</span>
+                            <span>11.2M plays</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="track-card" onclick="openPlayer(4)" data-index="4">
+                <div class="track-content">
+                    <div class="track-cover">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="white">
+                            <path d="M9 18V5l12-2v13M9 13l12-2"></path>
+                        </svg>
+                        <button class="play-btn" onclick="event.stopPropagation(); openPlayer(4)">
+                            <svg viewBox="0 0 24 24">
+                                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="track-info">
+                        <div class="track-title">Ai Ni</div>
+                        <div class="track-artist">Kimberley Chen</div>
+                        <div class="track-meta">
+                            <span class="genre-tag">Pop</span>
+                            <span>9.7M plays</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="track-card" onclick="openPlayer(5)" data-index="5">
+                <div class="track-content">
+                    <div class="track-cover">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="white">
+                            <path d="M9 18V5l12-2v13M9 13l12-2"></path>
+                        </svg>
+                        <button class="play-btn" onclick="event.stopPropagation(); openPlayer(5)">
+                            <svg viewBox="0 0 24 24">
+                                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="track-info">
+                        <div class="track-title">You Wo Ne</div>
+                        <div class="track-artist">Eason Chan</div>
+                        <div class="track-meta">
+                            <span class="genre-tag">Pop/Rock</span>
+                            <span>18.6M plays</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="track-card" onclick="openPlayer(6)" data-index="6">
+                <div class="track-content">
+                    <div class="track-cover">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="white">
+                            <path d="M9 18V5l12-2v13M9 13l12-2"></path>
+                        </svg>
+                        <button class="play-btn" onclick="event.stopPropagation(); openPlayer(6)">
+                            <svg viewBox="0 0 24 24">
+                                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="track-info">
+                        <div class="track-title">Shao Yi Dian Tian Fen</div>
+                        <div class="track-artist">Karen Mok</div>
+                        <div class="track-meta">
+                            <span class="genre-tag">Pop</span>
+                            <span>7.4M plays</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="track-card" onclick="openPlayer(7)" data-index="7">
+                <div class="track-content">
+                    <div class="track-cover">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="white">
+                            <path d="M9 18V5l12-2v13M9 13l12-2"></path>
+                        </svg>
+                        <button class="play-btn" onclick="event.stopPropagation(); openPlayer(7)">
+                            <svg viewBox="0 0 24 24">
+                                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="track-info">
+                        <div class="track-title">Cai Bu Tou</div>
+                        <div class="track-artist">Elva Hsiao</div>
+                        <div class="track-meta">
+                            <span class="genre-tag">Pop/Dance</span>
+                            <span>10.8M plays</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <div class="section-title">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="2">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+            </svg>
+            <h2>热门艺术家</h2>
+        </div>
+        <div class="artists-grid">
+            <div class="artist-card artist-1">
+                <div class="artist-info">
+                    <div class="artist-name">Aurora Sky</div>
+                    <div class="artist-followers">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                        <span>892K 粉丝</span>
+                    </div>
+                </div>
+            </div>
+            <div class="artist-card artist-2">
+                <div class="artist-info">
+                    <div class="artist-name">Echo Chamber</div>
+                    <div class="artist-followers">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                        <span>654K 粉丝</span>
+                    </div>
+                </div>
+            </div>
+            <div class="artist-card artist-3">
+                <div class="artist-info">
+                    <div class="artist-name">Sonic Bloom</div>
+                    <div class="artist-followers">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                        <span>1.2M 粉丝</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="cta-section">
+        <div class="cta-box">
+            <h2>准备好开始了吗？</h2>
+            <p>加入数百万音乐爱好者，探索无限的音乐世界</p>
+            <button class="btn btn-primary">立即开始免费试用</button>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <div class="logo" style="margin-bottom: 1rem;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                        <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                    </svg>
+                    <span>SoundFlow</span>
+                </div>
+                <p style="color: #9ca3af; font-size: 0.875rem;">让音乐连接世界</p>
+            </div>
+            <div class="footer-section">
+                <h4>产品</h4>
+                <ul>
+                    <li><a href="#">高级会员</a></li>
+                    <li><a href="#">免费版本</a></li>
+                    <li><a href="#">移动应用</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>社区</h4>
+                <ul>
+                    <li><a href="#">艺术家</a></li>
+                    <li><a href="#">开发者</a></li>
+                    <li><a href="#">品牌合作</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>关于</h4>
+                <ul>
+                    <li><a href="#">公司介绍</a></li>
+                    <li><a href="#">工作机会</a></li>
+                    <li><a href="#">联系我们</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            © 2026 SoundFlow. 保留所有权利。
+        </div>
+    </footer>
+
+    <script>
+        // Playlist data
+        const playlist = [
+            { title: 'Da Mian', artist: 'Cyndi Wang', src: '大眠.mp3' },
+            { title: 'Bu Yi Han', artist: 'Ronghao Li', src: '不遗憾.mp3' },
+            { title: 'Wo Huai Nian De', artist: 'Stefanie Sun', src: '我怀念的.mp3' },
+            { title: 'Yu Ai', artist: 'Rainie Yang', src: '雨爱.mp3' },
+            { title: 'Ai Ni', artist: 'Kimberley Chen', src: '爱你.mp3' },
+            { title: 'You Wo Ne', artist: 'Eason Chan', src: '有我呢.mp3' },
+            { title: 'Shao Yi Dian Tian Fen', artist: 'Karen Mok', src: '少一点天分.mp3' },
+            { title: 'Cai Bu Tou', artist: 'Elva Hsiao', src: '猜不透.mp3' }
+        ];
+
+        // Global audio and player state
+        let currentAudio = null;
+        let currentTrackIndex = 0;
+        let isPlaying = false;
+
+        // Format time in mm:ss
+        function formatTime(seconds) {
+            if (isNaN(seconds)) return '0:00';
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        // Open player page
+        function openPlayer(index) {
+            currentTrackIndex = index;
+            const track = playlist[index];
+            
+            // Update track info
+            document.getElementById('playerTrackTitle').textContent = track.title;
+            document.getElementById('playerTrackArtist').textContent = track.artist;
+            
+            // Show player page
+            document.getElementById('playerPage').classList.add('active');
+            
+            // Load and play audio
+            if (currentAudio) {
+                currentAudio.pause();
+            }
+            
+            currentAudio = new Audio(track.src);
+            
+            // Audio event listeners
+            currentAudio.addEventListener('loadedmetadata', function() {
+                document.getElementById('totalTime').textContent = formatTime(currentAudio.duration);
+            });
+            
+            currentAudio.addEventListener('timeupdate', function() {
+                const progress = (currentAudio.currentTime / currentAudio.duration) * 100;
+                document.getElementById('progressFill').style.width = progress + '%';
+                document.getElementById('currentTime').textContent = formatTime(currentAudio.currentTime);
+            });
+            
+            currentAudio.addEventListener('ended', function() {
+                nextTrack();
+            });
+            
+            // Auto play
+            currentAudio.play();
+            isPlaying = true;
+            updatePlayButton();
+            document.getElementById('vinyl').classList.add('spinning');
+        }
+
+        // Close player page
+        function closePlayer() {
+            document.getElementById('playerPage').classList.remove('active');
+            if (currentAudio) {
+                currentAudio.pause();
+            }
+            isPlaying = false;
+            document.getElementById('vinyl').classList.remove('spinning');
+        }
+
+        // Toggle play/pause
+        function togglePlayerPlay() {
+            if (!currentAudio) return;
+            
+            if (isPlaying) {
+                currentAudio.pause();
+                isPlaying = false;
+                document.getElementById('vinyl').classList.remove('spinning');
+            } else {
+                currentAudio.play();
+                isPlaying = true;
+                document.getElementById('vinyl').classList.add('spinning');
+            }
+            updatePlayButton();
+        }
+
+        // Update play button icon
+        function updatePlayButton() {
+            const btn = document.getElementById('playerPlayBtn');
+            const svg = btn.querySelector('svg');
+            
+            if (isPlaying) {
+                svg.innerHTML = '<rect x="6" y="4" width="4" height="16" fill="white"></rect><rect x="14" y="4" width="4" height="16" fill="white"></rect>';
+            } else {
+                svg.innerHTML = '<polygon points="5 3 19 12 5 21 5 3" fill="white" stroke="none"></polygon>';
+            }
+        }
+
+        // Previous track
+        function previousTrack() {
+            currentTrackIndex--;
+            if (currentTrackIndex < 0) {
+                currentTrackIndex = playlist.length - 1;
+            }
+            openPlayer(currentTrackIndex);
+        }
+
+        // Next track
+        function nextTrack() {
+            currentTrackIndex++;
+            if (currentTrackIndex >= playlist.length) {
+                currentTrackIndex = 0;
+            }
+            openPlayer(currentTrackIndex);
+        }
+
+        // Progress bar interaction
+        document.addEventListener('DOMContentLoaded', function() {
+            const progressBar = document.getElementById('progressBar');
+            
+            progressBar.addEventListener('click', function(e) {
+                if (!currentAudio) return;
+                
+                const rect = progressBar.getBoundingClientRect();
+                const percent = (e.clientX - rect.left) / rect.width;
+                currentAudio.currentTime = percent * currentAudio.duration;
+            });
+
+            // Dragging progress
+            let isDragging = false;
+            const progressFill = document.getElementById('progressFill');
+            const progressHandle = progressFill.querySelector('.progress-handle');
+            
+            progressHandle.addEventListener('mousedown', function(e) {
+                isDragging = true;
+                e.preventDefault();
+            });
+            
+            document.addEventListener('mousemove', function(e) {
+                if (!isDragging || !currentAudio) return;
+                
+                const rect = progressBar.getBoundingClientRect();
+                let percent = (e.clientX - rect.left) / rect.width;
+                percent = Math.max(0, Math.min(1, percent));
+                
+                currentAudio.currentTime = percent * currentAudio.duration;
+            });
+            
+            document.addEventListener('mouseup', function() {
+                isDragging = false;
+            });
+        });
+
+        // Smooth scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
