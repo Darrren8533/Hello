@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Agar.io Clone - 分裂與餵食</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #111;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            touch-action: none; /* 防止移動端滾動 */
+        }
+        canvas {
+            display: block;
+        }
+        #ui-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        #start-screen {
+            pointer-events: auto;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+        }
+        .hud-text {
+            text-shadow: 1px 1px 2px black;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- UI 層 -->
+    <div id="ui-layer">
+        <div class="p-4 flex justify-between items-start">
+            <div class="text-white">
+                <h2 class="text-xl font-bold hud-text">分數: <span id="score-display">0</span></h2>
+                <p class="text-sm text-gray-300 hud-text">質量: <span id="mass-display">0</span></p>
+                <div class="mt-2 text-xs text-gray-400 hud-text">
+                    <p>移動: 滑鼠</p>
+                    <p>分裂: 空白鍵 (Space)</p>
+                    <p>餵食: W</p>
+                </div>
+            </div>
+            <div class="text-white text-right">
+                <h3 class="font-bold hud-text">排行榜</h3>
+                <ul id="leaderboard" class="text-sm text-gray-300 list-decimal list-inside">
+                    <!-- 排行榜動態生成 -->
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- 開始畫面 -->
+    <div id="start-screen" class="absolute inset-0 flex items-center justify-center z-50">
+        <div class="bg-white p-8 rounded-xl shadow-2xl text-center max-w-md w-full mx-4">
+            <h1 class="text-4xl font-extrabold mb-6 text-indigo-600">Agar.io Clone</h1>
+            <input type="text" id="nickname" placeholder="輸入暱稱" maxlength="10" 
+                   class="w-full px-4 py-3 mb-4 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500 text-lg">
+            <button id="play-btn" 
+                    class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg transition duration-200 transform hover:scale-105 shadow-lg">
+                開始遊戲
+            </button>
+            <div class="mt-4 text-sm text-gray-500">
+                按 <b>Space</b> 分裂，按 <b>W</b> 餵食
+            </div>
+        </div>
+    </div>
+
+    <div id="game-over-screen" class="hidden absolute inset-0 flex items-center justify-center z-50 bg-black bg-opacity-80">
+        <div class="text-center text-white">
+            <h2 id="game-over-title" class="text-5xl font-bold mb-4 text-red-500">遊戲結束</h2>
+            <p class="text-xl mb-6">最終分數: <span id="final-score">0</span></p>
+            <p id="restart-msg" class="hidden text-yellow-400 text-lg mb-4">5 秒後自動重啟...</p>
+            <button id="restart-btn" 
+                    class="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-8 rounded-lg transition duration-200">
+                再次挑戰
+            </button>
+        </div>
+    </div>
+
+    <canvas id="gameCanvas"></canvas>
+
+<script>
+/**
+ * 遊戲配置與常數
+ */
+const CONFIG = {
+    mapWidth: 3000,
+    mapHeight: 3000,
+    baseZoom: 1,
+    foodCount: 400,
+    botCount: 15,
+    minSplitSize: 35, // 最小分裂半徑
+    minEjectSize: 30, // 最小吐球半徑
+    ejectMassLoss: 14, // W鍵損失的質量
+    ejectRadius: 10,   // 吐出的球半徑
+    mergeCooldown: 300, // 分裂後重新合併的幀數 (約5-10秒)
+    friction: 0.9,     // 物理摩擦力
+    splitSpeed: 18,    // 分裂時的彈射速度
+    colors: ['#FF5252', '#E040FB', '#7C4DFF', '#536DFE', '#448AFF', '#40C4FF', '#18FFFF', '#64FFDA', '#69F0AE', '#B2FF59', '#EEFF41', '#FFFF00', '#FFD740', '#FFAB40', '#FF6E40']
+};
+
+/**
+ * 核心變數
+ */
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+let animationId;
+let lastTime = 0;
+let gameRunning = false;
+let gameWon = false; // 新增：勝利狀態標記
+
+// 輸入狀態
+const mouse = { x: 0, y: 0 };
+const cam = { x: 0, y: 0, scale: 1 };
+
+// 遊戲實體
+let playerCells = []; // 玩家可能有多個細胞
+let foods = [];
+let bots = [];
+let ejectedMasses = [];
+
+/**
+ * 工具函數
+ */
+function randomRange(min, max) {
+    return Math.random() * (max - min) + min;
+}
+
+function randomColor() {
+    return CONFIG.colors[Math.floor(Math.random() * CONFIG.colors.length)];
+}
+
+function getDistance(x1, y1, x2, y2) {
+    return Math.hypot(x2 - x1, y2 - y1);
+}
+
+// 根據質量計算半徑 (Area = PI * r^2 => r = sqrt(Area/PI)) 
+// 為了遊戲性，我們簡化為 r = sqrt(mass) * constant 或者直接用半徑當大小單位
+// 這裡我們直接操作半徑，質量視為半徑的平方
+function getMass(radius) {
+    return Math.floor(radius * radius / 10);
+}
+
+/**
+ * 類別定義
+ */
+
+class Entity {
+    constructor(x, y, radius, color) {
+        this.x = x;
+        this.y = y;
+        this.radius = radius;
+        this.color = color;
+        this.markedForDeletion = false;
+    }
+
+    draw(ctx) {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fillStyle = this.color;
+        ctx.fill();
+        ctx.strokeStyle = '#222';
+        ctx.lineWidth = 2 + this.radius * 0.05; // 邊框隨大小變粗
+        ctx.stroke();
+        ctx.closePath();
+    }
+}
+
+class Food extends Entity {
+    constructor(x, y, color) {
+        super(x || randomRange(0, CONFIG.mapWidth), y || randomRange(0, CONFIG.mapHeight), randomRange(4, 7), color || randomColor());
+    }
+    
+    // 食物有些微的浮動效果
+    draw(ctx) {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fillStyle = this.color;
+        ctx.globalAlpha = 0.8;
+        ctx.fill();
+        ctx.globalAlpha = 1.0;
+        ctx.closePath();
+    }
+}
+
+class EjectedMass extends Entity {
+    constructor(x, y, radius, color, velocity) {
+        super(x, y, radius, color);
+        this.velocity = velocity;
+        this.friction = 0.9;
+    }
+
+    update() {
+        // 移動
+        this.x += this.velocity.x;
+        this.y += this.velocity.y;
+
+        // 減速
+        this.velocity.x *= this.friction;
+        this.velocity.y *= this.friction;
+
+        // 邊界檢查
+        if (this.x < 0) this.x = 0;
+        if (this.x > CONFIG.mapWidth) this.x = CONFIG.mapWidth;
+        if (this.y < 0) this.y = 0;
+        if (this.y > CONFIG.mapHeight) this.y = CONFIG.mapHeight;
+    }
+}
+
+class Cell extends Entity {
+    constructor(x, y, radius, color, name, isBot = false) {
+        super(x, y, radius, color);
+        this.name = name;
+        this.isBot = isBot;
+        this.velocity = { x: 0, y: 0 };
+        this.speedMultiplier = 1;
+        this.mergeTimer = 0; // 分裂後的冷卻時間
+        this.canMerge = true;
+    }
+
+    update(targetX, targetY) {
+        // 速度與大小成反比：越小越快
+        const speed = (25 / Math.pow(this.radius, 0.44)) * this.speedMultiplier;
+        
+        // 彈射速度衰減 (分裂時的衝力)
+        if (this.speedMultiplier > 1) {
+            this.speedMultiplier *= 0.95; // 快速衰減
+            if (this.speedMultiplier < 1.05) this.speedMultiplier = 1;
+        }
+
+        // 減少冷卻時間
+        if (this.mergeTimer > 0) {
+            this.mergeTimer--;
+            this.canMerge = false;
+        } else {
+            this.canMerge = true;
+        }
+
+        // 計算移動向量
+        const angle = Math.atan2(targetY - this.y, targetX - this.x);
+        
+        // 如果是機器人，或者非彈射狀態，則正常移動
+        // 彈射時 velocity 已經被設定，所以這裡加成
+        this.velocity.x = Math.cos(angle) * speed;
+        this.velocity.y = Math.sin(angle) * speed;
+
+        this.x += this.velocity.x;
+        this.y += this.velocity.y;
+
+        // 邊界檢查
+        this.x = Math.max(this.radius, Math.min(CONFIG.mapWidth - this.radius, this.x));
+        this.y = Math.max(this.radius, Math.min(CONFIG.mapHeight - this.radius, this.y));
+    }
+
+    draw(ctx) {
+        super.draw(ctx);
+        
+        // 繪製名字
+        ctx.fillStyle = '#FFF';
+        ctx.font = `bold ${Math.max(10, this.radius / 2.5)}px sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.lineWidth = 0.5;
+        ctx.strokeStyle = '#000';
+        ctx.strokeText(this.name, this.x, this.y);
+        ctx.fillText(this.name, this.x, this.y);
+    }
+}
+
+/**
+ * 遊戲邏輯管理
+ */
+
+function initGame(playerName) {
+    playerCells = [];
+    foods = [];
+    bots = [];
+    ejectedMasses = [];
+    gameWon = false; // 重置勝利狀態
+    
+    // 重置 UI 元素
+    const title = document.getElementById('game-over-title');
+    const restartMsg = document.getElementById('restart-msg');
+    const restartBtn = document.getElementById('restart-btn');
+    
+    title.innerText = "遊戲結束";
+    title.className = "text-5xl font-bold mb-4 text-red-500";
+    restartMsg.classList.add('hidden');
+    restartBtn.classList.remove('hidden');
+
+    // 創建初始玩家細胞
+    playerCells.push(new Cell(
+        randomRange(500, CONFIG.mapWidth - 500),
+        randomRange(500, CONFIG.mapHeight - 500),
+        20, // 初始大小
+        '#00B0FF', // 玩家固定藍色或隨機
+        playerName || "Player"
+    ));
+
+    // 生成食物
+    for (let i = 0; i < CONFIG.foodCount; i++) {
+        foods.push(new Food());
+    }
+
+    // 生成機器人
+    for (let i = 0; i < CONFIG.botCount; i++) {
+        spawnBot();
+    }
+
+    gameRunning = true;
+    document.getElementById('start-screen').style.display = 'none';
+    document.getElementById('game-over-screen').classList.add('hidden');
+    document.getElementById('ui-layer').style.display = 'flex';
+    
+    animate();
+}
+
+function spawnBot() {
+    const names = ["Doge", "Earth", "Mars", "Moon", "NASA", "USA", "China", "Wojak", "Pepe", "Bot", "Guest"];
+    let r = randomRange(15, 60);
+    bots.push(new Cell(
+        randomRange(0, CONFIG.mapWidth),
+        randomRange(0, CONFIG.mapHeight),
+        r,
+        randomColor(),
+        names[Math.floor(Math.random() * names.length)],
+        true
+    ));
+}
+
+function splitPlayer() {
+    // 遍歷當前所有細胞，因為在循環中添加元素，所以要小心
+    // 這裡我們創建一個新的臨時陣列來存放分裂出來的細胞
+    let newCells = [];
+    let currentCount = playerCells.length;
+
+    playerCells.forEach(cell => {
+        // 最大細胞數量限制 (例如16)
+        if (currentCount >= 16) return;
+
+        if (cell.radius >= CONFIG.minSplitSize) {
+            // 新半徑：面積減半 -> r_new = r_old / sqrt(2)
+            const newRadius = cell.radius / 1.414;
+            cell.radius = newRadius;
+
+            // 創建分裂出的細胞
+            // 計算彈射方向 (朝向滑鼠)
+            // 注意：我們需要將螢幕座標轉換為世界座標
+            const screenCx = canvas.width / 2;
+            const screenCy = canvas.height / 2;
+            const dx = mouse.x - screenCx;
+            const dy = mouse.y - screenCy;
+            const angle = Math.atan2(dy, dx);
+
+            // 將分裂的細胞稍微往前放一點，避免卡住
+            const dist = cell.radius * 2; 
+            const newX = cell.x + Math.cos(angle) * dist;
+            const newY = cell.y + Math.sin(angle) * dist;
+
+            let splitCell = new Cell(newX, newY, newRadius, cell.color, cell.name);
+            
+            // 給予初始衝量 (speedMultiplier)
+            splitCell.speedMultiplier = CONFIG.splitSpeed; 
+            
+            // 設定冷卻時間
+            cell.mergeTimer = CONFIG.mergeCooldown;
+            splitCell.mergeTimer = CONFIG.mergeCooldown;
+
+            newCells.push(splitCell);
+            currentCount++;
+        }
+    });
+
+    playerCells = playerCells.concat(newCells);
+}
+
+function ejectMass() {
+    playerCells.forEach(cell => {
+        if (cell.radius >= CONFIG.minEjectSize) {
+            // 計算噴射方向
+            const screenCx = canvas.width / 2;
+            const screenCy = canvas.height / 2;
+            const dx = mouse.x - screenCx;
+            const dy = mouse.y - screenCy;
+            const angle = Math.atan2(dy, dx);
+
+            // 玩家損失質量 (面積計算)
+            // Area_new = Area_old - Area_loss
+            // PI*r_new^2 = PI*r_old^2 - Loss
+            // 這裡簡化：半徑直接減小或計算面積
+            // 為了平衡，我們假設 ejectMass 是一個固定大小
+            const massLossArea = Math.PI * CONFIG.ejectRadius * CONFIG.ejectRadius * 2; // 損失比射出的稍微多一點作為懲罰
+            const currentArea = Math.PI * cell.radius * cell.radius;
+            const newArea = currentArea - massLossArea;
+            
+            if (newArea > 0) {
+                cell.radius = Math.sqrt(newArea / Math.PI);
+                
+                // 創建噴射物
+                const ejectX = cell.x + Math.cos(angle) * cell.radius;
+                const ejectY = cell.y + Math.sin(angle) * cell.radius;
+                
+                const velocity = {
+                    x: Math.cos(angle) * 15, // 噴射速度
+                    y: Math.sin(angle) * 15
+                };
+
+                ejectedMasses.push(new EjectedMass(ejectX, ejectY, CONFIG.ejectRadius, cell.color, velocity));
+            }
+        }
+    });
+}
+
+function checkCollisions() {
+    // 1. 玩家吃食物
+    playerCells.forEach(cell => {
+        foods.forEach(food => {
+            if (!food.markedForDeletion && getDistance(cell.x, cell.y, food.x, food.y) < cell.radius) {
+                // 面積增加 Area_new = Area_curr + Area_food
+                const newArea = Math.PI * cell.radius * cell.radius + Math.PI * food.radius * food.radius;
+                cell.radius = Math.sqrt(newArea / Math.PI);
+                food.markedForDeletion = true;
+            }
+        });
+
+        // 2. 玩家吃噴射物 (W)
+        ejectedMasses.forEach(mass => {
+            if (!mass.markedForDeletion && getDistance(cell.x, cell.y, mass.x, mass.y) < cell.radius) {
+                const newArea = Math.PI * cell.radius * cell.radius + Math.PI * mass.radius * mass.radius * 0.9;
+                cell.radius = Math.sqrt(newArea / Math.PI);
+                mass.markedForDeletion = true;
+            }
+        });
+    });
+
+    // 3. 機器人吃食物和噴射物
+    bots.forEach(bot => {
+        foods.forEach(food => {
+            if (!food.markedForDeletion && getDistance(bot.x, bot.y, food.x, food.y) < bot.radius) {
+                const newArea = Math.PI * bot.radius * bot.radius + Math.PI * food.radius * food.radius;
+                bot.radius = Math.sqrt(newArea / Math.PI);
+                food.markedForDeletion = true;
+            }
+        });
+         ejectedMasses.forEach(mass => {
+            if (!mass.markedForDeletion && getDistance(bot.x, bot.y, mass.x, mass.y) < bot.radius) {
+                const newArea = Math.PI * bot.radius * bot.radius + Math.PI * mass.radius * mass.radius;
+                bot.radius = Math.sqrt(newArea / Math.PI);
+                mass.markedForDeletion = true;
+            }
+        });
+    });
+
+    // 4. 玩家 vs 機器人 (相互吞噬)
+    playerCells.forEach(pCell => {
+        bots.forEach(bot => {
+            if (bot.markedForDeletion) return;
+            
+            const dist = getDistance(pCell.x, pCell.y, bot.x, bot.y);
+            
+            // 判定吞噬：距離小於大球半徑，且大球比小球大至少 1.2倍
+            if (dist < pCell.radius - bot.radius * 0.4 && pCell.radius > bot.radius * 1.1) {
+                // 玩家吃機器人
+                const newArea = Math.PI * pCell.radius * pCell.radius + Math.PI * bot.radius * bot.radius;
+                pCell.radius = Math.sqrt(newArea / Math.PI);
+                bot.markedForDeletion = true;
+                // 重生機器人
+                setTimeout(spawnBot, 2000);
+            } else if (dist < bot.radius - pCell.radius * 0.4 && bot.radius > pCell.radius * 1.1) {
+                // 機器人吃玩家
+                const newArea = Math.PI * bot.radius * bot.radius + Math.PI * pCell.radius * pCell.radius;
+                bot.radius = Math.sqrt(newArea / Math.PI);
+                pCell.markedForDeletion = true;
+            }
+        });
+    });
+
+    // 5. 玩家自身碰撞與合併邏輯
+    for (let i = 0; i < playerCells.length; i++) {
+        for (let j = i + 1; j < playerCells.length; j++) {
+            let c1 = playerCells[i];
+            let c2 = playerCells[j];
+            let dist = getDistance(c1.x, c1.y, c2.x, c2.y);
+            let minDist = c1.radius + c2.radius;
+
+            if (c1.canMerge && c2.canMerge) {
+                // 可以合併 (簡單處理：碰撞中心非常近時合併)
+                if (dist < c1.radius + c2.radius - Math.min(c1.radius, c2.radius)/2) {
+                     // 吸收
+                    let totalArea = Math.PI*c1.radius*c1.radius + Math.PI*c2.radius*c2.radius;
+                    c1.radius = Math.sqrt(totalArea/Math.PI);
+                    c2.markedForDeletion = true;
+                }
+            } else {
+                // 剛分裂不能合併，執行推擠物理 (防止重疊)
+                if (dist < minDist) {
+                    let overlap = minDist - dist;
+                    let dx = c2.x - c1.x;
+                    let dy = c2.y - c1.y;
+                    if (dist === 0) { dx = 1; dy = 0; } // 防止除以0
+                    let angle = Math.atan2(dy, dx);
+                    
+                    let pushX = Math.cos(angle) * overlap * 0.1;
+                    let pushY = Math.sin(angle) * overlap * 0.1;
+
+                    c1.x -= pushX;
+                    c1.y -= pushY;
+                    c2.x += pushX;
+                    c2.y += pushY;
+                }
+            }
+        }
+    }
+
+    // 清理已刪除的實體
+    foods = foods.filter(f => !f.markedForDeletion);
+    ejectedMasses = ejectedMasses.filter(m => !m.markedForDeletion);
+    bots = bots.filter(b => !b.markedForDeletion);
+    playerCells = playerCells.filter(c => !c.markedForDeletion);
+
+    // 補充食物
+    while (foods.length < CONFIG.foodCount) {
+        foods.push(new Food());
+    }
+}
+
+function updateBots() {
+    bots.forEach(bot => {
+        let targetX = bot.x;
+        let targetY = bot.y;
+        let closestFood = null;
+        let minDist = Infinity;
+        let predator = null;
+        let predatorDist = Infinity;
+
+        // 簡單AI：尋找最近食物
+        foods.forEach(food => {
+            let d = getDistance(bot.x, bot.y, food.x, food.y);
+            if (d < minDist) {
+                minDist = d;
+                closestFood = food;
+            }
+        });
+
+        // 尋找威脅 (玩家)
+        playerCells.forEach(p => {
+            let d = getDistance(bot.x, bot.y, p.x, p.y);
+            // 只有當玩家比機器人大時才視為威脅
+            if (p.radius > bot.radius * 1.1 && d < 300) {
+                if (d < predatorDist) {
+                    predatorDist = d;
+                    predator = p;
+                }
+            }
+        });
+
+        if (predator) {
+            // 逃跑邏輯
+            let angle = Math.atan2(bot.y - predator.y, bot.x - predator.x);
+            targetX = bot.x + Math.cos(angle) * 100;
+            targetY = bot.y + Math.sin(angle) * 100;
+        } else if (closestFood) {
+            // 覓食邏輯
+            targetX = closestFood.x;
+            targetY = closestFood.y;
+        } else {
+            // 隨機漫步
+            targetX = randomRange(0, CONFIG.mapWidth);
+            targetY = randomRange(0, CONFIG.mapHeight);
+        }
+
+        // AI 邊界修正
+        targetX = Math.max(0, Math.min(CONFIG.mapWidth, targetX));
+        targetY = Math.max(0, Math.min(CONFIG.mapHeight, targetY));
+
+        bot.update(targetX, targetY);
+    });
+}
+
+function drawGrid() {
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = '#222';
+    ctx.globalAlpha = 0.2;
+    const step = 50;
+
+    ctx.beginPath();
+    for (let x = 0; x <= CONFIG.mapWidth; x += step) {
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, CONFIG.mapHeight);
+    }
+    for (let y = 0; y <= CONFIG.mapHeight; y += step) {
+        ctx.moveTo(0, y);
+        ctx.lineTo(CONFIG.mapWidth, y);
+    }
+    ctx.stroke();
+    ctx.globalAlpha = 1.0;
+}
+
+function updateCamera() {
+    if (playerCells.length === 0) return;
+
+    // 計算所有細胞的幾何中心
+    let sumX = 0, sumY = 0, totalR = 0;
+    playerCells.forEach(p => {
+        sumX += p.x;
+        sumY += p.y;
+        totalR += p.radius;
+    });
+    
+    // 目標相機位置
+    let targetCamX = sumX / playerCells.length;
+    let targetCamY = sumY / playerCells.length;
+
+    // 計算縮放比例：細胞越大，視野越大 (scale 越小)
+    // 簡單公式：Scale = 1 / (totalRadius ^ 0.4) 左右
+    let avgRadius = totalR / playerCells.length; // 或許用最大半徑更好
+    // 為了平滑，這裡取 totalR 還是單個半徑? 通常 agar.io 是根據視野內的覆蓋範圍
+    // 簡化版：
+    let targetScale = 64 / (totalR + 60); 
+    // 限制縮放
+    targetScale = Math.max(0.1, Math.min(1.5, targetScale));
+
+    // 相機平滑插值 (Lerp)
+    cam.x += (targetCamX - cam.x) * 0.1;
+    cam.y += (targetCamY - cam.y) * 0.1;
+    cam.scale += (targetScale - cam.scale) * 0.05;
+
+    // 應用變換
+    ctx.setTransform(cam.scale, 0, 0, cam.scale, canvas.width / 2 - cam.x * cam.scale, canvas.height / 2 - cam.y * cam.scale);
+}
+
+function updateUI() {
+    // 計算總分
+    let totalMass = 0;
+    playerCells.forEach(c => totalMass += getMass(c.radius));
+    document.getElementById('score-display').innerText = totalMass;
+    document.getElementById('mass-display').innerText = totalMass;
+
+    // 檢查勝利條件：如果質量達到 200,000
+    if (totalMass >= 200000 && !gameWon) {
+        triggerWin();
+    }
+
+    // 更新排行榜 (簡單排序)
+    let allEntities = [...bots];
+    // 為了排行榜，把玩家的所有細胞加總成一個實體計算
+    if (playerCells.length > 0) {
+        allEntities.push({
+            name: playerCells[0].name,
+            radius: Math.sqrt(playerCells.reduce((acc, c) => acc + c.radius*c.radius, 0)), // 等效半徑
+            isPlayer: true
+        });
+    }
+
+    allEntities.sort((a, b) => b.radius - a.radius);
+    
+    const lb = document.getElementById('leaderboard');
+    lb.innerHTML = '';
+    allEntities.slice(0, 5).forEach(e => {
+        const li = document.createElement('li');
+        li.textContent = `${e.name} (${getMass(e.radius)})`;
+        if (e.isPlayer) li.classList.add('text-yellow-400', 'font-bold');
+        lb.appendChild(li);
+    });
+}
+
+function triggerWin() {
+    gameWon = true;
+    gameRunning = false; // 暫停遊戲
+
+    const screen = document.getElementById('game-over-screen');
+    const title = document.getElementById('game-over-title');
+    const scoreText = document.getElementById('final-score');
+    const restartMsg = document.getElementById('restart-msg');
+    const restartBtn = document.getElementById('restart-btn');
+
+    // 顯示勝利畫面
+    screen.classList.remove('hidden');
+    
+    // 修改文字與樣式
+    title.innerText = "🏆 傳說達成！ 🏆";
+    title.className = "text-5xl font-bold mb-4 text-yellow-400"; // 金色文字
+    scoreText.innerText = "200,000+";
+
+    // 隱藏按鈕，顯示倒數計時
+    restartBtn.classList.add('hidden');
+    restartMsg.classList.remove('hidden');
+
+    // 倒數計時邏輯
+    let countdown = 5;
+    restartMsg.innerText = `${countdown} 秒後系統重啟...`;
+    
+    const interval = setInterval(() => {
+        countdown--;
+        if (countdown > 0) {
+            restartMsg.innerText = `${countdown} 秒後系統重啟...`;
+        } else {
+            clearInterval(interval);
+            location.reload(); // 重新載入頁面
+        }
+    }, 1000);
+}
+
+function animate() {
+    if (!gameRunning) return;
+
+    ctx.fillStyle = '#111';
+    ctx.fillRect(0, 0, canvas.width, canvas.height); // 清除畫布 (實際上是填充背景色，因為用了 transform)
+    
+    // 重置變換以繪製背景 (如果需要靜態背景)，但我們要在世界坐標繪製
+    // 這裡我們直接用 save/restore 或者每次都 setTransform
+    ctx.save();
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#101010';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.restore();
+
+    updateCamera();
+
+    // 繪製邊界
+    ctx.strokeStyle = '#333';
+    ctx.lineWidth = 5;
+    ctx.strokeRect(0, 0, CONFIG.mapWidth, CONFIG.mapHeight);
+    
+    drawGrid();
+
+    // 更新和繪製食物
+    foods.forEach(f => f.draw(ctx));
+
+    // 更新和繪製噴射物
+    ejectedMasses.forEach(m => {
+        m.update();
+        m.draw(ctx);
+    });
+
+    // 更新和繪製機器人
+    updateBots();
+    bots.forEach(b => b.draw(ctx));
+
+    // 更新和繪製玩家
+    if (playerCells.length > 0) {
+        // 計算滑鼠在世界坐標的位置
+        const screenCx = canvas.width / 2;
+        const screenCy = canvas.height / 2;
+        // 這裡不需要反算世界坐標給 update 用，因為 update 內部用的是相對滑鼠的向量
+        // 但如果 playerCells 有多個，它們應該朝向世界坐標的某個點移動嗎？
+        // Agar.io 中，細胞是朝向「滑鼠相對於螢幕中心的方向」移動
+        // 所以 update 函數內的邏輯 (Math.atan2(mouse - center)) 是對的，不需要世界坐標
+        
+        // 但如果有多個細胞，它們的移動目標點是：
+        // WorldMouseX = (MouseX - ScreenWidth/2) / scale + CameraX
+        const worldMouseX = (mouse.x - canvas.width / 2) / cam.scale + cam.x;
+        const worldMouseY = (mouse.y - canvas.height / 2) / cam.scale + cam.y;
+
+        playerCells.forEach(cell => {
+            cell.update(worldMouseX, worldMouseY);
+            cell.draw(ctx);
+        });
+    } else {
+        // Game Over
+        gameRunning = false;
+        document.getElementById('final-score').innerText = document.getElementById('score-display').innerText;
+        document.getElementById('game-over-screen').classList.remove('hidden');
+    }
+
+    checkCollisions();
+    updateUI();
+
+    animationId = requestAnimationFrame(animate);
+}
+
+/**
+ * 事件監聽
+ */
+
+window.addEventListener('resize', () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+});
+
+// 初始化 Canvas 大小
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+// 滑鼠移動
+window.addEventListener('mousemove', (e) => {
+    mouse.x = e.clientX;
+    mouse.y = e.clientY;
+});
+
+// 觸控支援 (簡單適配)
+window.addEventListener('touchmove', (e) => {
+    e.preventDefault();
+    mouse.x = e.touches[0].clientX;
+    mouse.y = e.touches[0].clientY;
+}, { passive: false });
+
+// 鍵盤控制
+window.addEventListener('keydown', (e) => {
+    if (!gameRunning) return;
+    
+    if (e.code === 'Space') {
+        splitPlayer();
+    }
+    if (e.code === 'KeyW') {
+        ejectMass();
+    }
+});
+
+// UI 按鈕
+document.getElementById('play-btn').addEventListener('click', () => {
+    const nick = document.getElementById('nickname').value;
+    initGame(nick);
+});
+
+document.getElementById('restart-btn').addEventListener('click', () => {
+    document.getElementById('game-over-screen').classList.add('hidden');
+    document.getElementById('start-screen').style.display = 'flex';
+});
+
+</script>
+</body>
+</html>
