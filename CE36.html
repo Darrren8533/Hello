@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>土方工程复习测验 (50题)</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f4f8;
+            padding: 20px;
+            color: #1e293b;
+        }
+        #app {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 24px;
+            padding: 30px 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        }
+        h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            color: #0f172a;
+            border-left: 6px solid #3b82f6;
+            padding-left: 18px;
+        }
+        .subhead {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            margin: 20px 0 10px;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 14px;
+        }
+        .subhead .info {
+            font-size: 15px;
+            color: #475569;
+        }
+        .subhead .info span {
+            font-weight: 600;
+            color: #1e293b;
+        }
+        .btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 28px;
+            border-radius: 40px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            box-shadow: 0 4px 8px rgba(59, 130, 246, 0.2);
+        }
+        .btn:hover {
+            background: #2563eb;
+        }
+        .btn:active {
+            transform: scale(0.97);
+        }
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .btn-secondary {
+            background: #64748b;
+            box-shadow: 0 4px 8px rgba(100, 116, 139, 0.2);
+        }
+        .btn-secondary:hover {
+            background: #475569;
+        }
+        #result {
+            margin: 20px 0 10px;
+            padding: 16px 22px;
+            border-radius: 16px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            display: none;
+        }
+        #result.show {
+            display: block;
+        }
+        #result .score {
+            font-size: 24px;
+            font-weight: 700;
+        }
+        #result .score .correct-count {
+            color: #16a34a;
+        }
+        #result .score .wrong-count {
+            color: #dc2626;
+        }
+        #result .stat {
+            margin-top: 6px;
+            font-size: 15px;
+            color: #334155;
+        }
+        #questions {
+            margin-top: 20px;
+        }
+        .question-item {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 18px 20px;
+            margin-bottom: 18px;
+            transition: border-color 0.2s, background 0.2s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+        .question-item.correct {
+            border-left: 6px solid #22c55e;
+            background: #f0fdf4;
+        }
+        .question-item.wrong {
+            border-left: 6px solid #ef4444;
+            background: #fef2f2;
+        }
+        .question-item.unanswered {
+            border-left: 6px solid #f59e0b;
+            background: #fffbeb;
+        }
+        .q-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            gap: 10px;
+            font-size: 15px;
+            color: #64748b;
+            margin-bottom: 6px;
+        }
+        .q-header .q-original {
+            font-size: 13px;
+            background: #e2e8f0;
+            padding: 0 10px;
+            border-radius: 20px;
+            color: #1e293b;
+        }
+        .q-text {
+            font-weight: 600;
+            font-size: 17px;
+            margin: 6px 0 12px;
+            color: #0f172a;
+            line-height: 1.5;
+        }
+        .options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px 16px;
+        }
+        @media (max-width: 600px) {
+            .options {
+                grid-template-columns: 1fr;
+            }
+        }
+        .option-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            cursor: pointer;
+            transition: background 0.15s, border-color 0.15s;
+            background: #fafcfd;
+            font-size: 15px;
+        }
+        .option-label:hover {
+            background: #f1f5f9;
+            border-color: #b9c7da;
+        }
+        .option-label input[type="radio"] {
+            accent-color: #3b82f6;
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+            cursor: pointer;
+        }
+        .option-label .letter {
+            font-weight: 600;
+            color: #64748b;
+            min-width: 22px;
+        }
+        .option-label .text {
+            flex: 1;
+        }
+        .result-indicator {
+            margin-top: 10px;
+            font-size: 15px;
+            font-weight: 500;
+            padding: 6px 14px;
+            border-radius: 30px;
+            display: inline-block;
+            background: #f1f5f9;
+        }
+        .result-indicator .correct-answer {
+            font-weight: 700;
+            color: #16a34a;
+        }
+        .result-indicator .wrong-answer {
+            font-weight: 700;
+            color: #dc2626;
+        }
+        .question-item.correct .result-indicator {
+            background: #dcfce7;
+            color: #15803d;
+        }
+        .question-item.wrong .result-indicator {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+        .question-item.unanswered .result-indicator {
+            background: #fef3c7;
+            color: #b45309;
+        }
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            color: #94a3b8;
+            font-size: 14px;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 20px;
+        }
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+    </style>
+</head>
+<body>
+<div id="app">
+    <h1>🧱 土方工程 · 复习测验</h1>
+    <div class="subhead">
+        <div class="info">共 <span id="totalQ">50</span> 题 · 每题 <span id="pointsPer">1</span> 分</div>
+        <div class="btn-group">
+            <button class="btn" id="submitBtn">📝 提交答案</button>
+            <button class="btn btn-secondary" id="resetBtn">🔄 重新出题</button>
+        </div>
+    </div>
+
+    <div id="result">
+        <div class="score">
+            ✅ 正确：<span class="correct-count" id="correctCount">0</span> &nbsp;|&nbsp; ❌ 错误：<span class="wrong-count" id="wrongCount">0</span>
+        </div>
+        <div class="stat">得分：<span id="scoreDisplay">0</span> / <span id="totalDisplay">50</span></div>
+        <div style="margin-top:8px; font-size:14px; color:#475569;">💡 绿色 = 正确 · 红色 = 错误 · 黄色 = 未作答</div>
+    </div>
+
+    <div id="questions"></div>
+    <div class="footer">随机出题 · 随机选项 · 点击「重新出题」可刷新顺序</div>
+</div>
+
+<script>
+    // ============================================================
+    //  原始题库（50题）
+    //  每个对象：{ question, options: [...], correct: 0-3 }
+    //  correct 为正确选项在 options 数组中的原始索引
+    // ============================================================
+    const RAW_QUESTIONS = [
+        {
+            question: "Aspek-aspek yang perlu diberi perhatian semasa membuat perancangan Program Kerja (Work Program) KECUALI:",
+            options: [
+                "Skop kerja dengan merujuk kepada lukisan dan dokumen kontrak",
+                "Tempoh kerja kontrak",
+                "Tempoh permit pekerja",
+                "Susunan kerja berdasarkan aktiviti kerja pembinaan yang logik berdasarkan pengalaman kerja yang sama sebelum ini."
+            ],
+            correct: 2
+        },
+        {
+            question: ".................... merupakan satu tawaran dari pembekal untuk mengemukakan harga bagi sesuatu peralatan, bahan dan perkhidmatan.",
+            options: [
+                "Tawaran kerja",
+                "Sebut Harga",
+                "Harga Tetap",
+                "Tawar Menawar"
+            ],
+            correct: 1
+        },
+        {
+            question: ".................... adalah senarai yang merekodkan semua jenis jentera loji dan mesin milik syarikat.",
+            options: [
+                "Senarai Kenderaan",
+                "Log Jentera",
+                "Inventori Bahan Binaan",
+                "Senarai inventori asset"
+            ],
+            correct: 3
+        },
+        {
+            question: ".................... mengandungi maklumat mengenai barangan yang dihantar daripada pembekal kepada pelanggannya.",
+            options: [
+                "Arahan Pembelian (Purchase Order)",
+                "Sebut Harga (Quotation)",
+                "Arahan Hantaran (Delivery Order)",
+                "Invois Barangan (Item’s Invoice)"
+            ],
+            correct: 2
+        },
+        {
+            question: "Setelah mengenal pasti pembekal yang sesuai, .................... akan dikeluarkan kepada pembekal tersebut.",
+            options: [
+                "Arahan Pembelian (Purchase Order)",
+                "Sebut Harga (Quotation)",
+                "Arahan Hantaran (Delivery Order)",
+                "Invois Barangan (Item’s Invoice)"
+            ],
+            correct: 0
+        },
+        {
+            question: ".................... digunakan bagi menerangkan rekabentuk sistem elektrik, telekomunikasi, perpaipan, pembentungan dan sebagainya.",
+            options: [
+                "Lukisan skematik",
+                "Lukisan matematik",
+                "Lukisan saintifik",
+                "Lukisan logistic"
+            ],
+            correct: 0
+        },
+        {
+            question: ".................... merupakan salah satu mekanisme kawalan yang dihasilkan dengan menukarkan keseluruhan perancangan pada carta bar kepada bentuk graf.",
+            options: [
+                "Graf kemajuan",
+                "Carta Kemajuan",
+                "Keluk S (S-curve)",
+                "Keluk T (T-curve)"
+            ],
+            correct: 2
+        },
+        {
+            question: "Sub-kontraktor ini dipilih oleh kontraktor utama namun kerja-kerja yang dijalankan oleh sub-kontraktor tersebut tetap dipantau dan menjadi tanggungjawab kontraktor utama. Keterangan ini mengambarkan kontrak jenis apa?",
+            options: [
+                "Nominated Sub Contractor",
+                "Nominated Main Contractor",
+                "Kontraktor Kecil",
+                "Sub Kontraktor Utama"
+            ],
+            correct: 3
+        },
+        {
+            question: ".................... merangkumi semua dokumen yang menerangkan antara satu sama lain dan membentuk perjanjian di antara pihak kontraktor dan majikan (klien) serta beberapa pihak lain (contoh: perunding kejuruteraan) yang terlibat dalam sesuatu projek.",
+            options: [
+                "Dokumen Syarikat",
+                "Dokumen Kontrak",
+                "Dokumen Sebutharga",
+                "Kontrak Syarikat"
+            ],
+            correct: 1
+        },
+        {
+            question: "Pemeriksaan berkala bagi mesin dan jentera dilakukan oleh pihak  ................................bagi memastikan jentera dan mesin tersebut selamat digunakan.",
+            options: [
+                "Bomba",
+                "Polis",
+                "Suruhanjaya Tenaga",
+                "Jabatan Keselamatan dan Kesihatan Pekerja (DOSH)"
+            ],
+            correct: 3
+        },
+        {
+            question: ".................... merupakan dokumen perakuan yang dikeluarkan oleh Pegawai Penguasa Projek (S.O) hanya apabila semua skop kerja telah disiapkan mengikut kontrak, dan semua kemudahan atau peralatan telah diuji (terutama peralatan yang memerlukan sijil kelulusan) serta dapat berfungsi dengan baik, dan memuaskan hati pihak penguasa projek / arkitek.",
+            options: [
+                "Sijil Perakuan Penyiapan Praktikal",
+                "Sijil Siap Kerja",
+                "Sijil Kelayakan Menduduki",
+                "Sijil Kebenaran Khas"
+            ],
+            correct: 0
+        },
+        {
+            question: "................................ bermula daripada tarikh Perakuan Penyiapan Praktikal dikeluarkan sehingga tempoh yang telah di tetapkan didalam kontrak atau selepas Tarikh Perakuan Siap Membaiki Kecacatan dikeluarkan.",
+            options: [
+                "Tempoh Kontrak Tamat",
+                "Tempoh Liabiliti Kecacatan (Defects Liability Period)",
+                "Tempoh Liabiliti Insuran",
+                "Insuran Tanggungan Kecacatan"
+            ],
+            correct: 1
+        },
+        {
+            question: "Antara dokumen yang perlu diserahkan kepada Pegawai Penguasa untuk rujukan semasa Sijil Perakuan Penyiapan Praktikal (CPC) dikeluarkan adalah berikut KECUALI:",
+            options: [
+                "Lukisan Siap Bina (As-built Drawing)",
+                "Senarai Kecacatan (Defects List)",
+                "Rekod Dan Senarai Semakan Penyelenggaraan",
+                "Rekod Kedatangan/Kehadiran Pekerja"
+            ],
+            correct: 3
+        },
+        {
+            question: ".................... merupakan lukisan yang menggambarkan kedudukan dan hasil kerja sebenar yang telah disiapkan.",
+            options: [
+                "Lukisan Skematik",
+                "Lukisan Siap Bina",
+                "Lukisan Pembinaan",
+                "Lukisan Bina Bangunan"
+            ],
+            correct: 1
+        },
+        {
+            question: "Berikut merupakan pendekatan yang lazimnya diambil bagi menangani sebarang risiko dalam kerja-kerja pembinaan KECUALI:",
+            options: [
+                "Kurangkan (Reduce)",
+                "Pindahkan (Transfer)",
+                "Terima (Accept)",
+                "Mewakilkan (Delegate)"
+            ],
+            correct: 3
+        },
+        {
+            question: "Maklumat yang biasanya terdapat pada notis tender KECUALI:",
+            options: [
+                "Tajuk projek",
+                "Kelas pendaftaran kontraktor",
+                "Harga Projek",
+                "Tarikh tutup dan tempat penghantaran"
+            ],
+            correct: 2
+        },
+        {
+            question: "............................... merupakan dokumen yang mengandungi cara bagaimana sesuatu operasi dijalankan, cara penyelenggaraan yang betul dan kaedah pencarisilapan (trouble-shooting) sekiranya berlaku masalah kepada peralatan tersebut.",
+            options: [
+                "Manual Operasi dan Penyelenggaraan",
+                "Dokumen Senarai Kerja",
+                "Manual Keselamatan",
+                "Operasi Kerja Selamat"
+            ],
+            correct: 0
+        },
+        {
+            question: "Yang manakah antara berikut merupakan tujuan meminta Sebut Harga (Quotation)?",
+            options: [
+                "Membandingkan harga dari pembekal yang membekal barangan yang sama.",
+                "Menggalakkan persaingan harga.",
+                "Mendapatkan harga yang paling berpatutan.",
+                "Semua di atas"
+            ],
+            correct: 3
+        },
+        {
+            question: "Jentera ini digunakan untuk melakukan kerja-kerja pemadatan tanah bagi mencapai kadar pemadatan tanah yang diperlukan didalam kontrak. Jentera yang dimaksudkan ialah:-",
+            options: [
+                "Jentolak (Dozer)",
+                "Jentera Penggali (Excavator)",
+                "Roller Compactor",
+                "Lori"
+            ],
+            correct: 2
+        },
+        {
+            question: "Berikut merupakan antara kandungan utama dalam dokumen kontrak KECUALI:-",
+            options: [
+                "Skop kerja.",
+                "Profil syarikat.",
+                "Senarai kuantiti.",
+                "Lukisan pembinaan"
+            ],
+            correct: 1
+        },
+        {
+            question: "Setelah selesai kerja pembaikan, selepas pemeriksaan serta sewaktu Tempoh Tanggungan Kecacatan (Defect Liability Period), X akan dikeluarkan kepada kontraktor. X adalah:",
+            options: [
+                "Certificate of Making Good Defect (CMGD).",
+                "Certificate of Fitness (CF)",
+                "Extension of Time (EOT)",
+                "Liquidated Ascertained Damages (LAD)"
+            ],
+            correct: 0
+        },
+        {
+            question: "Berikut merupakan isi kandungan Dokumen Tender KECUALI:",
+            options: [
+                "Bil Kuantiti",
+                "Jadual Kadar Harga",
+                "Laporan Penyiasatan Tapak (SI)",
+                "Diari Tapak (Site Diary)"
+            ],
+            correct: 3
+        },
+        {
+            question: "Berikut merupakan Butiran Catatan Tapak, KECUALI:",
+            options: [
+                "Diari Harian Tapak.",
+                "Carta Tapak.",
+                "Manual Operasi & Penyelenggaraan.",
+                "Arahan Tapak."
+            ],
+            correct: 2
+        },
+        {
+            question: "Berikut merupakan faktor-faktor yang pengaruhi pemilihan & perbandingan kontraktor KECUALI:",
+            options: [
+                "Status kewangan",
+                "Pengalaman",
+                "Fasal pengecualian",
+                "Harga"
+            ],
+            correct: 2
+        },
+        {
+            question: "Yang manakah antara berikut merupakan lukisan-lukisan yang digunakan dalam projek kerja tanah semasa peringkat pembinaan?",
+            options: [
+                "Lukisan Tender",
+                "Lukisan Pembinaan",
+                "Lukisan Siap-Bina",
+                "Lukisan Skematik"
+            ],
+            correct: 1
+        },
+        {
+            question: "Berikut merupakan antara aktiviti-aktiviti kerja Tanah kecuali:-",
+            options: [
+                "Grubbing and Stripping",
+                "Cutting and Filling",
+                "Filling and Compacting",
+                "Sounding and jigging"
+            ],
+            correct: 3
+        },
+        {
+            question: "Berikut merupakan keterangan kaedah (method-Statement) untuk pemerolehan bahan timbus yang bersesuaian (suitable fill material) untuk kerja tanah, kecuali:-",
+            options: [
+                "Kenal pasti perkhidmatan awam sedia ada dan tandakan kedudukannya.",
+                "Menentukan kualiti bahan yang diperlukan.",
+                "Kenal pasti sumber bahan.",
+                "Mengatur pembekalan bahan."
+            ],
+            correct: 0
+        },
+        {
+            question: "Namakan Dua (2) jenis perincian (software) yang biasa digunakan dalam menyediakan Program Jadual Kerja?",
+            options: [
+                "Orion dan Esteem",
+                "AutoCAD and StaadPro",
+                "Microsoft Project dan Primavera",
+                "Tracking Gantt dan Struds"
+            ],
+            correct: 2
+        },
+        {
+            question: "Untuk menghasilkan jadual masa / Program Kerja yang bersesuaian dengan projek, maklumat berkenaan diperlukan:",
+            options: [
+                "Skop Kerja",
+                "Jangka Masa Kerja",
+                "Turutan Kerja",
+                "Semua di atas"
+            ],
+            correct: 3
+        },
+        {
+            question: "Manakah antara berikut BUKAN merupakan peralatan Ukur Tanah?",
+            options: [
+                "Total Station",
+                "Alat Aras Dampak",
+                "Tripod",
+                "Pizometer"
+            ],
+            correct: 3
+        },
+        {
+            question: "Bahan import tanah adalah diperlukan atas 2 sebab iaitu:",
+            options: [
+                "Menggantikan tanah yang tidak sesuai dan Kekurangan bahan import.",
+                "Menggantikan batu dan kekurangan bahan import.",
+                "Untuk Menimbus Kolam Tadahan dan Penanaman Rumput",
+                "Menggantikan tanah yang sesuai dan kekurangan bahan import."
+            ],
+            correct: 0
+        },
+        {
+            question: "Yang manakah antara berikut merupakan Tujuan meminta Sebut-Harga (Quotation)?",
+            options: [
+                "Membandingkan harga dari pembekal yang membekal barangan yang sama.",
+                "Menggalakkan persaingan harga.",
+                "Mendapatkan harga yang paling berpatutan.",
+                "Semua di atas"
+            ],
+            correct: 3
+        },
+        {
+            question: "Lukisan ini ‘menerangkan lokasi untuk stor sementara, halaman kerja, kuarters sementara untuk pekerja, sanitasi bergerak, aliran trafik serta tempat masuk projek’. Lukisan yang dimaksudkan ialah:",
+            options: [
+                "Lukisan Seni – Reka",
+                "Lukisan Pembinaan",
+                "Lukisan Reka-Letak",
+                "Lukisan Siap Bina"
+            ],
+            correct: 2
+        },
+        {
+            question: "Yang manakah antara berikut merupakan Peralatan Sokongan?",
+            options: [
+                "Alat Ukur Tanah – Total Station",
+                "Jentera Penggalian / Excavator",
+                "Jentolak / Bulldozer",
+                "Pemadat / Compactor"
+            ],
+            correct: 0
+        },
+        {
+            question: "Yang manakah antara berikut BUKAN merupakan Jentera Berat yang lazim digunakan dalam Kerja Tanah?",
+            options: [
+                "Jentera Penggalian (Excavator)",
+                "Jentolak (Dozer)",
+                "Pemadat (Compacter)",
+                "Kren Bergerak (Mobile Crane)"
+            ],
+            correct: 3
+        },
+        {
+            question: "Jentera ini digunakan untuk ‘menolak dan merebak-ratakan tanah dipunggah dari lori’. Jentera yang dimaksudkan ialah:-",
+            options: [
+                "Jentolak (Dozer)",
+                "Jentera Penggali (Excavator)",
+                "Pemadat (Compactor)",
+                "Lori"
+            ],
+            correct: 0
+        },
+        {
+            question: "Manakah antara kaedah berikut merupakan keterangan kaedah bagi Pembukaan Tapak (Site Clearing)?",
+            options: [
+                "Sebelum kerja dimulakan, servei topografi harus dilakukan untuk tapak.",
+                "Sebelum penggalian dimulakan, juruukur harus menentukan kawasan yang akan digali.",
+                "Selepas tamat kerja penggalian, aras dasar harus diperiksa balik oleh juruukur.",
+                "Pemadatan harus mencapai 90% dari ketumpatan kering maksimum"
+            ],
+            correct: 0
+        },
+        {
+            question: "Apakah tempat bagi membersihkan lori di dalam tapak bina sebelum meninggalkan tapak bina dan keluar ke jalan raya?",
+            options: [
+                "Wash Basin",
+                "Washing Machine",
+                "Car Wash",
+                "Tempat Basuh Tayar / Lori (Retention pond/Wash bay)"
+            ],
+            correct: 3
+        },
+        {
+            question: "Ujian Tanah yang biasanya dilakukan bagi mengetahui keupayaan galas (bearing capacity) tanah adalah:",
+            options: [
+                "Flakiness Index dan sieve analysis",
+                "Mackintosh Probe Test dan Bore Hole Test",
+                "Field Density Test dan Plasticity Index",
+                "Moisture test dan California Bearing Ratio"
+            ],
+            correct: 1
+        },
+        {
+            question: "Berikut merupakan tugasan kerja Penyelia Tapak, kecuali;-",
+            options: [
+                "Melaporkan kepada Pengurus Projek",
+                "Meneliti, menekankan dan menyelesaikan perselisihan dalam lukisan, bil kuantiti dan spesifikasi",
+                "Mematuhi dan melaksanakan prosedur syarikat dalam pentadbiran kontrak",
+                "Menyediakan, mengesahkan dan menghantar semua kemajuan kerja kepada juruukur kuantiti untuk penilaian tuntutan"
+            ],
+            correct: 3
+        },
+        {
+            question: "Berikut merupakan antara tugasan kerja bagi Eksekutif Pemerolehan;-",
+            options: [
+                "Membantu Pengurus Projek untuk mendapatkan bahan mengikut keperluan projek, mengawal dana, dan memantau pembaziran bahan.",
+                "Merancang, mengarah, memantau dan mengawal operasi syarikat.",
+                "Mengekal dan melaksanakan Sistem Keselamatan dan Kesihatan Pekerjaan di tapak.",
+                "Menyediakan pengukuran tuntutan kemajuan untuk kerja tanah."
+            ],
+            correct: 0
+        },
+        {
+            question: "Menyediakan program kerja yang terperinci, menubuhkan jalan masuk tapak, mengendali penubuhan tapak, menjadualkan penghantaran bahan dan peralatan, memantau dan menyediakan laporan kemajuan bulanan. Berikut merupakan pekerjaan seorang:-",
+            options: [
+                "Penyelia Tapak",
+                "Perancang Projek",
+                "Pengurus Tapak",
+                "Eksekutif Kontrak"
+            ],
+            correct: 1
+        },
+        {
+            question: "Yang manakah antara berikut BUKAN merupakan Tujuan Utama untuk membentuk hierarki dalam organisasi projek?",
+            options: [
+                "Memastikan hubungan kerja yang baik antara kerja yang dijalankan.",
+                "Memastikan hubungan kerja yang baik antara Jentera Berat dan Peralatan Sokongan",
+                "Memastikan hubungan kerja yang baik antara lokasi kerja",
+                "Memastikan hubungan kerja yang baik antara orang-orang yang menjalankan kerja."
+            ],
+            correct: 2
+        },
+        {
+            question: "Berikut merupakan jenis dokumen Sub-Kontrak, kecuali;-",
+            options: [
+                "Sub-Kontrak yang dilantik (NSC)",
+                "Sub-Kontrak Setempat",
+                "Pembekal (Vendor)",
+                "Sub-Kontrak Antarabangsa"
+            ],
+            correct: 3
+        },
+        {
+            question: "Berikut merupakan Mekanisme Kawalan Overhead:-",
+            options: [
+                "Program Kerja",
+                "S-Curve",
+                "Aliran Tunai",
+                "Semua Di-Atas"
+            ],
+            correct: 3
+        },
+        {
+            question: "Jenis dokumen Kontrak ini ‘ditawarkan berpandukan satu jumlah bayaran yang tetap’. Dokumen kontrak yang dimaksudkan ialah:-",
+            options: [
+                "Sekali Kira (Lump Sum)",
+                "Bil Kuantiti",
+                "Kos Tambahan",
+                "Inden"
+            ],
+            correct: 0
+        },
+        {
+            question: "Jenis dokumen Kontrak ini ‘ditawarkan berpandukan harga bil kuantiti dengan senarai kuantiti yang tetap’. Dokumen kontrak yang dimaksudkan ialah:-",
+            options: [
+                "Sekali Kira",
+                "Bil Kuantiti",
+                "Kos Tambahan",
+                "Inden"
+            ],
+            correct: 1
+        },
+        {
+            question: "Jenis dokumen Kontrak ini ‘ditawarkan kepada Kontraktor yang akan bertanggungjawab untuk melakar reka bentuk dan pembinaan projek’. Dokumen kontrak yang dimaksudkan ialah:-",
+            options: [
+                "Turnkey – Reka Bentuk dan Bina (Design & Build)",
+                "Yang Lazim",
+                "Bil Kuantiti",
+                "Bina, Beroperasi dan Pemindahan (BOT)"
+            ],
+            correct: 0
+        },
+        {
+            question: "Berikut merupakan kepentingan untuk menyediakan Pelan Susun Atur Tapak kecuali:-",
+            options: [
+                "Memudahkan komunikasi dan keboleh-capaian untuk semua pihak.",
+                "Menggalakkan aliran lalu lintas yang lancar di tapak dan arah ke tapak.",
+                "Mengetahui cara memotong cerun bukit.",
+                "Memaksimumkan penggunaan ruang yang kecil di tapak."
+            ],
+            correct: 2
+        },
+        {
+            question: "Jabatan berikut ‘bertanggungjawab dalam mengawal dan menguruskan pengairan dan saliran, perparitan, sungai, pantai, hidrologi dan sumber air’. Jabatan yang dimaksudkan adalah:",
+            options: [
+                "Jabatan Keselamatan dan Kesihatan Pekerja (JKKP)",
+                "Jabatan Pengairan dan Saliran (JPS)",
+                "Jabatan Bomba dan Penyelamat (BOMBA)",
+                "Jabatan Perkhidmatan Pembentungan (JPP)"
+            ],
+            correct: 1
+        }
+    ];
+
+    // ============================================================
+    //  工具函数
+    // ============================================================
+    function shuffleArray(arr) {
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+    }
+
+    // ============================================================
+    //  核心逻辑
+    // ============================================================
+    let currentQuestions = [];          // 当前显示的数据（已打乱顺序和选项）
+    let hasSubmitted = false;
+
+    function initQuestions() {
+        // 深拷贝原始数据
+        currentQuestions = RAW_QUESTIONS.map(q => ({
+            question: q.question,
+            options: [...q.options],
+            correct: q.correct
+        }));
+
+        // 打乱题目顺序
+        shuffleArray(currentQuestions);
+
+        // 对每一题打乱选项顺序，并更新 correct 索引
+        currentQuestions.forEach(q => {
+            const correctText = q.options[q.correct];
+            shuffleArray(q.options);
+            q.correct = q.options.indexOf(correctText);  // 重新定位
+        });
+
+        hasSubmitted = false;
+        document.getElementById('result').classList.remove('show');
+        document.getElementById('submitBtn').disabled = false;
+    }
+
+    // 渲染所有题目
+    function renderQuestions() {
+        const container = document.getElementById('questions');
+        container.innerHTML = '';
+        const total = currentQuestions.length;
+
+        currentQuestions.forEach((q, idx) => {
+            const qDiv = document.createElement('div');
+            qDiv.className = 'question-item';
+            qDiv.dataset.index = idx;
+
+            // 头部：显示当前题号 + 原始题号（用于参考）
+            const header = document.createElement('div');
+            header.className = 'q-header';
+            const originalId = RAW_QUESTIONS.indexOf(
+                RAW_QUESTIONS.find(rq => rq.question === q.question) // 通过问题文本匹配原始题号（不严谨但够用）
+            ) + 1;
+            // 更好的方式：在数据中存储原始ID，但为了简便，我们通过问题文本查找
+            // 但可能存在重复问题文本？没有，所以安全。
+            header.innerHTML = `
+                <span>第 ${idx + 1} / ${total} 题</span>
+                <span class="q-original">原题号 #${originalId}</span>
+            `;
+            qDiv.appendChild(header);
+
+            // 题目文本
+            const qText = document.createElement('div');
+            qText.className = 'q-text';
+            qText.textContent = q.question;
+            qDiv.appendChild(qText);
+
+            // 选项
+            const optContainer = document.createElement('div');
+            optContainer.className = 'options';
+
+            const letters = ['A', 'B', 'C', 'D'];
+            q.options.forEach((optText, optIdx) => {
+                const label = document.createElement('label');
+                label.className = 'option-label';
+
+                const radio = document.createElement('input');
+                radio.type = 'radio';
+                radio.name = `q_${idx}`;
+                radio.value = optIdx;
+                radio.required = false; // 不强制
+
+                const letterSpan = document.createElement('span');
+                letterSpan.className = 'letter';
+                letterSpan.textContent = letters[optIdx] + '.';
+
+                const textSpan = document.createElement('span');
+                textSpan.className = 'text';
+                textSpan.textContent = optText;
+
+                label.appendChild(radio);
+                label.appendChild(letterSpan);
+                label.appendChild(textSpan);
+                optContainer.appendChild(label);
+            });
+
+            qDiv.appendChild(optContainer);
+
+            // 结果指示（提交后显示）
+            const resultDiv = document.createElement('div');
+            resultDiv.className = 'result-indicator';
+            resultDiv.style.display = 'none';
+            resultDiv.id = `result_${idx}`;
+            qDiv.appendChild(resultDiv);
+
+            container.appendChild(qDiv);
+        });
+    }
+
+    // 提交答案
+    function submitAnswers() {
+        if (hasSubmitted) return;
+        const total = currentQuestions.length;
+        let correctCount = 0;
+        let wrongCount = 0;
+        let unanswered = 0;
+
+        // 遍历每一题
+        currentQuestions.forEach((q, idx) => {
+            const qDiv = document.querySelector(`.question-item[data-index="${idx}"]`);
+            const radioGroup = qDiv.querySelectorAll(`input[name="q_${idx}"]`);
+            let selectedValue = null;
+            for (let radio of radioGroup) {
+                if (radio.checked) {
+                    selectedValue = parseInt(radio.value, 10);
+                    break;
+                }
+            }
+
+            const resultDiv = document.getElementById(`result_${idx}`);
+            resultDiv.style.display = 'inline-block';
+
+            const isCorrect = (selectedValue === q.correct);
+
+            // 移除之前的样式
+            qDiv.classList.remove('correct', 'wrong', 'unanswered');
+
+            if (selectedValue === null) {
+                // 未作答
+                unanswered++;
+                qDiv.classList.add('unanswered');
+                resultDiv.innerHTML = `⚠️ 未作答 · 正确答案：<span class="correct-answer">${q.options[q.correct]}</span>`;
+            } else if (isCorrect) {
+                correctCount++;
+                qDiv.classList.add('correct');
+                resultDiv.innerHTML = `✅ 正确！`;
+            } else {
+                wrongCount++;
+                qDiv.classList.add('wrong');
+                resultDiv.innerHTML = `❌ 错误 · 正确答案：<span class="correct-answer">${q.options[q.correct]}</span>`;
+            }
+        });
+
+        // 显示结果面板
+        const resultPanel = document.getElementById('result');
+        resultPanel.classList.add('show');
+        document.getElementById('correctCount').textContent = correctCount;
+        document.getElementById('wrongCount').textContent = wrongCount;
+        document.getElementById('scoreDisplay').textContent = correctCount;
+        document.getElementById('totalDisplay').textContent = total;
+
+        // 禁用提交按钮
+        document.getElementById('submitBtn').disabled = true;
+        hasSubmitted = true;
+    }
+
+    // 重置
+    function resetQuiz() {
+        initQuestions();
+        renderQuestions();
+        // 滚动到顶部
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ============================================================
+    //  启动
+    // ============================================================
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('totalQ').textContent = RAW_QUESTIONS.length;
+        document.getElementById('pointsPer').textContent = '1';
+
+        initQuestions();
+        renderQuestions();
+
+        document.getElementById('submitBtn').addEventListener('click', submitAnswers);
+        document.getElementById('resetBtn').addEventListener('click', resetQuiz);
+    });
+</script>
+</body>
+</html>
